@@ -1,0 +1,27 @@
+artist-list
+  position: absolute
+  top: $header-height + $header-padding * 2
+  width: $sidebar-width
+  bottom: 0
+  left: 0
+  overflow: auto
+
+  ul
+    list-style-type: none
+    margin: 0
+    padding: 0
+    background: #333
+    font-weight: bold
+    border-right: #1b9bff solid 3px
+    li
+      a
+        display: block
+        padding: 8px 0 8px 16px
+        text-decoration: none
+        color: white
+        transition: 0.2s
+      a:hover
+        color: black
+        background-color: #f1f1f1
+      a.selected
+        background: #1b9bff

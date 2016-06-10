@@ -1,0 +1,16 @@
+<div class="image-list">
+  <img class="cover" src="{{ image || 'app/images/album.svg' }}">
+</div>
+
+<div class="info">
+  <div class="title">{{ title }} {{ date }}</div>
+
+  <div *ngFor="let disc of discs; let i = index" class="disc">
+    <div class="subtitle">Disc {{ disc.number || i + 1 }}: {{ disc.subtitle }}</div>
+    <ul class="track-list">
+      <li *ngFor="let track of disc.tracks" class="track">
+        <span class="number">{{ track.number }}.</span> <span class="title">{{ track.title }}</span>
+      </li>
+    </ul>
+  </div>
+</div>

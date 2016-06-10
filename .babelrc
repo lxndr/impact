@@ -1,0 +1,12 @@
+{
+  "presets": [
+    "angular2"
+  ],
+  "plugins": [
+    "transform-es2015-modules-commonjs",
+    ["transform-async-to-module-method", {
+      "module": "bluebird",
+      "method": "coroutine"
+    }]
+  ]
+}

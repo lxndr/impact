@@ -1,0 +1,5 @@
+<ul>
+  <li *ngFor="let artist of artists | async">
+    <a href="#" (click)="select.emit(artist)">{{ artist }}</a>
+  </li>
+</ul>
