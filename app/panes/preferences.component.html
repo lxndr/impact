@@ -1,0 +1,17 @@
+<form>
+  <table>
+    <tr>
+      <td>
+        <label for="libraryPath">Library path</label>
+      </td>
+      <td>
+        <input id="libraryPath" [(ngModel)]="config.libraryPath" name="libraryPath">
+      </td>
+    </tr>
+  </table>
+
+  <div>
+    <button type="submit" (click)="submit()">Save</button>
+    <button (click)="location.back()">Cancel</button>
+  </div>
+</form>

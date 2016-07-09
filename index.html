@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <base href="./">
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My awesome media player</title>
   <link rel="stylesheet" type="text/css" href="app/styles/all.css">
   <script src="node_modules/zone.js/dist/zone.js"></script>
   <script src="node_modules/reflect-metadata/Reflect.js"></script>
+</head>
+<body>
+  <app>Loading...</app>
   <script>
     require('babel-register');
     require('./app');
   </script>
-</head>
-<body>
-  <app>Loading...</app>
 </body>
 </html>

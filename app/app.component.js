@@ -1,26 +1,20 @@
 import {Component} from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 import {CollectionService} from './collection.service';
 import {PlaybackService} from './playback.service';
 import {AppHeader} from './app-header.component';
-import {ArtistList} from './artist-list.component';
-import {Album} from './album.component';
 
 @Component({
+  moduleId: module.id,
   selector: 'app',
-  templateUrl: 'app/app.component.html',
-  directives: [AppHeader, ArtistList, Album],
+  templateUrl: 'app.component.html',
+  directives: [ROUTER_DIRECTIVES, AppHeader],
   providers: [CollectionService, PlaybackService]
 })
 export class AppComponent {
   constructor(collectionService: CollectionService, playbackService: PlaybackService) {
     this.collectionService = collectionService;
     this.playbackService = playbackService;
-
-/*
-    this.collectionService.update().catch(err => {
-      console.error(err);
-    });
-*/
   }
 
   onAtristSelect(artist) {

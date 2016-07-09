@@ -1,9 +1,12 @@
 import {Component} from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 import {PlaybackService} from './playback.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'app-header',
-  templateUrl: 'app/app-header.component.html'
+  templateUrl: 'app-header.component.html',
+  directives: [ROUTER_DIRECTIVES]
 })
 export class AppHeader {
   track = null;

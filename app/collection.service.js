@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import nfs from 'fs';
 import Dexie from 'dexie';
 import path from 'path';
@@ -8,6 +9,8 @@ import {fs, mm} from './util';
 
 @Injectable()
 export class CollectionService {
+  artists$ = new BehaviorSubject([]);
+
   constructor() {
     this.db = new Dexie('MyDatabase');
     this.directories = [
@@ -21,6 +24,10 @@ export class CollectionService {
         discs: '++id',
         tracks: '++id, &file, album'
       });
+
+    this.db.tracks.orderBy('artist').uniqueKeys().then(artists => {
+      this.artists$.next(artists);
+    });
   }
 
   /**

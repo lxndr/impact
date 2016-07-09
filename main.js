@@ -17,9 +17,8 @@ function createWindow() {
 }
 
 app.on('ready', () => {
-  BrowserWindow.addDevToolsExtension('/home/lxndr/.config/chromium/Default/Extensions/elgalmkoelokbchhkhacckoklkejnhcd/1.0.1_0');
+  // BrowserWindow.addDevToolsExtension('/home/lxndr/.config/chromium/Default/Extensions/elgalmkoelokbchhkhacckoklkejnhcd/1.0.4_0');
 
   win = createWindow();
   win.webContents.openDevTools();
 });
-
