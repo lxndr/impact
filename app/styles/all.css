@@ -1,0 +1,121 @@
+* {
+  font-family: 'Open Sans';
+  font-size: 12px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+html,
+body {
+  margin: 0px;
+  height: 100%;
+  width: 100%;
+  -webkit-user-select: none;
+  overflow: hidden;
+}
+.album-list {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 300px;
+}
+app-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 50px;
+  left: 0;
+  background: #ccc;
+  padding: 5px;
+  -webkit-app-region: drag;
+}
+app-header .cover {
+  height: 50px;
+  display: block;
+  float: left;
+  margin-right: 5px;
+}
+app-header .cover .track-info {
+  margin-left: 60px;
+}
+app-header button {
+  -webkit-app-region: no-drag;
+}
+album {
+  display: block;
+}
+album > .image-list {
+  width: 200px;
+  float: left;
+  padding: 1px;
+}
+album > .image-list > img {
+  width: 100%;
+}
+album > .info {
+  margin-left: 210px;
+}
+album > .info > .title {
+  color: #808080;
+  font-weight: bold;
+}
+album > .info > .disc .subtitle {
+  font-style: italic;
+}
+album > .info > .disc .track-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+album > .info > .disc .track {
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 2px;
+  padding-left: 4px;
+}
+album > .info > .disc .track:hover {
+  color: #000;
+  font-style: normal;
+  background: #eee;
+}
+album > .info > .disc .track .number {
+  color: #808080;
+}
+artist-list {
+  position: absolute;
+  top: 60px;
+  width: 300px;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+}
+artist-list ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  background: #333;
+  font-weight: bold;
+  border-right: #1b9bff solid 3px;
+}
+artist-list ul li a {
+  display: block;
+  padding: 8px 0 8px 16px;
+  text-decoration: none;
+  color: #fff;
+  transition: 0.2s;
+}
+artist-list ul li a:hover {
+  color: #000;
+  background-color: #f1f1f1;
+}
+artist-list ul li a.selected {
+  background: #1b9bff;
+}
+preferences {
+  display: block;
+  position: absolute;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}

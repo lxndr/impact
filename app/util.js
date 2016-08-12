@@ -2,16 +2,27 @@ import _ from 'lodash';
 import {promisify} from 'bluebird';
 
 function promisifySome(module, funcs) {
-  const mod = require(module);
+  if (typeof module === 'string') {
+    module = require(module);
+  }
 
   if (funcs) {
     return _.transform(funcs, (results, func) => {
-      results[func] = promisify(mod[func]);
+      results[func] = promisify(module[func]);
     }, {});
   }
 
-  return promisify(mod);
+  return promisify(module);
 }
 
 export const fs = promisifySome('fs-extra', ['readFile', 'access', 'readdir', 'rename', 'stat', 'remove', 'emptyDir', 'ensureDir']);
-export const mm = promisifySome('musicmetadata');
+
+let _gst = null;
+
+try {
+  _gst = require('../build/Debug/gst.node');
+} catch (err) {
+  _gst = require('../build/Release/gst.node');
+}
+
+export const gst = promisifySome(_gst, ['metadata']);

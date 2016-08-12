@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router';
 import {CollectionService} from './collection.service';
 import {PlaybackService} from './playback.service';
 import {AppHeader} from './app-header.component';
@@ -8,8 +7,8 @@ import {AppHeader} from './app-header.component';
   moduleId: module.id,
   selector: 'app',
   templateUrl: 'app.component.html',
-  directives: [ROUTER_DIRECTIVES, AppHeader],
-  providers: [CollectionService, PlaybackService]
+  styleUrls: ['app.component.css'],
+  directives: [AppHeader]
 })
 export class AppComponent {
   constructor(collectionService: CollectionService, playbackService: PlaybackService) {

@@ -1,12 +1,20 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import nfs from 'fs';
 import Dexie from 'dexie';
 import path from 'path';
 import globby from 'globby';
 import {Promise} from 'bluebird';
-import {fs, mm} from './util';
+import {fs, gst} from './util';
+/*
+gst.metadata('/home/lxndr/Music/AFI/1995 - Answer That and Stay Fashionable/01 - Two of a Kind.flac', (err, md) => {
+  if (err) {
+    console.log(err);
+    return;
+  }
 
+  console.log('v', md);
+});
+*/
 @Injectable()
 export class CollectionService {
   artists$ = new BehaviorSubject([]);
@@ -48,7 +56,7 @@ export class CollectionService {
 
   async inspect(file) {
     const st = await fs.stat(file);
-    const meta = await mm(nfs.createReadStream(file));
+    const meta = await gst.metadata(file);
     return {
       file,
       size: st.size,
