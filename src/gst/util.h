@@ -1,5 +1,4 @@
 #pragma once
 
+#include <glib-object.h>
 #include <nan.h>
-
-NAN_METHOD(Metadata);

@@ -11,7 +11,7 @@ public:
     GError* err = NULL;
 
     gchar* uri = gst_filename_to_uri(this->fname, &err);
-    if (!uri) {
+    if (!uri || err) {
       this->SetErrorMessage(err->message);
       g_error_free(err);
       return;
@@ -52,28 +52,55 @@ public:
     Nan::HandleScope scope;
 
     auto obj = Nan::New<v8::Object>();
-    gint n_tags = gst_tag_list_n_tags(this->taglist);
-    for (gint i = 0; i < n_tags; i++) {
-      const gchar* tag = gst_tag_list_nth_tag_name(this->taglist, i);
-      auto arr = Nan::New<v8::Array>();
-      gchar* value = NULL;
-      gst_tag_list_get_string_index(this->taglist, tag, 0, &value);
-      obj->Set(Nan::New(tag).ToLocalChecked(), arr);
-      g_free(value);
-    }
 
-    gst_tag_list_foreach(this->taglist, (GstTagForeachFunc) &MetadataWorker::process_tag, &obj);
+    if (this->taglist) {
+      auto n_tags = gst_tag_list_n_tags(this->taglist);
+
+      for (gint i = 0; i < n_tags; i++) {
+        auto tag = gst_tag_list_nth_tag_name(this->taglist, i);
+        auto tagValue = Nan::New(tag).ToLocalChecked();
+
+        if (strcmp(tag, GST_TAG_TRACK_NUMBER) == 0 ||
+            strcmp(tag, GST_TAG_TRACK_COUNT) == 0) {
+          guint track_number;
+          if (gst_tag_list_get_uint(this->taglist, tag, &track_number)) {
+            obj->Set(tagValue, Nan::New(track_number));
+          }
+        } else if (strcmp(tag, GST_TAG_TITLE) == 0 ||
+                   strcmp(tag, GST_TAG_ALBUM) == 0) {
+          const gchar* value = NULL;
+          if (gst_tag_list_peek_string_index(this->taglist, tag, 0, &value) && value) {
+            obj->Set(tagValue, Nan::New(value).ToLocalChecked());
+          }
+        } else {
+          auto n_values = gst_tag_list_get_tag_size(this->taglist, tag);
+
+          if (n_values > 0) {
+            auto arr = Nan::New<v8::Array>();
+            const gchar* value = NULL;
+
+            for (guint j = 0; j < n_values; j++) {
+              if (gst_tag_list_peek_string_index(this->taglist, tag, j, &value) && value) {
+                arr->Set(arr->Length(), Nan::New(value).ToLocalChecked());
+              }
+            }
+
+            obj->Set(tagValue, arr);
+          }
+        }
+      }
+    }
 
     v8::Local<v8::Value> argv[] = { Nan::Null(), obj };
     this->callback->Call(2, argv);
   }
 
 private:
-  const char* fname;
-  GstElement* pipeline;
-  GstElement* uridecodebin;
-  GstElement* fakesink;
-  GstTagList* taglist;
+  const char* fname = NULL;
+  GstElement* pipeline = NULL;
+  GstElement* uridecodebin = NULL;
+  GstElement* fakesink = NULL;
+  GstTagList* taglist = NULL;
 
   static void on_pad_added(GstElement* element, GstPad* new_pad, MetadataWorker* self) {
     GstPad* sinkpad = gst_element_get_static_pad(self->fakesink, "sink");
@@ -85,10 +112,6 @@ private:
     }
 
     gst_object_unref(sinkpad);
-  }
-
-  static void process_tag(const GstTagList* list, const gchar* tag, v8::Local<v8::Object>* obj) {
-    // obj->Set(Nan::New(tag).ToLocalChecked(), Nan::True());
   }
 };
 
