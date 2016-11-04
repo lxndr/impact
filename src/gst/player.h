@@ -23,6 +23,7 @@ private:
   static NAN_METHOD(Stop);
   static NAN_GETTER(UriGetter);
   static NAN_SETTER(UriSetter);
+  static NAN_GETTER(DurationGetter);
   static NAN_GETTER(PositionGetter);
   static NAN_SETTER(PositionSetter);
   static NAN_GETTER(VolumeGetter);

@@ -14,6 +14,8 @@ NAN_MODULE_INIT(Player::Init)
   Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("uri").ToLocalChecked(), UriGetter, UriSetter);
   Nan::SetAccessor(tpl->InstanceTemplate(),
+    Nan::New("duration").ToLocalChecked(), DurationGetter);
+  Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("position").ToLocalChecked(), PositionGetter, PositionSetter);
   Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("volume").ToLocalChecked(), VolumeGetter, VolumeSetter);
@@ -141,6 +143,17 @@ NAN_SETTER(Player::UriSetter)
   g_free(uri);
 
   info.GetReturnValue().Set(Nan::True());
+}
+
+
+NAN_GETTER(Player::DurationGetter)
+{
+  auto self = Nan::ObjectWrap::Unwrap<Player>(info.Holder());
+
+  auto val = gst_player_get_duration(self->player);
+  auto ret = (double) val / 1000000000.0;
+
+  info.GetReturnValue().Set(Nan::New(ret));
 }
 
 
