@@ -19,7 +19,7 @@ body {
   bottom: 0;
   left: 300px;
 }
-app-header {
+media-controls {
   position: absolute;
   top: 0;
   right: 0;
@@ -29,16 +29,16 @@ app-header {
   padding: 5px;
   -webkit-app-region: drag;
 }
-app-header .cover {
+media-controls .cover {
   height: 50px;
   display: block;
   float: left;
   margin-right: 5px;
 }
-app-header .cover .track-info {
+media-controls .cover .track-info {
   margin-left: 60px;
 }
-app-header button {
+media-controls button {
   -webkit-app-region: no-drag;
 }
 album {
@@ -110,6 +110,40 @@ artist-list ul li a:hover {
 }
 artist-list ul li a.selected {
   background: #1b9bff;
+}
+artist-track-list {
+  position: absolute;
+  display: block;
+  right: 0;
+  bottom: 0;
+  left: 300px;
+  top: 60px;
+  overflow: auto;
+}
+artist-track-list album > .title {
+  font-weight: bold;
+}
+artist-track-list ul.track-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+artist-track-list ul.track-list a {
+  display: block;
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+artist-track-list ul.track-list a:hover {
+  background: #ccc;
+}
+artist-track-list ul.track-list .number {
+  width: 30px;
+  display: inline-block;
+  text-align: right;
+  margin-right: 5px;
 }
 preferences {
   display: block;

@@ -1,8 +1,6 @@
-extends: xo/esnext
+plugins:
+  - react
 
-rules:
-  indent:
-    - error
-    - 2
-    -
-      SwitchCase: 1
+extends:
+  - xo-space/esnext
+  - plugin:react/recommended

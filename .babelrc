@@ -1,10 +1,12 @@
 {
   "presets": [
-    "angular2"
+    "es2017",
+    "react"
   ],
   "plugins": [
-    "transform-runtime",
     "transform-es2015-modules-commonjs",
+    "transform-decorators-legacy",
+    "transform-class-properties",
     "transform-async-to-generator"
   ]
 }

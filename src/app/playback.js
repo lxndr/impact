@@ -1,19 +1,30 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import av from 'av';
-import 'flac.js';
+import {Player} from './gst';
 
-@Injectable()
-export class PlaybackService {
+export class Playback {
   player = null;
   queue = [];
   current = null;
-  player = null;
 
-  _trackSubject = new BehaviorSubject();
-  track$ = this._trackSubject.asObservable();
-  _progressSubject = new BehaviorSubject();
-  progress$ = this._progressSubject.asObservable();
+  setup(track) {
+    if (this.player) {
+      this.player.stop();
+    }
+
+    this.player = new Player();
+    this.player.onprogress = msecs => {
+      const time = {
+        duration: track.duration,
+        progress: msecs / 1000
+      };
+    };
+    this.player.onend = () => {
+      this.next();
+    };
+    this.player.onerror = error => {
+      console.error(`Error: ${error.message}`);
+    };
+    this.player.uri = track.file;
+  }
 
   toggle() {
     if (this.current === null && this.queue.length > 0) {
@@ -24,21 +35,11 @@ export class PlaybackService {
       const track = this.queue[this.current];
       if (track !== null) {
         this._trackSubject.next(track);
-        this.player = av.Player.fromFile(track.file);
-        this.player.on('progress', msecs => {
-          this._progressSubject.next({
-            duration: track.duration,
-            progress: msecs / 1000
-          });
-        });
-        this.player.on('end', () => {
-          this.next();
-        });
       }
     }
 
     if (this.player) {
-      this.player.togglePlayback();
+      this.player.pause = !this.player.pause;
     }
   }
 
@@ -82,5 +83,22 @@ export class PlaybackService {
 
   addTracks(tracks) {
     this.queue.push(...tracks);
+  }
+
+  play(track) {
+    if (this.player) {
+      this.player.stop();
+      this.player = null;
+    }
+
+    this.player = new Player();
+    this.player.onend = () => {
+      console.log('Finished');
+    };
+    this.player.onerror = error => {
+      console.error(`Error: ${error.message}`);
+    };
+    this.player.uri = track.path;
+    this.player.play();
   }
 }

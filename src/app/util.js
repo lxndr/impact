@@ -20,9 +20,9 @@ export const fs = promisifySome('fs-extra', ['readFile', 'access', 'readdir', 'r
 let _gst = null;
 
 try {
-  _gst = require('../build/Debug/gst.node');
+  _gst = require('../../build/Debug/gst.node');
 } catch (err) {
-  _gst = require('../build/Release/gst.node');
+  _gst = require('../../build/Release/gst.node');
 }
 
 export const gst = promisifySome(_gst, ['metadata']);

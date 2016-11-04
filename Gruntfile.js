@@ -9,13 +9,13 @@ module.exports = function (grunt) {
     ],
 
     eslint: {
-      files: 'app/**/*.js'
+      files: 'src/**/*.js'
     },
 
     stylus: {
       compile: {
         files: {
-          'app/styles/all.css': 'app/styles/all.styl'
+          'src/ui/styles/all.css': 'src/ui/styles/all.styl'
         },
         options: {
           compress: false
