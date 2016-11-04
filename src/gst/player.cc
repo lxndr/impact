@@ -47,7 +47,11 @@ NAN_METHOD(Player::New)
 
 void Player::position_updated_cb(GstPlayer* player, GstClockTime pos, Player* self)
 {
-  // self->OnProgressCallback.Call(0, 0);
+  if (self->OnProgressCallback.IsEmpty())
+    return;
+
+  v8::Local<v8::Value> argv[] = { Nan::New((double) pos / 1000000000.0) };
+  self->OnProgressCallback.Call(1, argv);
 }
 
 static void state_changed_cb(GstPlayer* player, GstPlayerState state, gpointer user_data) {
@@ -56,11 +60,17 @@ static void state_changed_cb(GstPlayer* player, GstPlayerState state, gpointer u
 
 void Player::end_of_stream_cb(GstPlayer *player, Player* self)
 {
+  if (self->OnEndCallback.IsEmpty())
+    return;
+
   self->OnEndCallback.Call(0, 0);
 }
 
 void Player::error_cb (GstPlayer* player, GError* err, Player* self)
 {
+  if (self->OnErrorCallback.IsEmpty())
+    return;
+
   v8::Local<v8::Value> argv[] = { Nan::Error(err->message) };
   self->OnErrorCallback.Call(1, argv);
 }
