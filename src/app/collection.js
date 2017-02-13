@@ -4,7 +4,8 @@ import globby from 'globby';
 import {Promise} from 'bluebird';
 import {inject} from '@lxndr/di';
 import {Database} from '@lxndr/orm';
-import {fs, gst} from './util';
+import * as gst from './gst';
+import {fs} from './util';
 
 export class Collection {
   @inject(Database) db;
@@ -54,6 +55,7 @@ export class Collection {
     for (const file of files) {
       try {
         const meta = await this.inspect(file);
+        console.log(meta);
         await col.insert(meta);
         console.log(`Adding: ${meta.path}`);
       } catch (err) {
@@ -68,8 +70,7 @@ export class Collection {
 
     const map = {
       trackNumber: 'number',
-      artist: 'artists',
-      albumArtist: 'albumArtists'
+      artist: 'artists'
     };
 
     const keys = [
@@ -77,7 +78,7 @@ export class Collection {
       'title',
       'artists',
       'album',
-      'albumArtists'
+      'albumArtist'
     ];
 
     const info = _(meta)
@@ -96,27 +97,13 @@ export class Collection {
   }
 
   async artists() {
-    const tracks = await this.db.collection('tracks').find();
-    const artists = new Set();
-
-    _.forEach(tracks, track => {
-      _.forEach(track.artists, artist => {
-        artists.add(artist);
-      });
-    });
-
-    return Array.from(artists).sort();
+    const col = this.db.collection('tracks');
+    return await col.distinct('albumArtist');
   }
 
   async albums() {
     const col = this.db.collection('tracks');
-    return await col.find({
-      groupBy: 'album'
-    });
-  }
-
-  album(title) {
-    return this.db.tracks.where('album').equals(title).toArray();
+    return await col.distinct('album');
   }
 
   async allOfArtist(artist) {
@@ -125,5 +112,9 @@ export class Collection {
     return _.filter(tracks, track => {
       return _.includes(track.artists, artist);
     });
+  }
+
+  async fetch(filter) {
+    return await this.db.collection('tracks').find(filter);
   }
 }

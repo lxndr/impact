@@ -1,5 +1,5 @@
+import _ from 'lodash';
 import path from 'path';
-import {app, ipcMain, BrowserWindow} from 'electron';
 import {inject} from '@lxndr/di';
 import {Config} from '@lxndr/config';
 import {Database} from '@lxndr/orm';
@@ -13,7 +13,6 @@ export class Application {
   @inject(Collection) collection;
   @inject(Playback) playback;
   closed = false;
-  win = null;
 
   async init() {
     this.setupDatabase();
@@ -27,35 +26,17 @@ export class Application {
       return this.collection.allOfArtist(artist);
     };
 
-    store.playback.play = track => {
-      this.playback.play(track);
-    };
-
-    app.on('before-quit', event => {
-      if (!this.closed) {
-        event.preventDefault();
-        this.deinit();
+    ['toggle', 'play', 'stop', 'previous', 'next', 'track$'].forEach(key => {
+      if (typeof this.playback[key] === 'function') {
+        store.playback[key] = _.bindKey(this.playback, key);
+      } else {
+        store.playback[key] = this.playback[key];
       }
     });
-
-    app.on('window-all-closed', () => {
-      app.quit();
-    });
-
-    ipcMain.on('playback/play', () => {
-      this.playback.play();
-    });
-
-    ipcMain.on('playback/pause', () => {
-      this.playback.pause();
-    });
-
-    this.createWindow();
   }
 
   setupDatabase() {
-    const userDirectory = app.getPath('userData');
-    const dbPath = path.join(userDirectory, 'databases');
+    const dbPath = path.join(this.userDirectory, 'databases');
 
     this.db = new Database({
       driver: 'nedb',
@@ -70,33 +51,8 @@ export class Application {
     });
   }
 
-  createWindow() {
-    this.win = new BrowserWindow({
-      width: 1600,
-      height: 700,
-      frame: false,
-      webPreferences: {
-        webgl: false,
-        webaudio: false,
-        disableBlinkFeatures: [
-          'Database',
-          'IndexedDBExperimental'
-        ].join(',')
-      }
-    });
-
-    this.win.loadURL(`file://${__dirname}/../ui/index.html`);
-    this.win.setMenu(null);
-    this.win.openDevTools();
-
-    this.win.on('closed', () => {
-      this.win = null;
-    });
-  }
-
   async deinit() {
     this.closed = true;
     await this.db.close();
-    app.quit();
   }
 }

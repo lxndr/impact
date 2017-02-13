@@ -1,6 +1,5 @@
-plugins:
-  - react
+parser: babel-eslint
 
 extends:
   - xo-space/esnext
-  - plugin:react/recommended
+  - xo-react/space
