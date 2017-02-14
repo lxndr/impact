@@ -4,7 +4,7 @@ import globby from 'globby';
 import {Promise} from 'bluebird';
 import {inject} from '@lxndr/di';
 import {Database} from '@lxndr/orm';
-import * as gst from './gst';
+import * as metadata from './metadata';
 import {fs} from './util';
 
 export class Collection {
@@ -55,7 +55,6 @@ export class Collection {
     for (const file of files) {
       try {
         const meta = await this.inspect(file);
-        console.log(meta);
         await col.insert(meta);
         console.log(`Adding: ${meta.path}`);
       } catch (err) {
@@ -66,39 +65,35 @@ export class Collection {
 
   async inspect(file) {
     const st = await fs.stat(file);
-    const meta = await gst.metadata(file);
+    const info = await metadata.read(file);
 
-    const map = {
-      trackNumber: 'number',
-      artist: 'artists'
-    };
-
-    const keys = [
-      'number',
-      'title',
-      'artists',
-      'album',
-      'albumArtist'
-    ];
-
-    const info = _(meta)
-      .mapKeys((val, key) => _.camelCase(key))
-      .mapKeys((val, key) => map[key] || key)
-      .pick(keys)
-      .value();
-
-    _.assign(info, {
+    return {
+      ...info,
       path: file,
       mtime: st.mtime,
       size: st.size
-    });
-
-    return info;
+    };
   }
 
   async artists() {
     const col = this.db.collection('tracks');
-    return await col.distinct('albumArtist');
+    const tracks = await col.find();
+
+    return _(tracks)
+      .map(track => {
+        if (track.albumArtist) {
+          return track.albumArtist;
+        } else if (track.artist) {
+          return track.artist;
+        } else if (track.artists && track.artists.length > 0) {
+          return track.artists[0];
+        }
+
+        return null;
+      })
+      .uniq()
+      .reject(_.isEmpty)
+      .value();
   }
 
   async albums() {

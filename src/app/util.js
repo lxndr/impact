@@ -15,4 +15,16 @@ function promisifySome(module, funcs) {
   return promisify(module);
 }
 
-export const fs = promisifySome('fs-extra', ['readFile', 'access', 'readdir', 'rename', 'stat', 'remove', 'emptyDir', 'ensureDir']);
+export const fs = promisifySome('fs-extra', [
+  'open',
+  'close',
+  'read',
+  'readFile',
+  'access',
+  'readdir',
+  'rename',
+  'stat',
+  'remove',
+  'emptyDir',
+  'ensureDir'
+]);
