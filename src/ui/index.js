@@ -8,9 +8,9 @@ import {Preferences} from './components/preferences';
 ReactDOM.render((
   <Router history={hashHistory}>
     <Route path="/" component={App}>
-      <IndexRedirect to="/library" />
-      <Route path="preferences" component={Preferences} />
-      <Route path="library" component={Library} />
+      <IndexRedirect to="/library"/>
+      <Route path="preferences" component={Preferences}/>
+      <Route path="library" component={Library}/>
     </Route>
   </Router>
 ), document.getElementById('app-container'));

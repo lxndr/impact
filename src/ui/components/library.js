@@ -12,8 +12,8 @@ export class Library extends React.Component {
   render() {
     return (
       <library>
-        <ArtistList onSelect={artist => this.setState({artist})} />
-        <ArtistTrackList artist={this.state.artist} />
+        <ArtistList onSelect={artist => this.setState({artist})}/>
+        <ArtistTrackList artist={this.state.artist}/>
       </library>
     );
   }

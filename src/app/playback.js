@@ -12,9 +12,7 @@ export class Playback {
   current = null;
 
   setup(track) {
-    if (this.player) {
-      this.player.stop();
-    }
+    this.stop();
 
     this.player = new Player();
     this.player.onprogress = secs => {
@@ -30,14 +28,19 @@ export class Playback {
     this.player.onerror = error => {
       console.error(`Error: ${error.message}`);
     };
-    this.player.uri = track.file;
+    this.player.uri = track.path;
 
     this.track$.next(track);
   }
 
-  play(track) {
-    this.setup(track);
-    this.toggle();
+  play(trackId) {
+    this.collection.trackById(trackId).then(track => {
+      this.setup(track);
+      this.player.play();
+    });
+
+/*    this.setup(track);
+    this.toggle();*/
   }
 
   toggle() {
@@ -86,9 +89,10 @@ export class Playback {
     this.queue = [];
   }
 
-  setupPlaylist(filter) {
-    this.collection.fetch(filter).then(list => {
-      this.queue = list;
-    });
+  async setupPlaylist(fnName, options) {
+    for (const id of options) {
+      const track = await this.collection.trackById(id);
+      this.queue.push(track);
+    }
   }
 }

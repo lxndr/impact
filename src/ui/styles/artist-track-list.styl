@@ -6,14 +6,23 @@ artist-track-list
   left: $sidebar-width
   top: $header-height + $header-padding * 2
   overflow: auto
+  padding: 4px
 
-  album >
-    .title
+  album
+    clear: both
+
+  .album-title
       font-weight: bold
+      font-size: 1.1em
+
+  disc
+    .cover
+      width: 200px
+      float: left
 
   ul.track-list
     list-style-type: none
-    margin: 0
+    margin: 0 0 0 210px
     padding: 0
 
     a

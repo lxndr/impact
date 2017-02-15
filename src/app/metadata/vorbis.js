@@ -12,6 +12,7 @@ const tagMap = {
   artists: 'artists',
   genre: 'genre',
   tracknumber: 'number',
+  discnumber: 'discNumber',
   discsubtitle: 'discSubtitle'
 };
 
@@ -54,6 +55,10 @@ export function readVorbisComment(fd, buf) {
 
   if (tags.number) {
     tags.number = parseInt(tags.number, 10);
+  }
+
+  if (tags.discNumber) {
+    tags.discNumber = parseInt(tags.discNumber, 10);
   }
 
   return tags;

@@ -1,10 +1,18 @@
 import _, {bindKey} from 'lodash';
 import React from 'react';
+import {routerShape} from 'react-router';
 
 export class Preferences extends React.Component {
+  static propTypes = {
+    router: routerShape
+  }
+
   constructor(props) {
     super(props);
     this.state = {};
+
+    this.handleSubmit = this.handleSubmit.this(this);
+    this.handleCancel = this.handleCancel.this(this);
   }
 
   render() {
@@ -13,27 +21,21 @@ export class Preferences extends React.Component {
         <form onSubmit={bindKey(this, 'submit')}>
           <div>
             <label htmlFor="libraryPath">Library path</label>
-            <input id="libraryPath" name="libraryPath" />
+            <input id="libraryPath" name="libraryPath"/>
           </div>
           <div>
             <button type="submit">Save</button>
-            <button onClick={bindKey(this, 'back')}>Cancel</button>
+            <button onClick={this.handleSubmit}>Cancel</button>
           </div>
         </form>
       </preferences>
     );
   }
 
-  submit() {
+  handleSubmit() {
   }
 
-  back() {
+  handleCancel() {
+    this.router.goBack();
   }
 }
-
-Preferences.propTypes = {
-  track: React.PropTypes.object,
-  onPrevious: React.PropTypes.func,
-  onToggle: React.PropTypes.func,
-  onNext: React.PropTypes.func
-};

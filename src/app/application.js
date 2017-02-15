@@ -26,13 +26,14 @@ export class Application {
       return this.collection.allOfArtist(artist);
     };
 
-    ['toggle', 'play', 'stop', 'previous', 'next', 'track$'].forEach(key => {
-      if (typeof this.playback[key] === 'function') {
-        store.playback[key] = _.bindKey(this.playback, key);
-      } else {
-        store.playback[key] = this.playback[key];
-      }
-    });
+    ['toggle', 'play', 'stop', 'previous', 'next', 'setupPlaylist', 'track$']
+      .forEach(key => {
+        if (typeof this.playback[key] === 'function') {
+          store.playback[key] = _.bindKey(this.playback, key);
+        } else {
+          store.playback[key] = this.playback[key];
+        }
+      });
   }
 
   setupDatabase() {

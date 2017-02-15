@@ -17,7 +17,7 @@ export class App extends React.Component {
   render() {
     return (
       <app>
-        <Controls track={this.state.track} />
+        <Controls track={this.state.track}/>
         {this.props.children}
       </app>
     );

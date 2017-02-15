@@ -62,15 +62,27 @@ public:
 
         if (strcmp(tag, GST_TAG_TRACK_NUMBER) == 0 ||
             strcmp(tag, GST_TAG_TRACK_COUNT) == 0) {
-          guint track_number;
-          if (gst_tag_list_get_uint(this->taglist, tag, &track_number)) {
-            obj->Set(tagValue, Nan::New(track_number));
+          guint value;
+          if (gst_tag_list_get_uint(this->taglist, tag, &value)) {
+            obj->Set(tagValue, Nan::New(value));
           }
         } else if (strcmp(tag, GST_TAG_TITLE) == 0 ||
-                   strcmp(tag, GST_TAG_ALBUM) == 0) {
+                   strcmp(tag, GST_TAG_ALBUM) == 0 ||
+                   strcmp(tag, GST_TAG_ALBUM_ARTIST) == 0 ||
+                   strcmp(tag, GST_TAG_GENRE) == 0 ||
+                   strcmp(tag, GST_TAG_ARTIST_SORTNAME) == 0 ||
+                   strcmp(tag, GST_TAG_ALBUM_ARTIST_SORTNAME) == 0) {
           const gchar* value = NULL;
           if (gst_tag_list_peek_string_index(this->taglist, tag, 0, &value) && value) {
             obj->Set(tagValue, Nan::New(value).ToLocalChecked());
+          }
+        } else if (strcmp(tag, GST_TAG_DATE_TIME) == 0) {
+          GstDateTime *datetime = NULL;
+          if (gst_tag_list_get_date_time_index(this->taglist, tag, 0, &datetime)) {
+            gchar *value = gst_date_time_to_iso8601_string(datetime);
+            obj->Set(tagValue, Nan::New(value).ToLocalChecked());
+            gst_date_time_unref(datetime);
+            g_free(value);
           }
         } else {
           auto n_values = gst_tag_list_get_tag_size(this->taglist, tag);

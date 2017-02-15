@@ -22,7 +22,7 @@ async function readStreamInfo(fd, buf) {
     sampleRate: buf.readUInt32BE(10) >> 12,
     nChannels: ((buf.readUInt8(12) & 0xe) >> 1) + 1,
     bitsPerSample: ((buf.readUInt16BE(12) & 0x1f0) >> 4) + 1,
-    totalSamples: buf.readUInt32BE(14)  /* FIXME: ahs to be 36 bits */
+    totalSamples: buf.readUInt32BE(14)  /* FIXME: has to be 36 bits */
   };
 }
 

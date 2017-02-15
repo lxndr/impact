@@ -5,24 +5,30 @@ import React from 'react';
 const store = remote.require('./store');
 
 export class ArtistList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      artists: []
-    };
+  static propTypes = {
+    onSelect: React.PropTypes.func
+  }
+
+  state = {
+    artists: [],
+    selected: null
   }
 
   render() {
     return (
       <artist-list>
         <ul>
-          {this.state.artists.map(artist => (
-            <li key={artist}>
-              <a href="#" onClick={bindKey(this, '_onSelect', artist)}>
-                {artist}
-              </a>
-            </li>
-          ))}
+          {this.state.artists.map(artist => {
+            const itemClass = artist === this.state.selected ? 'selected' : undefined;
+
+            return (
+              <li key={artist} className={itemClass}>
+                <a href="#" onClick={bindKey(this, '_onSelect', artist)}>
+                  {artist}
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </artist-list>
     );
@@ -30,18 +36,18 @@ export class ArtistList extends React.Component {
 
   componentDidMount() {
     store.collection.artists().then(artists => {
-      this.setState({artists});
+      this.setState({
+        artists: artists.sort()
+      });
     }, err => {
       console.error(err.message);
     });
   }
 
-  _onSelect(artist) {
-    console.log(`Artist ${artist} selected`);
-    this.props.onSelect(artist);
+  _onSelect(selected) {
+    this.setState({selected});
+
+    console.log(`Artist ${selected} selected`);
+    this.props.onSelect(selected);
   }
 }
-
-ArtistList.propTypes = {
-  onSelect: React.PropTypes.func
-};

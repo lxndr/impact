@@ -75,6 +75,11 @@ export class Collection {
     };
   }
 
+  trackById(id) {
+    const col = this.db.collection('tracks');
+    return col.findById(id);
+  }
+
   async artists() {
     const col = this.db.collection('tracks');
     const tracks = await col.find();
@@ -102,14 +107,10 @@ export class Collection {
   }
 
   async allOfArtist(artist) {
-    const tracks = await this.db.collection('tracks').find();
+    const col = this.db.collection('tracks');
 
-    return _.filter(tracks, track => {
-      return _.includes(track.artists, artist);
+    return await col.find({
+      albumArtist: artist
     });
-  }
-
-  async fetch(filter) {
-    return await this.db.collection('tracks').find(filter);
   }
 }

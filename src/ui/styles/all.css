@@ -119,13 +119,22 @@ artist-track-list {
   left: 300px;
   top: 60px;
   overflow: auto;
+  padding: 4px;
 }
-artist-track-list album > .title {
+artist-track-list album {
+  clear: both;
+}
+artist-track-list .album-title {
   font-weight: bold;
+  font-size: 1.1em;
+}
+artist-track-list disc .cover {
+  width: 200px;
+  float: left;
 }
 artist-track-list ul.track-list {
   list-style-type: none;
-  margin: 0;
+  margin: 0 0 0 210px;
   padding: 0;
 }
 artist-track-list ul.track-list a {

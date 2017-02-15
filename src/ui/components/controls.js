@@ -1,31 +1,42 @@
 import _ from 'lodash';
+import {remote} from 'electron';
 import React from 'react';
 
+const store = remote.require('./store');
+
 export class Controls extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
   render() {
-    const track = this.props.track || {};
+    const track = this.state.track || {};
 
     return (
       <media-controls>
-        <img className="cover" src="images/album.svg" />
+        <img className="cover" src="images/album.svg"/>
         <div className="track-info">
-          <div className="artist">{track.artist}</div>
+          <div className="album-artist">{track.albumArtist}</div>
           <div className="album">{track.album}</div>
           <div className="title">{track.title}</div>
         </div>
         <div>
-          <button onClick={this.props.onPrevious}>Previous</button>
-          <button onClick={this.props.onToggle}>Play</button>
-          <button onClick={this.props.onNext}>Next</button>
+          <button onClick={store.previous}>Previous</button>
+          <button onClick={store.toggle}>Play</button>
+          <button onClick={store.next}>Next</button>
         </div>
       </media-controls>
     );
   }
-}
 
-Controls.propTypes = {
-  track: React.PropTypes.object,
-  onPrevious: React.PropTypes.func,
-  onToggle: React.PropTypes.func,
-  onNext: React.PropTypes.func
-};
+  componentDidMount() {
+    this._trackSub = store.playback.track$.subscribe(track => {
+      this.setState({track});
+    });
+  }
+
+  componentWillUnmount() {
+    this._trackSub.unsubscribe();
+  }
+}
