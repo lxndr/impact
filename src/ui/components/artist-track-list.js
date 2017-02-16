@@ -4,72 +4,95 @@ import React from 'react';
 
 const store = remote.require('./store');
 
-function TrackList(props) {
-  return (
-    <ul className="track-list">
-      {props.tracks.map(track => (
-        <li key={track._id} className="track">
-          <a href="#" onClick={_.partial(props.onSelect, track)}>
-            <span className="number">{track.number}</span>
-            <span className="title">{track.title}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
+class TrackList extends React.Component {
+  static propTypes = {
+    tracks: React.PropTypes.array,
+    playingTrack: React.PropTypes.object,
+    onSelect: React.PropTypes.func
+  }
+
+  render() {
+    const {tracks, onSelect} = this.props;
+
+    return (
+      <ul className="track-list">
+        {tracks.map(track => {
+          const playing = this.props.playingTrack && track._id === this.props.playingTrack._id;
+          const className = playing ? 'playing' : undefined;
+
+          return (
+            <li key={track._id} className={className}>
+              <a href="#" onClick={_.partial(onSelect, track)}>
+                <span className="number">{track.number}</span>
+                <span className="title">{track.title}</span>
+                <span className="duration"> ({track.duration} secs)</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 }
 
-TrackList.propTypes = {
-  tracks: React.PropTypes.array,
-  onSelect: React.PropTypes.func
-};
+class Disc extends React.Component {
+  static propTypes = {
+    number: React.PropTypes.number,
+    title: React.PropTypes.string,
+    tracks: React.PropTypes.array,
+    image: React.PropTypes.string,
+    onSelect: React.PropTypes.func
+  }
 
-function Disc(props) {
-  return (
-    <disc>
-      {props.title &&
-        <div className="disc-title">{props.title}</div>
-      }
-      <img className="cover" src="images/album.svg"/>
-      <TrackList tracks={props.tracks} onSelect={props.onSelect}/>
-    </disc>
-  );
+  static defaultProps = {
+    title: null,
+    tracks: []
+  }
+
+  render() {
+    const {number, title, tracks, image = 'images/album.svg', onSelect} = this.props;
+
+    return (
+      <disc>
+        {title &&
+          <div className="disc-title">Disc {number}: {title}</div>
+        }
+        <div className="cover-container">
+          <img className="cover" src={image}/>
+        </div>
+        <TrackList tracks={tracks} onSelect={onSelect}/>
+      </disc>
+    );
+  }
 }
 
-Disc.propTypes = {
-  title: React.PropTypes.string,
-  tracks: React.PropTypes.array,
-  onSelect: React.PropTypes.func
-};
+class Album extends React.Component {
+  static propTypes = {
+    title: React.PropTypes.string,
+    releaseDate: React.PropTypes.string,
+    discs: React.PropTypes.array,
+    onSelect: React.PropTypes.func
+  }
 
-Disc.defaultProps = {
-  title: null,
-  tracks: []
-};
+  static defaultProps = {
+    title: null,
+    discs: []
+  }
 
-function Album(props) {
-  return (
-    <album>
-      <div className="album-title">{props.title}</div>
-      <div className="release-date">{props.releaseDate}</div>
-      {props.discs.map((disc, index) => (
-        <Disc key={index} {...disc} onSelect={props.onSelect}/>
-      ))}
-    </album>
-  );
+  render() {
+    const {title, releaseDate, discs, onSelect} = this.props;
+
+    return (
+      <album>
+        <div className="album-title">{title}</div>
+        <div className="release-date">{releaseDate}</div>
+        {discs.map((disc, index) => (
+          <Disc key={index} {...disc} onSelect={onSelect}/>
+        ))}
+      </album>
+    );
+  }
 }
-
-Album.propTypes = {
-  title: React.PropTypes.string,
-  releaseDate: React.PropTypes.string,
-  discs: React.PropTypes.array,
-  onSelect: React.PropTypes.func
-};
-
-Album.defaultProps = {
-  title: null,
-  discs: []
-};
 
 export class ArtistTrackList extends React.Component {
   static propTypes = {

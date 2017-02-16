@@ -119,40 +119,52 @@ artist-track-list {
   left: 300px;
   top: 60px;
   overflow: auto;
-  padding: 4px;
 }
 artist-track-list album {
   clear: both;
+  margin: 4px;
 }
 artist-track-list .album-title {
   font-weight: bold;
   font-size: 1.1em;
 }
+artist-track-list disc {
+  display: block;
+  margin: 8px 0;
+}
 artist-track-list disc .cover {
   width: 200px;
   float: left;
 }
-artist-track-list ul.track-list {
-  list-style-type: none;
+artist-track-list .disc-title,
+artist-track-list .track-list {
   margin: 0 0 0 210px;
-  padding: 0;
+  padding-left: 4px;
+  border-left: 1px solid #ccc;
 }
-artist-track-list ul.track-list a {
+artist-track-list .disc-title {
+  font-style: italic;
+}
+artist-track-list .track-list {
+  list-style-type: none;
+}
+artist-track-list .track-list a {
   display: block;
   background: #fff;
   color: #000;
   text-decoration: none;
-  padding: 2px 4px;
+  padding: 3px 4px;
   border-radius: 2px;
 }
-artist-track-list ul.track-list a:hover {
+artist-track-list .track-list a:hover {
   background: #ccc;
 }
-artist-track-list ul.track-list .number {
+artist-track-list .track-list .number {
   width: 30px;
   display: inline-block;
   text-align: right;
   margin-right: 5px;
+  color: #808080;
 }
 preferences {
   display: block;
