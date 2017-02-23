@@ -1,8 +1,6 @@
 import _ from 'lodash';
-import {remote} from 'electron';
 import React from 'react';
-
-const store = remote.require('./store');
+import * as store from '../store';
 
 class TrackList extends React.Component {
   static propTypes = {
@@ -54,8 +52,10 @@ class Disc extends React.Component {
 
     return (
       <disc>
-        {title &&
-          <div className="disc-title">Disc {number}: {title}</div>
+        {(number || title) &&
+          <div className="disc-title">{
+            title ? `Disc ${number}: ${title}` : `Disc ${number}`
+          }</div>
         }
         <div className="cover-container">
           <img className="cover" src={image}/>

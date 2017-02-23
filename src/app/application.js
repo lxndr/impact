@@ -1,59 +1,69 @@
-import _ from 'lodash';
 import path from 'path';
-import {inject} from '@lxndr/di';
-import {Config} from '@lxndr/config';
+import {app, dialog, globalShortcut, ipcMain, BrowserWindow} from 'electron';
 import {Database} from '@lxndr/orm';
-import {Collection} from './collection';
-import {Playback} from './playback';
-import * as store from './store';
+import * as collection from './collection';
+import * as playback from './playback';
 
-export class Application {
-  @inject(Config) config;
-  @inject(Database) db;
-  @inject(Collection) collection;
-  @inject(Playback) playback;
-  closed = false;
+export let db = null;
+let win = null;
+let closed = false;
 
-  async init() {
-    this.setupDatabase();
-    this.collection.start();
-
-    store.collection.artists = () => {
-      return this.collection.artists();
-    };
-
-    store.collection.allOfArtist = artist => {
-      return this.collection.allOfArtist(artist);
-    };
-
-    ['toggle', 'play', 'stop', 'previous', 'next', 'setupPlaylist', 'track$']
-      .forEach(key => {
-        if (typeof this.playback[key] === 'function') {
-          store.playback[key] = _.bindKey(this.playback, key);
-        } else {
-          store.playback[key] = this.playback[key];
-        }
-      });
-  }
-
-  setupDatabase() {
-    const dbPath = path.join(this.userDirectory, 'databases');
-
-    this.db = new Database({
-      driver: 'nedb',
-      collections: [{
-        name: 'tracks',
-        path: path.join(dbPath, 'tracks.db'),
-        indexes: [{
-          field: 'path',
-          unique: true
-        }]
-      }]
-    });
-  }
-
-  async deinit() {
-    this.closed = true;
-    await this.db.close();
-  }
+async function deinit() {
+  closed = true;
+  await db.close();
+  app.quit();
 }
+
+app.on('ready', () => {
+  const userDirectory = app.getPath('userData');
+  const dbPath = path.join(userDirectory, 'databases');
+
+  db = new Database({
+    driver: 'nedb',
+    collections: [{
+      name: 'tracks',
+      path: path.join(dbPath, 'tracks.db'),
+      indexes: [{
+        field: 'path',
+        unique: true
+      }]
+    }]
+  });
+
+  collection.start();
+
+  /* window */
+  win = new BrowserWindow({
+    width: 1600,
+    height: 700,
+    frame: false
+  });
+
+  win.loadURL(`file://${__dirname}/../ui/index.html`);
+  win.setMenu(null);
+  win.openDevTools();
+
+  app.on('before-quit', event => {
+    if (!closed) {
+      event.preventDefault();
+      deinit().catch(err => {
+        dialog.showErrorBox('Error while starting', err.message);
+        console.error(err.stack);
+      });
+    }
+  });
+
+  app.on('window-all-closed', () => {
+    app.quit();
+  });
+
+  /* global shortcuts */
+  globalShortcut.register('MediaPreviousTrack', playback.previous);
+  globalShortcut.register('MediaPlayPause', playback.toggle);
+  globalShortcut.register('MediaNextTrack', playback.next);
+
+  /*  */
+  ipcMain.on('playback/toggle', playback.toggle);
+  ipcMain.on('playback/next', playback.next);
+  ipcMain.on('playback/previous', playback.previous);
+});

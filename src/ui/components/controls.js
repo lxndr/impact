@@ -1,13 +1,15 @@
 import _ from 'lodash';
-import {remote} from 'electron';
 import React from 'react';
-
-const store = remote.require('./store');
+import {playback} from '../store';
 
 export class Controls extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
+
+    this.handlePrevious = this.handlePrevious.bind(this);
+    this.handleToggle = this.handleToggle.bind(this);
+    this.handleNext = this.handleNext.bind(this);
   }
 
   render() {
@@ -22,21 +24,33 @@ export class Controls extends React.Component {
           <div className="title">{track.title}</div>
         </div>
         <div>
-          <button onClick={store.previous}>Previous</button>
-          <button onClick={store.toggle}>Play</button>
-          <button onClick={store.next}>Next</button>
+          <button onClick={this.handlePrevious}>Previous</button>
+          <button onClick={this.handleToggle}>Play</button>
+          <button onClick={this.handleNext}>Next</button>
         </div>
       </media-controls>
     );
   }
 
   componentDidMount() {
-    this._trackSub = store.playback.track$.subscribe(track => {
+    this._trackSub = playback.track$.subscribe(track => {
       this.setState({track});
     });
   }
 
   componentWillUnmount() {
     this._trackSub.unsubscribe();
+  }
+
+  handlePrevious() {
+    playback.previous();
+  }
+
+  handleToggle() {
+    playback.toggle();
+  }
+
+  handleNext() {
+    playback.next();
   }
 }

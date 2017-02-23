@@ -1,8 +1,6 @@
 import _, {bindKey} from 'lodash';
-import {remote} from 'electron';
 import React from 'react';
-
-const store = remote.require('./store');
+import * as store from '../store';
 
 export class ArtistList extends React.Component {
   static propTypes = {

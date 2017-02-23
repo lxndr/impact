@@ -1,98 +1,112 @@
-import {inject} from '@lxndr/di';
+import _ from 'lodash';
 import {BehaviorSubject} from 'rxjs';
 import {Player} from './gst';
-import {Collection} from './collection';
+import * as collection from './collection';
 
-export class Playback {
-  @inject(Collection) collection;
-  track$ = new BehaviorSubject(null);
-  state$ = new BehaviorSubject(null);
-  player = null;
-  queue = [];
-  current = null;
+export const track$ = new BehaviorSubject(null);
+export const state$ = new BehaviorSubject(null);
+export const error$ = new BehaviorSubject(null);
+let player = null;
+let queue = [];
 
-  setup(track) {
-    this.stop();
-
-    this.player = new Player();
-    this.player.onprogress = secs => {
-      this.state$.next({
-        state: 'playing',
-        duration: this.player.duration,
-        position: secs
-      });
-    };
-    this.player.onend = () => {
-      this.next();
-    };
-    this.player.onerror = error => {
-      console.error(`Error: ${error.message}`);
-    };
-    this.player.uri = track.path;
-
-    this.track$.next(track);
+export function stop() {
+  if (player) {
+    player.stop();
+    player.onprogress = null;
+    player.onend = null;
+    player.onerror = null;
+    player = null;
+    track$.next(null);
   }
+}
 
-  play(trackId) {
-    this.collection.trackById(trackId).then(track => {
-      this.setup(track);
-      this.player.play();
+function setup(track) {
+  stop();
+
+  player = new Player();
+
+  player.onprogress = secs => {
+    state$.next({
+      state: 'playing',
+      duration: player.duration,
+      position: secs
     });
+  };
 
-/*    this.setup(track);
-    this.toggle();*/
+  player.onend = () => {
+    next();
+  };
+
+  player.onerror = error => {
+    console.error(`Error: ${error.message}`);
+  };
+
+  player.uri = track.path;
+
+  track$.next(track);
+}
+
+async function _play(trackId) {
+  stop();
+
+  let track = _.find(queue, {_id: trackId});
+  if (!track) {
+    track = await collection.trackById(trackId);
   }
 
-  toggle() {
-    if (this.current === null && this.queue.length > 0) {
-      this.current = 0;
-    }
+  if (track) {
+    setup(track);
+    player.play();
+  }
+}
 
-    if (this.current !== null) {
-      const track = this.queue[this.current];
-      this.setup(track);
-      this.player.play();
-    }
+export function play(trackId) {
+  _play(trackId).catch(err => {
+    console.error(err);
+  });
+}
+
+export function toggle() {
+  if (current === null && queue.length > 0) {
+    const track = queue[0];
+    setup(track);
   }
 
-  stop() {
-    if (this.player) {
-      this.player.stop();
-      this.player = null;
-      this.track$.next(null);
-    }
+  if (current) {
+    player.play();
   }
+}
 
-  previous() {
-    this.stop();
+export function previous() {
+  const index = _.findIndex(queue, {_id: track$.value._id});
+  stop();
 
-    if (this.current >= 0) {
-      this.current--;
-    }
-
-    this.toggle();
+  if (index > 0) {
+    setup(queue[index - 1]);
+    player.play();
   }
+}
 
-  next() {
-    this.stop();
+export function next() {
+  const index = _.findIndex(queue, {_id: track$.value._id});
+  stop();
 
-    if (this.current < this.queue.length) {
-      this.current++;
-    }
-
-    this.toggle();
+  if (index < queue.length - 1) {
+    setup(queue[index + 1]);
+    player.play();
   }
+}
 
-  clean() {
-    this.stop();
-    this.current = null;
-    this.queue = [];
-  }
+export function clean() {
+  stop();
+  queue = [];
+}
 
-  async setupPlaylist(fnName, options) {
-    for (const id of options) {
-      const track = await this.collection.trackById(id);
-      this.queue.push(track);
-    }
+export async function setupPlaylist(fnName, options) {
+  queue = [];
+
+  for (const id of options) {
+    const track = await collection.trackById(id);
+    queue.push(track);
   }
 }

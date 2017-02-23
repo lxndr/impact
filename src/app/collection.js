@@ -1,116 +1,110 @@
 import _ from 'lodash';
 import path from 'path';
 import globby from 'globby';
-import {Promise} from 'bluebird';
-import {inject} from '@lxndr/di';
-import {Database} from '@lxndr/orm';
 import * as metadata from './metadata';
 import {fs} from './util';
+import {db} from './application';
 
-export class Collection {
-  @inject(Database) db;
-  queue = [];
+const exts = ['flac'].join(',');
+const directories = [
+  '/home/lxndr/Music'
+];
 
-  directories = [
-    '/home/lxndr/Music'
-  ];
+export function start() {
+  update().catch(err => {
+    console.error(err.stack);
+  });
+}
 
-  start() {
-    this.update().catch(err => {
-      console.error(err.stack);
-    });
-  }
+export async function clear() {
+  const col = db.collection('tracks');
+  await col.remove();
+}
 
-  async clear() {
-    const col = this.db.collection('tracks');
-    await col.remove();
-  }
+export async function update() {
+  const col = db.collection('tracks');
 
-  async update() {
-    const col = this.db.collection('tracks');
+  const tracks = await col.find();
+  const files = [].concat(...await Promise.all(
+    directories.map(
+      directory => globby(path.join(directory, '**', `*.{${exts}}`), {nodir: true})
+    )
+  ));
 
-    const tracks = await col.find();
-    const files = [].concat(...await Promise.all(
-      this.directories.map(
-        directory => globby(path.join(directory, '**', '*.flac'), {nodir: true})
-      )
-    ));
+  /* remove non existing */
+  for (const track of tracks) {
+    _.pull(files, track.path);
 
-    /* remove non existing */
-    for (const track of tracks) {
-      _.pull(files, track.path);
-
-      try {
-        const st = await fs.stat(track.path);
-        if (st.mtime > track.mtime) {
-          const meta = await this.inspect(track.path);
-          await col.upsert(meta);
-        }
-      } catch (err) {
-        await col.remove({path: track.path});
+    try {
+      const st = await fs.stat(track.path);
+      if (st.mtime > track.mtime) {
+        const meta = await inspect(track.path);
+        await col.upsert(meta);
       }
-    }
-
-    /* add files */
-    for (const file of files) {
-      try {
-        const meta = await this.inspect(file);
-        await col.insert(meta);
-        console.log(`Adding: ${meta.path}`);
-      } catch (err) {
-        console.error(`Error reading file '${file}': ${err.stack}`);
-      }
+    } catch (err) {
+      await col.remove({path: track.path});
     }
   }
 
-  async inspect(file) {
-    const st = await fs.stat(file);
-    const info = await metadata.read(file);
-
-    return {
-      ...info,
-      path: file,
-      mtime: st.mtime,
-      size: st.size
-    };
+  /* add files */
+  for (const file of files) {
+    try {
+      const meta = await this.inspect(file);
+      await col.insert(meta);
+      console.log(`Adding: ${meta.path}`);
+    } catch (err) {
+      console.error(`Error reading file '${file}': ${err.stack}`);
+    }
   }
+}
 
-  trackById(id) {
-    const col = this.db.collection('tracks');
-    return col.findById(id);
-  }
+async function inspect(file) {
+  const st = await fs.stat(file);
+  const info = await metadata.read(file);
 
-  async artists() {
-    const col = this.db.collection('tracks');
-    const tracks = await col.find();
+  return {
+    ...info,
+    path: file,
+    mtime: st.mtime,
+    size: st.size
+  };
+}
 
-    return _(tracks)
-      .map(track => {
-        if (track.albumArtist) {
-          return track.albumArtist;
-        } else if (track.artist) {
-          return track.artist;
-        } else if (track.artists && track.artists.length > 0) {
-          return track.artists[0];
-        }
+export function trackById(id) {
+  const col = db.collection('tracks');
+  return col.findById(id);
+}
 
-        return null;
-      })
-      .uniq()
-      .reject(_.isEmpty)
-      .value();
-  }
+export async function artists() {
+  const col = db.collection('tracks');
+  const tracks = await col.find();
 
-  async albums() {
-    const col = this.db.collection('tracks');
-    return await col.distinct('album');
-  }
+  return _(tracks)
+    .map(track => {
+      if (track.albumArtist) {
+        return track.albumArtist;
+      } else if (track.artist) {
+        return track.artist;
+      } else if (track.artists && track.artists.length > 0) {
+        return track.artists[0];
+      }
 
-  async allOfArtist(artist) {
-    const col = this.db.collection('tracks');
+      return null;
+    })
+    .uniq()
+    .reject(_.isEmpty)
+    .value();
+}
 
-    return await col.find({
-      albumArtist: artist
-    });
-  }
+export async function albums() {
+  const col = db.collection('tracks');
+  return await col.distinct('album');
+}
+
+export async function allOfArtist(artist) {
+  const col = db.collection('tracks');
+
+  return await col.find({
+    albumArtist: artist
+  });
 }

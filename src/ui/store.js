@@ -1,2 +1,3 @@
 import {remote} from 'electron';
-export default remote.require('./store');
+export const collection = remote.require('./collection');
+export const playback = remote.require('./playback');
