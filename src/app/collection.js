@@ -1,14 +1,17 @@
 import _ from 'lodash';
 import path from 'path';
 import globby from 'globby';
+import {BehaviorSubject} from 'rxjs';
 import * as metadata from './metadata';
 import {fs} from './util';
 import {db} from './application';
 
-const exts = ['flac'].join(',');
+const exts = ['flac', 'ogg'].join(',');
 const directories = [
   '/home/lxndr/Music'
 ];
+
+export const update$ = new BehaviorSubject(null).auditTime(1000);
 
 export function start() {
   update().catch(err => {
@@ -23,15 +26,11 @@ export async function clear() {
 
 export async function update() {
   const col = db.collection('tracks');
-
   const tracks = await col.find();
-  const files = [].concat(...await Promise.all(
-    directories.map(
-      directory => globby(path.join(directory, '**', `*.{${exts}}`), {nodir: true})
-    )
-  ));
 
-  /* remove non existing */
+  const patterns = directories.map(directory => path.join(directory, '**', `*.{${exts}}`));
+  const files = await globby(patterns, {nodir: true});
+
   for (const track of tracks) {
     _.pull(files, track.path);
 
@@ -40,17 +39,21 @@ export async function update() {
       if (st.mtime > track.mtime) {
         const meta = await inspect(track.path);
         await col.upsert(meta);
+        update$.next();
       }
     } catch (err) {
+      /* remove non existing or invalid */
       await col.remove({path: track.path});
+      update$.next();
     }
   }
 
   /* add files */
   for (const file of files) {
     try {
-      const meta = await this.inspect(file);
+      const meta = await inspect(file);
       await col.insert(meta);
+      update$.next();
       console.log(`Adding: ${meta.path}`);
     } catch (err) {
       console.error(`Error reading file '${file}': ${err.stack}`);
@@ -105,6 +108,9 @@ export async function allOfArtist(artist) {
   const col = db.collection('tracks');
 
   return await col.find({
-    albumArtist: artist
+    $or: [
+      {albumArtist: artist},
+      {artist}
+    ]
   });
 }

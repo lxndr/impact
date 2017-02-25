@@ -108,7 +108,7 @@ artist-list ul li a:hover {
   color: #000;
   background-color: #f1f1f1;
 }
-artist-list ul li a.selected {
+artist-list ul li.selected a {
   background: #1b9bff;
 }
 artist-track-list {

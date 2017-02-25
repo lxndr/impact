@@ -1,5 +1,5 @@
 import path from 'path';
-import {app, dialog, globalShortcut, ipcMain, BrowserWindow} from 'electron';
+import {app, dialog, globalShortcut, BrowserWindow} from 'electron';
 import {Database} from '@lxndr/orm';
 import * as collection from './collection';
 import * as playback from './playback';
@@ -57,13 +57,8 @@ app.on('ready', () => {
     app.quit();
   });
 
-  /* global shortcuts */
+  /* shortcuts */
   globalShortcut.register('MediaPreviousTrack', playback.previous);
   globalShortcut.register('MediaPlayPause', playback.toggle);
   globalShortcut.register('MediaNextTrack', playback.next);
-
-  /*  */
-  ipcMain.on('playback/toggle', playback.toggle);
-  ipcMain.on('playback/next', playback.next);
-  ipcMain.on('playback/previous', playback.previous);
 });

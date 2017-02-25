@@ -18,6 +18,3 @@ export class Library extends React.Component {
     );
   }
 }
-
-Library.propTypes = {
-};

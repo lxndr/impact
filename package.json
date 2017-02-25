@@ -22,7 +22,7 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-router": "^3.0.2",
-    "rxjs": "^5.1.1"
+    "rxjs": "^5.2.0"
   },
   "devDependencies": {
     "asar": "^0.13.0",
@@ -36,7 +36,7 @@
     "babel-register": "^6.23.0",
     "devtron": "^1.4.0",
     "electron-rebuild": "^1.5.7",
-    "eslint": "^3.15.0",
+    "eslint": "^3.16.1",
     "eslint-config-xo-react": "^0.10.0",
     "eslint-config-xo-space": "^0.15.0",
     "eslint-plugin-babel": "^4.0.1",

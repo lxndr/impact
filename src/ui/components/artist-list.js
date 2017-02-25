@@ -1,6 +1,6 @@
-import _, {bindKey} from 'lodash';
+import {bindKey} from 'lodash';
 import React from 'react';
-import * as store from '../store';
+import {collection} from '../store';
 
 export class ArtistList extends React.Component {
   static propTypes = {
@@ -33,7 +33,16 @@ export class ArtistList extends React.Component {
   }
 
   componentDidMount() {
-    store.collection.artists().then(artists => {
+    this._update();
+    this.updateSubscription = collection.update$.subscribe(bindKey(this, '_update'));
+  }
+
+  componentWillUnmount() {
+    this.updateSubscription.unsubscribe();
+  }
+
+  _update() {
+    collection.artists().then(artists => {
       this.setState({
         artists: artists.sort()
       });
@@ -44,8 +53,6 @@ export class ArtistList extends React.Component {
 
   _onSelect(selected) {
     this.setState({selected});
-
-    console.log(`Artist ${selected} selected`);
     this.props.onSelect(selected);
   }
 }
