@@ -29,6 +29,89 @@ media-controls {
   padding: 5px;
   -webkit-app-region: drag;
 }
+media-controls .playback {
+  -webkit-app-region: no-drag;
+  width: 140px;
+}
+media-controls .playback .previous,
+media-controls .playback .play,
+media-controls .playback .next {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 5px;
+  background-color: #f00;
+}
+media-controls .playback .previous,
+media-controls .playback .next {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  margin: 5px 0px;
+}
+media-controls .playback .play {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0px 4px;
+}
+media-controls .window {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 25px;
+  width: 90px;
+  cursor: pointer;
+}
+media-controls .window .maximize,
+media-controls .window .minimize,
+media-controls .window .close {
+  position: absolute;
+  top: 0;
+  height: 25px;
+  width: 30px;
+  line-height: 25px;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: bold;
+}
+media-controls .window .close {
+  right: 0;
+  color: #fff;
+  background: #f00;
+}
+media-controls .window .maximize {
+  right: 30px;
+  color: #fff;
+  background: #6495ed;
+}
+media-controls .window .maximize:hover {
+  background: #00f;
+}
+media-controls .window .minimize {
+  right: 60px;
+  color: #fff;
+  background: #6495ed;
+}
+media-controls .window .minimize:hover {
+  background: #00f;
+}
+media-controls .preferences {
+  -webkit-app-region: no-drag;
+  position: absolute;
+  top: 30px;
+  right: 0px;
+  width: 90px;
+  height: 25px;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 25px;
+  background: #228b22;
+  cursor: pointer;
+}
 media-controls .cover {
   height: 50px;
   display: block;
@@ -147,6 +230,9 @@ artist-track-list .disc-title {
 }
 artist-track-list .track-list {
   list-style-type: none;
+}
+artist-track-list .track-list li.playing a {
+  background: #ff0;
 }
 artist-track-list .track-list a {
   display: block;

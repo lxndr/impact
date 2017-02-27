@@ -8,6 +8,80 @@ media-controls
   padding: 5px
   -webkit-app-region: drag
 
+  .playback
+    -webkit-app-region: no-drag
+    width: 140px
+    .previous
+    .play
+    .next
+      display: inline-block
+      text-align: center
+      vertical-align: middle
+      border-radius: 5px
+      background-color: red
+    .previous
+    .next
+      width: 40px
+      height: 40px
+      line-height: 40px
+      margin: 5px 0px
+    .play
+      width: 50px
+      height: 50px
+      line-height: 50px
+      margin: 0px 4px
+
+  .window
+    -webkit-app-region: no-drag
+    position: absolute
+    top: 0
+    right: 0
+    height: 25px
+    width: 90px
+    cursor: pointer
+    .maximize
+    .minimize
+    .close
+      position: absolute
+      top: 0
+      height: 25px
+      width: 30px
+      line-height: 25px
+      text-align: center
+      vertical-align: middle
+      font-weight: bold
+    .close
+      right: 0
+      color: white
+      background: red
+    .maximize
+      right: 30px
+      color: white
+      background: cornflowerblue
+      &:hover
+        background: blue
+    .minimize
+      right: 60px
+      color: white
+      background: cornflowerblue
+      &:hover
+        background: blue
+
+  .preferences
+    -webkit-app-region: no-drag
+    position: absolute
+    top: 30px
+    right: 0px
+    width: 90px
+    height: 25px
+    color: white
+    font-weight: bold
+    text-align: center
+    vertical-align: middle
+    line-height: 25px
+    background: forestgreen
+    cursor: pointer
+
   .cover
     height: 50px
     display: block

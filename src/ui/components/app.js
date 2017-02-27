@@ -1,29 +1,19 @@
 import React from 'react';
+import {routerShape} from 'react-router';
 import {Controls} from './controls';
 
 export class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      track: {
-        title: 'Title 1',
-        album: 'Album 1',
-        artist: 'Artist 1'
-      }
-    };
+  static propTypes = {
+    children: React.PropTypes.any,
+    router: routerShape
   }
 
   render() {
     return (
       <app>
-        <Controls track={this.state.track}/>
+        <Controls router={this.props.router}/>
         {this.props.children}
       </app>
     );
   }
 }
-
-App.propTypes = {
-  children: React.PropTypes.any
-};

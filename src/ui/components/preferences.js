@@ -1,4 +1,3 @@
-import _, {bindKey} from 'lodash';
 import React from 'react';
 import {routerShape} from 'react-router';
 
@@ -11,31 +10,32 @@ export class Preferences extends React.Component {
     super(props);
     this.state = {};
 
-    this.handleSubmit = this.handleSubmit.this(this);
-    this.handleCancel = this.handleCancel.this(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
   }
 
   render() {
     return (
       <preferences>
-        <form onSubmit={bindKey(this, 'submit')}>
+        <form onSubmit={this.handleSubmit}>
           <div>
             <label htmlFor="libraryPath">Library path</label>
             <input id="libraryPath" name="libraryPath"/>
           </div>
           <div>
             <button type="submit">Save</button>
-            <button onClick={this.handleSubmit}>Cancel</button>
+            <button onClick={this.handleCancel}>Cancel</button>
           </div>
         </form>
       </preferences>
     );
   }
 
-  handleSubmit() {
+  handleSubmit(event) {
+    event.preventDefault();
   }
 
   handleCancel() {
-    this.router.goBack();
+    this.props.router.goBack();
   }
 }

@@ -1,8 +1,14 @@
 import _ from 'lodash';
 import React from 'react';
+import {routerShape} from 'react-router';
+import {ipcRenderer} from 'electron';
 import {playback} from '../store';
 
 export class Controls extends React.Component {
+  static propTypes = {
+    router: routerShape
+  }
+
   constructor(props) {
     super(props);
     this.state = {};
@@ -10,6 +16,10 @@ export class Controls extends React.Component {
     this.handlePrevious = this.handlePrevious.bind(this);
     this.handleToggle = this.handleToggle.bind(this);
     this.handleNext = this.handleNext.bind(this);
+    this.handleMinimize = this.handleMinimize.bind(this);
+    this.handleMaximize = this.handleMaximize.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handlePreferences = this.handlePreferences.bind(this);
   }
 
   render() {
@@ -17,16 +27,22 @@ export class Controls extends React.Component {
 
     return (
       <media-controls>
+        <div className="playback">
+          <div className="previous" onClick={this.handlePrevious}>&#171;</div>
+          <div className="play" onClick={this.handleToggle}>&#9654;</div>
+          <div className="next" onClick={this.handleNext}>&#187;</div>
+        </div>
+        <div className="window">
+          <div className="minimize" onClick={this.handleMinimize}>_</div>
+          <div className="maximize" onClick={this.handleMaximize}>&nbsp;</div>
+          <div className="close" onClick={this.handleClose}>X</div>
+        </div>
+        <div className="preferences" onClick={this.handlePreferences}>prefs</div>
         <img className="cover" src="images/album.svg"/>
         <div className="track-info">
           <div className="album-artist">{track.albumArtist}</div>
           <div className="album">{track.album}</div>
           <div className="title">{track.title}</div>
-        </div>
-        <div>
-          <button onClick={this.handlePrevious}>Previous</button>
-          <button onClick={this.handleToggle}>Play</button>
-          <button onClick={this.handleNext}>Next</button>
         </div>
       </media-controls>
     );
@@ -52,5 +68,21 @@ export class Controls extends React.Component {
 
   handleNext() {
     playback.next();
+  }
+
+  handleMinimize() {
+    ipcRenderer.send('window/minimize');
+  }
+
+  handleMaximize() {
+    ipcRenderer.send('window/maximize');
+  }
+
+  handleClose() {
+    ipcRenderer.send('window/close');
+  }
+
+  handlePreferences() {
+    this.props.router.push('/preferences');
   }
 }

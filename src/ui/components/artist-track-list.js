@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import * as store from '../store';
+import {playback, collection} from '../store';
 
 class TrackList extends React.Component {
   static propTypes = {
@@ -15,7 +15,7 @@ class TrackList extends React.Component {
     return (
       <ul className="track-list">
         {tracks.map(track => {
-          const playing = this.props.playingTrack && track._id === this.props.playingTrack._id;
+          const playing = playback.track$.value && track._id === playback.track$.value._id;
           const className = playing ? 'playing' : undefined;
 
           return (
@@ -120,6 +120,7 @@ export class ArtistTrackList extends React.Component {
 
   componentDidMount() {
     this._fetch(this.props.artist);
+    // this.updateSubscription = collection.update$.subscribe(bindKey(this, '_update'));
   }
 
   componentWillReceiveProps(props) {
@@ -133,13 +134,13 @@ export class ArtistTrackList extends React.Component {
       .map('_id')
       .value();
 
-    store.playback.setupPlaylist('list', list).then(() => {
-      store.playback.play(track._id);
+    playback.setupPlaylist('list', list).then(() => {
+      playback.play(track._id);
     });
   }
 
   _fetch(artist) {
-    store.collection.allOfArtist(artist).then(tracks => {
+    collection.allOfArtist(artist).then(tracks => {
       let albums = [];
 
       _(tracks)
