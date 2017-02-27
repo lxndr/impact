@@ -17,6 +17,7 @@ export function stop() {
     player.onerror = null;
     player = null;
     track$.next(null);
+    state$.next(null);
   }
 }
 
@@ -27,9 +28,17 @@ function setup(track) {
 
   player.onprogress = secs => {
     state$.next({
-      state: 'playing',
+      state: state$.value ? state$.value.state : null,
       duration: player.duration,
       position: secs
+    });
+  };
+
+  player.onstatechange = state => {
+    state$.next({
+      state,
+      duration: player.duration,
+      position: player.position
     });
   };
 
@@ -67,13 +76,12 @@ export function play(trackId) {
 }
 
 export function toggle() {
-  if (current === null && queue.length > 0) {
-    const track = queue[0];
-    setup(track);
-  }
-
-  if (current) {
-    player.play();
+  if (player) {
+    if (state$.value.state === 'playing') {
+      player.pause();
+    } else {
+      player.play();
+    }
   }
 }
 

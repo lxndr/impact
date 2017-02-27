@@ -25,6 +25,8 @@ NAN_MODULE_INIT(Player::Init)
   Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("onprogress").ToLocalChecked(), OnProgressGetter, OnProgressSetter);
   Nan::SetAccessor(tpl->InstanceTemplate(),
+    Nan::New("onstatechange").ToLocalChecked(), OnStateChangeGetter, OnStateChangeSetter);
+  Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("onend").ToLocalChecked(), OnEndGetter, OnEndSetter);
   Nan::SetAccessor(tpl->InstanceTemplate(),
     Nan::New("onerror").ToLocalChecked(), OnErrorGetter, OnErrorSetter);
@@ -56,8 +58,13 @@ void Player::position_updated_cb(GstPlayer* player, GstClockTime pos, Player* se
   self->OnProgressCallback.Call(1, argv);
 }
 
-static void state_changed_cb(GstPlayer* player, GstPlayerState state, gpointer user_data) {
-  printf("STATE: %s\n", gst_player_state_get_name(state));
+void Player::state_changed_cb(GstPlayer* player, GstPlayerState state, Player* self) {
+  if (self->OnStateChangeCallback.IsEmpty())
+    return;
+
+  const gchar *stateName = gst_player_state_get_name(state);
+  v8::Local<v8::Value> argv[] = { Nan::New(stateName).ToLocalChecked() };
+  self->OnStateChangeCallback.Call(1, argv);
 }
 
 void Player::end_of_stream_cb(GstPlayer *player, Player* self)
@@ -82,7 +89,7 @@ Player::Player()
 {
   player = gst_player_new(NULL, gst_player_g_main_context_signal_dispatcher_new(NULL));
   g_signal_connect(player, "position-updated", G_CALLBACK(position_updated_cb), this);
-  g_signal_connect(player, "state-changed", G_CALLBACK(state_changed_cb), NULL);
+  g_signal_connect(player, "state-changed", G_CALLBACK(state_changed_cb), this);
   g_signal_connect(player, "end-of-stream", G_CALLBACK(end_of_stream_cb), this);
   g_signal_connect(player, "error", G_CALLBACK (error_cb), this);
 }
@@ -226,6 +233,21 @@ NAN_SETTER(Player::OnProgressSetter)
 {
   auto self = Nan::ObjectWrap::Unwrap<Player>(info.Holder());
   self->OnProgressCallback.Reset(value.As<v8::Function>());
+  info.GetReturnValue().Set(Nan::True());
+}
+
+
+NAN_GETTER(Player::OnStateChangeGetter)
+{
+  auto self = Nan::ObjectWrap::Unwrap<Player>(info.Holder());
+  info.GetReturnValue().Set(self->OnStateChangeCallback.GetFunction());
+}
+
+
+NAN_SETTER(Player::OnStateChangeSetter)
+{
+  auto self = Nan::ObjectWrap::Unwrap<Player>(info.Holder());
+  self->OnStateChangeCallback.Reset(value.As<v8::Function>());
   info.GetReturnValue().Set(Nan::True());
 }
 
