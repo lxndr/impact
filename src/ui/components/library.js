@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import React from 'react';
+import {autobind} from 'core-decorators';
 import {ArtistList} from './artist-list';
 import {ArtistTrackList} from './artist-track-list';
 
@@ -12,9 +12,14 @@ export class Library extends React.Component {
   render() {
     return (
       <library>
-        <ArtistList onSelect={artist => this.setState({artist})}/>
+        <ArtistList onSelect={this.handleArtistSelect}/>
         <ArtistTrackList artist={this.state.artist}/>
       </library>
     );
+  }
+
+  @autobind
+  handleArtistSelect(artist) {
+    this.setState({artist});
   }
 }

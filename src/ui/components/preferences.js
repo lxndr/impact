@@ -1,9 +1,8 @@
 import React from 'react';
-import {routerShape} from 'react-router';
 
 export class Preferences extends React.Component {
   static propTypes = {
-    router: routerShape
+    history: React.PropTypes.object
   }
 
   constructor(props) {
@@ -36,6 +35,6 @@ export class Preferences extends React.Component {
   }
 
   handleCancel() {
-    this.props.router.goBack();
+    this.props.history.goBack();
   }
 }

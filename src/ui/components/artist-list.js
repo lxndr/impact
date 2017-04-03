@@ -1,10 +1,41 @@
-import {bindKey} from 'lodash';
 import React from 'react';
+import {autobind} from 'core-decorators';
+import classnames from 'classnames';
 import {collection} from '../store';
+
+class Artist extends React.Component {
+  static propTypes = {
+    name: React.PropTypes.string.isRequired,
+    selected: React.PropTypes.bool,
+    onClick: React.PropTypes.func.isRequired
+  }
+
+  static defaultProps = {
+    selected: false
+  }
+
+  render() {
+    const {name, selected} = this.props;
+    const className = classnames({selected});
+
+    return (
+      <li className={className}>
+        <a href="#" onClick={this.handleClick}>
+          {name}
+        </a>
+      </li>
+    );
+  }
+
+  @autobind
+  handleClick() {
+    this.props.onClick(this.props.name);
+  }
+}
 
 export class ArtistList extends React.Component {
   static propTypes = {
-    onSelect: React.PropTypes.func
+    onSelect: React.PropTypes.func.isRequired
   }
 
   state = {
@@ -16,17 +47,14 @@ export class ArtistList extends React.Component {
     return (
       <artist-list>
         <ul>
-          {this.state.artists.map(artist => {
-            const itemClass = artist === this.state.selected ? 'selected' : undefined;
-
-            return (
-              <li key={artist} className={itemClass}>
-                <a href="#" onClick={bindKey(this, '_onSelect', artist)}>
-                  {artist}
-                </a>
-              </li>
-            );
-          })}
+          {this.state.artists.map(artist =>
+            <Artist
+              key={artist}
+              name={artist}
+              selected={artist === this.state.selected}
+              onClick={this.handleClick}
+              />
+          )}
         </ul>
       </artist-list>
     );
@@ -34,7 +62,9 @@ export class ArtistList extends React.Component {
 
   componentDidMount() {
     this._update();
-    this.updateSubscription = collection.update$.subscribe(bindKey(this, '_update'));
+    this.updateSubscription = collection.update$.subscribe(() => {
+      this._update();
+    });
   }
 
   componentWillUnmount() {
@@ -51,7 +81,8 @@ export class ArtistList extends React.Component {
     });
   }
 
-  _onSelect(selected) {
+  @autobind
+  handleClick(selected) {
     this.setState({selected});
     this.props.onSelect(selected);
   }

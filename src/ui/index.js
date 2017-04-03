@@ -1,16 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Router, Route, IndexRedirect, hashHistory} from 'react-router';
-import {App} from './components/app';
-import {Library} from './components/library';
-import {Preferences} from './components/preferences';
+import {MemoryRouter} from 'react-router';
+import {App} from './app';
 
-ReactDOM.render((
-  <Router history={hashHistory}>
-    <Route path="/" component={App}>
-      <IndexRedirect to="/library"/>
-      <Route path="preferences" component={Preferences}/>
-      <Route path="library" component={Library}/>
-    </Route>
-  </Router>
-), document.getElementById('app-container'));
+const node = document.getElementById('app-container');
+
+const app = (
+  <MemoryRouter>
+    <App/>
+  </MemoryRouter>
+);
+
+ReactDOM.render(app, node);

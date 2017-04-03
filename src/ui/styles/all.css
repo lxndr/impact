@@ -19,12 +19,18 @@ body {
   bottom: 0;
   left: 300px;
 }
+app {
+  display: flex;
+  height: 100%;
+  flex-flow: column;
+}
+library {
+  display: flex;
+  flex-flow: row;
+  flex: 1;
+}
 media-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 50px;
-  left: 0;
+  flex: 0 1 auto;
   background: #ccc;
   padding: 5px;
   -webkit-app-region: drag;
@@ -166,11 +172,7 @@ album > .info > .disc .track .number {
   color: #808080;
 }
 artist-list {
-  position: absolute;
-  top: 60px;
-  width: 300px;
-  bottom: 0;
-  left: 0;
+  flex: 0 1 auto;
   overflow: auto;
 }
 artist-list ul {
@@ -196,12 +198,7 @@ artist-list ul li.selected a {
   background: #1b9bff;
 }
 artist-track-list {
-  position: absolute;
-  display: block;
-  right: 0;
-  bottom: 0;
-  left: 300px;
-  top: 60px;
+  flex: 1;
   overflow: auto;
 }
 artist-track-list album {

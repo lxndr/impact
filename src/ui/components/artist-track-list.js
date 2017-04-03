@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, {noop} from 'lodash';
 import React from 'react';
 import {playback, collection} from '../store';
 
@@ -7,6 +7,12 @@ class TrackList extends React.Component {
     tracks: React.PropTypes.array,
     playingTrack: React.PropTypes.object,
     onSelect: React.PropTypes.func
+  }
+
+  static defaultProps = {
+    tracks: [],
+    playingTrack: null,
+    onSelect: noop
   }
 
   render() {
@@ -43,8 +49,11 @@ class Disc extends React.Component {
   }
 
   static defaultProps = {
+    number: 1,
     title: null,
-    tracks: []
+    tracks: [],
+    image: null,
+    onSelect: noop
   }
 
   render() {
@@ -76,7 +85,9 @@ class Album extends React.Component {
 
   static defaultProps = {
     title: null,
-    discs: []
+    releaseDate: null,
+    discs: [],
+    onSelect: noop
   }
 
   render() {
@@ -96,7 +107,7 @@ class Album extends React.Component {
 
 export class ArtistTrackList extends React.Component {
   static propTypes = {
-    artist: React.PropTypes.string
+    artist: React.PropTypes.string.isRequired
   }
 
   state = {

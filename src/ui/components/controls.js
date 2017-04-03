@@ -1,12 +1,10 @@
-import _ from 'lodash';
 import React from 'react';
-import {routerShape} from 'react-router';
 import {ipcRenderer} from 'electron';
 import {playback} from '../store';
 
 export class Controls extends React.Component {
   static propTypes = {
-    router: routerShape
+    history: React.PropTypes.object.isRequired
   }
 
   constructor(props) {
@@ -83,6 +81,6 @@ export class Controls extends React.Component {
   }
 
   handlePreferences() {
-    this.props.router.push('/preferences');
+    this.props.history.push('/preferences');
   }
 }
