@@ -1,34 +1,13 @@
-import path from 'path';
 import {app, dialog, ipcMain, globalShortcut, BrowserWindow} from 'electron';
-import {Database} from '@lxndr/orm';
+import * as db from './database';
 import * as collection from './collection';
 import * as playback from './playback';
 
-export let db = null;
 let win = null;
 let closed = false;
 
-async function deinit() {
-  closed = true;
-  await db.close();
-  app.quit();
-}
-
-app.on('ready', () => {
-  const userDirectory = app.getPath('userData');
-  const dbPath = path.join(userDirectory, 'databases');
-
-  db = new Database({
-    driver: 'nedb',
-    collections: [{
-      name: 'tracks',
-      path: path.join(dbPath, 'tracks.db'),
-      indexes: [{
-        field: 'path',
-        unique: true
-      }]
-    }]
-  });
+async function init() {
+  await db.init();
 
   collection.start();
 
@@ -36,10 +15,14 @@ app.on('ready', () => {
   win = new BrowserWindow({
     width: 1600,
     height: 700,
-    frame: false
+    frame: false,
+    webPreferences: {
+      webgl: false,
+      webaudio: false
+    }
   });
 
-  win.loadURL(`file://${__dirname}/../ui/index.html`);
+  win.loadURL(`file://${__dirname}/../../src/ui/index.html`);
   win.setMenu(null);
   win.openDevTools();
 
@@ -47,7 +30,7 @@ app.on('ready', () => {
     if (!closed) {
       event.preventDefault();
       deinit().catch(err => {
-        dialog.showErrorBox('Error while starting', err.message);
+        dialog.showErrorBox('Error while shutting down:', err.message);
         console.error(err.stack);
       });
     }
@@ -80,5 +63,19 @@ app.on('ready', () => {
   ipcMain.on('window/close', event => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.close();
+  });
+}
+
+async function deinit() {
+  closed = true;
+  await db.deinit();
+  app.quit();
+}
+
+app.on('ready', () => {
+  init().catch(err => {
+    app.quit();
+    dialog.showErrorBox('Error while starting up:', err.message);
+    console.error(err);
   });
 });

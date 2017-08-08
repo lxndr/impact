@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {ipcRenderer} from 'electron';
 import {playback} from '../store';
 
 export class Controls extends React.Component {
   static propTypes = {
-    history: React.PropTypes.object.isRequired
+    history: PropTypes.object.isRequired
   }
 
   constructor(props) {

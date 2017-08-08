@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import {MemoryRouter} from 'react-router';
 import {App} from './app';
 
-const node = document.getElementById('app-container');
+document.addEventListener('DOMContentLoaded', () => {
+  const app = (
+    <MemoryRouter>
+      <App/>
+    </MemoryRouter>
+  );
 
-const app = (
-  <MemoryRouter>
-    <App/>
-  </MemoryRouter>
-);
-
-ReactDOM.render(app, node);
+  ReactDOM.render(app, document.body);
+}, false);

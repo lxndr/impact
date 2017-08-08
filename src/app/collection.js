@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import path from 'path';
 import globby from 'globby';
+import debug from 'debug';
 import {BehaviorSubject} from 'rxjs';
 import * as metadata from './metadata';
 import {fs} from './util';
-import {db} from './application';
+import {stores} from './database';
+
+const log = debug('impact:collection');
 
 const exts = ['flac', 'ogg'].join(',');
 const directories = [
@@ -12,21 +15,20 @@ const directories = [
 ];
 
 export const update$ = new BehaviorSubject(null).auditTime(1000);
+export const error$ = new BehaviorSubject(null);
 
 export function start() {
   update().catch(err => {
-    console.error(err.stack);
+    error$.next(err);
   });
 }
 
 export async function clear() {
-  const col = db.collection('tracks');
-  await col.remove();
+  await stores.tracks.remove({}, {multi: true});
 }
 
 export async function update() {
-  const col = db.collection('tracks');
-  const tracks = await col.find();
+  const tracks = await stores.tracks.find({});
 
   const patterns = directories.map(directory => path.join(directory, '**', `*.{${exts}}`));
   const files = await globby(patterns, {nodir: true});
@@ -38,13 +40,15 @@ export async function update() {
       const st = await fs.stat(track.path);
       if (st.mtime > track.mtime) {
         const meta = await inspect(track.path);
-        await col.upsert(meta);
+        await stores.tracks.update(meta, {upsert: true});
         update$.next();
+        log(`updating: ${track.path}`);
       }
     } catch (err) {
       /* remove non existing or invalid */
-      await col.remove({path: track.path});
+      await stores.tracks.remove({path: track.path});
       update$.next();
+      log(`removing: ${track.path}`);
     }
   }
 
@@ -52,13 +56,15 @@ export async function update() {
   for (const file of files) {
     try {
       const meta = await inspect(file);
-      await col.insert(meta);
+      await stores.tracks.insert(meta);
       update$.next();
-      console.log(`Adding: ${meta.path}`);
+      log(`adding: ${meta.path}`);
     } catch (err) {
       console.error(`Error reading file '${file}': ${err.stack}`);
     }
   }
+
+  log('scanning complete');
 }
 
 async function inspect(file) {
@@ -74,40 +80,21 @@ async function inspect(file) {
 }
 
 export function trackById(id) {
-  const col = db.collection('tracks');
-  return col.findById(id);
+  return stores.tracks.findById(id);
 }
 
-export async function artists() {
-  const col = db.collection('tracks');
-  const tracks = await col.find();
+export async function albumArtists() {
+  const tracks = await stores.tracks.find({}, {albumArtist: 1, _id: 0});
 
   return _(tracks)
-    .map(track => {
-      if (track.albumArtist) {
-        return track.albumArtist;
-      } else if (track.artist) {
-        return track.artist;
-      } else if (track.artists && track.artists.length > 0) {
-        return track.artists[0];
-      }
-
-      return null;
-    })
+    .map('albumArtist')
     .uniq()
     .reject(_.isEmpty)
     .value();
 }
 
-export async function albums() {
-  const col = db.collection('tracks');
-  return await col.distinct('album');
-}
-
 export async function allOfArtist(artist) {
-  const col = db.collection('tracks');
-
-  return await col.find({
+  return await stores.tracks.find({
     $or: [
       {albumArtist: artist},
       {artist}

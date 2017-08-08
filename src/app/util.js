@@ -1,21 +1,6 @@
-import _ from 'lodash';
-import {promisify} from 'bluebird';
+import promisifyAll from 'thenify-all';
 
-function promisifySome(module, funcs) {
-  if (typeof module === 'string') {
-    module = require(module);
-  }
-
-  if (funcs) {
-    return _.transform(funcs, (results, func) => {
-      results[func] = promisify(module[func]);
-    }, {});
-  }
-
-  return promisify(module);
-}
-
-export const fs = promisifySome('fs-extra', [
+export const fs = promisifyAll(require('fs-extra'), [
   'open',
   'close',
   'read',

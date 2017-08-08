@@ -1,5 +1,3 @@
-import {promisify} from 'bluebird';
-
 let gst = null;
 
 try {
@@ -8,5 +6,4 @@ try {
   gst = require('../../build/Release/gst.node');
 }
 
-export const metadata = promisify(gst.metadata);
 export const Player = gst.Player;

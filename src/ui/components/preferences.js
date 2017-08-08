@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export class Preferences extends React.Component {
   static propTypes = {
-    history: React.PropTypes.object
+    history: PropTypes.object
   }
 
   constructor(props) {

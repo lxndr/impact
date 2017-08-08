@@ -1,13 +1,14 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {autobind} from 'core-decorators';
 import classnames from 'classnames';
 import {collection} from '../store';
 
 class Artist extends React.Component {
   static propTypes = {
-    name: React.PropTypes.string.isRequired,
-    selected: React.PropTypes.bool,
-    onClick: React.PropTypes.func.isRequired
+    name: PropTypes.string.isRequired,
+    selected: PropTypes.bool,
+    onClick: PropTypes.func.isRequired
   }
 
   static defaultProps = {
@@ -35,7 +36,7 @@ class Artist extends React.Component {
 
 export class ArtistList extends React.Component {
   static propTypes = {
-    onSelect: React.PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired
   }
 
   state = {
@@ -47,14 +48,14 @@ export class ArtistList extends React.Component {
     return (
       <artist-list>
         <ul>
-          {this.state.artists.map(artist =>
+          {this.state.artists.map(artist => (
             <Artist
               key={artist}
               name={artist}
               selected={artist === this.state.selected}
               onClick={this.handleClick}
-              />
-          )}
+            />
+          ))}
         </ul>
       </artist-list>
     );
@@ -72,7 +73,7 @@ export class ArtistList extends React.Component {
   }
 
   _update() {
-    collection.artists().then(artists => {
+    collection.albumArtists().then(artists => {
       this.setState({
         artists: artists.sort()
       });

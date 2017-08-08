@@ -3,3 +3,6 @@ parser: babel-eslint
 extends:
   - xo-space/esnext
   - xo-react/space
+
+rules:
+  no-await-in-loop: off

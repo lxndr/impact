@@ -1,18 +1,18 @@
-import _, {noop} from 'lodash';
+import _ from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import {playback, collection} from '../store';
 
 class TrackList extends React.Component {
   static propTypes = {
-    tracks: React.PropTypes.array,
-    playingTrack: React.PropTypes.object,
-    onSelect: React.PropTypes.func
+    tracks: PropTypes.array,
+    playingTrack: PropTypes.object,
+    onSelect: PropTypes.func.isRequired
   }
 
   static defaultProps = {
     tracks: [],
-    playingTrack: null,
-    onSelect: noop
+    playingTrack: null
   }
 
   render() {
@@ -41,19 +41,18 @@ class TrackList extends React.Component {
 
 class Disc extends React.Component {
   static propTypes = {
-    number: React.PropTypes.number,
-    title: React.PropTypes.string,
-    tracks: React.PropTypes.array,
-    image: React.PropTypes.string,
-    onSelect: React.PropTypes.func
+    number: PropTypes.number,
+    title: PropTypes.string,
+    tracks: PropTypes.array,
+    image: PropTypes.string,
+    onSelect: PropTypes.func.isRequired
   }
 
   static defaultProps = {
     number: 1,
     title: null,
     tracks: [],
-    image: null,
-    onSelect: noop
+    image: null
   }
 
   render() {
@@ -62,9 +61,9 @@ class Disc extends React.Component {
     return (
       <disc>
         {(number || title) &&
-          <div className="disc-title">{
-            title ? `Disc ${number}: ${title}` : `Disc ${number}`
-          }</div>
+          <div className="disc-title">
+            {title ? `Disc ${number}: ${title}` : `Disc ${number}`}
+          </div>
         }
         <div className="cover-container">
           <img className="cover" src={image}/>
@@ -77,17 +76,16 @@ class Disc extends React.Component {
 
 class Album extends React.Component {
   static propTypes = {
-    title: React.PropTypes.string,
-    releaseDate: React.PropTypes.string,
-    discs: React.PropTypes.array,
-    onSelect: React.PropTypes.func
+    title: PropTypes.string,
+    releaseDate: PropTypes.string,
+    discs: PropTypes.array,
+    onSelect: PropTypes.func.isRequired
   }
 
   static defaultProps = {
     title: null,
     releaseDate: null,
-    discs: [],
-    onSelect: noop
+    discs: []
   }
 
   render() {
@@ -107,7 +105,7 @@ class Album extends React.Component {
 
 export class ArtistTrackList extends React.Component {
   static propTypes = {
-    artist: React.PropTypes.string.isRequired
+    artist: PropTypes.string.isRequired
   }
 
   state = {
