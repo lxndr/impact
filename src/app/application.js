@@ -11,6 +11,8 @@ async function init() {
 
   collection.start();
 
+  return;
+
   /* window */
   win = new BrowserWindow({
     width: 1600,

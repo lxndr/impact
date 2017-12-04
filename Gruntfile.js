@@ -39,7 +39,7 @@ module.exports = function (grunt) {
           presets: [
             ['env', {
               targets: {
-                electron: '1.7.5'
+                electron: '1.7.9'
               }
             }]
           ]
@@ -65,16 +65,16 @@ module.exports = function (grunt) {
             loader: 'babel-loader',
             options: {
               plugins: [
-                'transform-object-rest-spread',
-                'transform-decorators-legacy',
-                'transform-class-properties'
+                '@babel/proposal-object-rest-spread',
+                '@babel/proposal-decorators',
+                '@babel/proposal-class-properties'
               ],
               presets: [
-                'react',
-                ['env', {
+                '@babel/react',
+                ['@babel/env', {
                   modules: false,
                   targets: {
-                    electron: '1.7.5'
+                    electron: '1.7.9'
                   }
                 }]
               ]
@@ -85,6 +85,6 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('default', ['stylus']);
+  grunt.registerTask('default', ['babel:main', 'webpack:renderer', 'stylus']);
   grunt.registerTask('lint', ['eslint']);
 };

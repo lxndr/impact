@@ -4,13 +4,22 @@ import {app} from 'electron';
 import Datastore from 'nedb-promise';
 
 export const stores = {
-  tracks: {
+  files: {
     indexes: [{
       fieldName: 'path',
       unique: true
     }]
   },
+  tracks: {
+    indexes: []
+  },
+  albums: {
+    indexes: [{
+      fieldName: 'artist'
+    }]
+  },
   playlists: {
+    indexes: []
   }
 };
 

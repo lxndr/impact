@@ -1,6 +1,9 @@
 import path from 'path';
 import {fs} from '../util';
 import * as flac from './flac';
+import * as cue from './cue';
+
+export {cue};
 
 const extmap = {
   '.flac': flac.read
