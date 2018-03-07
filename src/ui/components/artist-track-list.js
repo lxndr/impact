@@ -1,9 +1,43 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import {playback, collection} from '../store';
+import {autobind} from 'core-decorators';
+import cn from 'classnames';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
-class TrackList extends React.Component {
+class Track extends React.PureComponent {
+  static propTypes = {
+    track: PropTypes.object.isRequired,
+    playing: PropTypes.bool,
+    onClick: PropTypes.func.isRequired
+  }
+
+  static defaultProps = {
+    playing: false
+  }
+
+  render() {
+    const {track, playing} = this.props;
+
+    return (
+      <li key={track._id} className={cn({playing})}>
+        <a href="#" onClick={this.handleClick}>
+          <FontAwesomeIcon className="play-icon" icon="play"/>
+          <span className="number">{track.number}</span>
+          <span className="title">{track.title || 'Unknown title'}</span>
+          <span className="duration"> ({track.duration} secs)</span>
+        </a>
+      </li>
+    );
+  }
+
+  @autobind
+  handleClick() {
+    this.props.onClick(this.props.track);
+  }
+}
+
+class TrackList extends React.PureComponent {
   static propTypes = {
     tracks: PropTypes.array,
     playingTrack: PropTypes.object,
@@ -16,35 +50,26 @@ class TrackList extends React.Component {
   }
 
   render() {
-    const {tracks, onSelect} = this.props;
+    const {tracks, playingTrack, onSelect} = this.props;
 
     return (
       <ul className="track-list">
         {tracks.map(track => {
-          const playing = playback.track$.value && track._id === playback.track$.value._id;
-          const className = playing ? 'playing' : undefined;
-
-          return (
-            <li key={track._id} className={className}>
-              <a href="#" onClick={_.partial(onSelect, track)}>
-                <span className="number">{track.number}</span>
-                <span className="title">{track.title}</span>
-                <span className="duration"> ({track.duration} secs)</span>
-              </a>
-            </li>
-          );
+          const playing = playingTrack && playingTrack._id === track._id;
+          return <Track key={track._id} track={track} playing={playing} onClick={onSelect}/>;
         })}
       </ul>
     );
   }
 }
 
-class Disc extends React.Component {
+class Disc extends React.PureComponent {
   static propTypes = {
     number: PropTypes.number,
     title: PropTypes.string,
     tracks: PropTypes.array,
     image: PropTypes.string,
+    playingTrack: PropTypes.object,
     onSelect: PropTypes.func.isRequired
   }
 
@@ -52,14 +77,15 @@ class Disc extends React.Component {
     number: 1,
     title: null,
     tracks: [],
-    image: null
+    image: null,
+    playingTrack: null
   }
 
   render() {
-    const {number, title, tracks, image = 'images/album.svg', onSelect} = this.props;
+    const {number, title, tracks, image = 'images/album.svg', playingTrack, onSelect} = this.props;
 
     return (
-      <disc>
+      <div className="disc">
         {(number || title) &&
           <div className="disc-title">
             {title ? `Disc ${number}: ${title}` : `Disc ${number}`}
@@ -68,8 +94,8 @@ class Disc extends React.Component {
         <div className="cover-container">
           <img className="cover" src={image}/>
         </div>
-        <TrackList tracks={tracks} onSelect={onSelect}/>
-      </disc>
+        <TrackList tracks={tracks} playingTrack={playingTrack} onSelect={onSelect}/>
+      </div>
     );
   }
 }
@@ -79,130 +105,155 @@ class Album extends React.Component {
     title: PropTypes.string,
     releaseDate: PropTypes.string,
     discs: PropTypes.array,
+    playingTrack: PropTypes.object,
     onSelect: PropTypes.func.isRequired
   }
 
   static defaultProps = {
     title: null,
     releaseDate: null,
-    discs: []
+    discs: [],
+    playingTrack: null
   }
 
   render() {
-    const {title, releaseDate, discs, onSelect} = this.props;
+    const {title, releaseDate, discs, playingTrack, onSelect} = this.props;
 
     return (
-      <album>
-        <div className="album-title">{title}</div>
+      <div className="album">
+        <div className="album-title">{title || 'Unknown album'}</div>
         <div className="release-date">{releaseDate}</div>
-        {discs.map((disc, index) => (
-          <Disc key={index} {...disc} onSelect={onSelect}/>
+        {discs.map(disc => (
+          <Disc key={disc._id} {...disc} playingTrack={playingTrack} onSelect={onSelect}/>
         ))}
-      </album>
+      </div>
     );
   }
 }
 
 export class ArtistTrackList extends React.Component {
+  static contextTypes = {
+    app: PropTypes.any
+  }
+
   static propTypes = {
-    artist: PropTypes.string.isRequired
+    artist: PropTypes.string
+  }
+
+  static defaultProps = {
+    artist: null
   }
 
   state = {
-    albums: []
-  }
-
-  constructor(props) {
-    super(props);
-    this.handleSelect = this.handleSelect.bind(this);
-  }
-
-  render() {
-    return (
-      <artist-track-list>
-        {this.state.albums.map((album, index) => (
-          <Album key={index} {...album} onSelect={this.handleSelect}/>
-        ))}
-      </artist-track-list>
-    );
+    albums: [],
+    tracks: [],
+    playingTrack: null
   }
 
   componentDidMount() {
-    this._fetch(this.props.artist);
-    // this.updateSubscription = collection.update$.subscribe(bindKey(this, '_update'));
+    const {app} = this.context;
+
+    this._trackSub = app.playback.track$.subscribe(playingTrack => {
+      this.setState({playingTrack});
+    });
+
+    this._fetch(this.props.artist).catch(console.error);
   }
 
   componentWillReceiveProps(props) {
-    this._fetch(props.artist);
+    this._fetch(props.artist).catch(console.error);
   }
 
+  componentWillUnmount() {
+    this._trackSub.unsubscribe();
+  }
+
+  render() {
+    const {playingTrack} = this.state;
+    const albums = this.formAlbumList();
+
+    return (
+      <div className="artist-track-list">
+        {albums.map(album => {
+          const key = [album.title, album.releaseDate].join('/');
+          return <Album key={key} {...album} playingTrack={playingTrack} onSelect={this.handleSelect}/>;
+        })}
+      </div>
+    );
+  }
+
+  @autobind
   handleSelect(track) {
-    const list = _(this.state.albums)
-      .flatMap('discs')
-      .flatMap('tracks')
-      .map('_id')
-      .value();
+    const {app} = this.context;
 
-    playback.setupPlaylist('list', list).then(() => {
-      playback.play(track._id);
+    Promise.resolve().then(async () => {
+      const playlist = app.createPlaylist();
+      await playlist.forArtist(this.props.artist);
+      app.playback.playlist = playlist;
+      app.playback.play(track._id);
+    }, console.error);
+  }
+
+  async _fetch(artist) {
+    const {app} = this.context;
+    const {albums, tracks} = await app.collection.allOfArtist(artist);
+
+    this.setState({
+      albums: _.cloneDeep(albums),
+      tracks: _.cloneDeep(tracks)
     });
   }
 
-  _fetch(artist) {
-    collection.allOfArtist(artist).then(tracks => {
-      let albums = [];
+  formAlbumList() {
+    const albums = [];
 
-      _(tracks)
-        .map(_.cloneDeep)
-        .each(track => {
-          let album = _.find(albums, {
-            title: track.album,
-            releaseDate: track.releaseDate
+    for (const _album of this.state.albums) {
+      let album = _.find(albums, {
+        title: _album.title,
+        releaseDate: _album.releaseDate
+      });
+
+      if (!album) {
+        album = {
+          title: _album.title,
+          releaseDate: _album.releaseDate,
+          originalDate: _album.originalDate,
+          duration: 0,
+          discs: []
+        };
+
+        albums.push(album);
+      }
+
+      let disc = _.find(album.discs, {number: _album.discNumber});
+
+      if (!disc) {
+        disc = {
+          _id: _album._id,
+          number: _album.discNumber,
+          title: _album.discSubtitle,
+          duration: 0,
+          tracks: []
+        };
+
+        album.discs.push(disc);
+      }
+    }
+
+    return _(albums)
+      .sortBy('releaseDate')
+      .each(album => {
+        album.discs = _(album.discs)
+          .sortBy('number')
+          .each(disc => {
+            disc.tracks = _(this.state.tracks)
+              .filter({album: disc._id})
+              .sortBy('number')
+              .each(track => {
+                album.duration += track.duration;
+                disc.duration += track.duration;
+              });
           });
-
-          if (!album) {
-            album = {
-              title: track.album,
-              releaseDate: track.releaseDate,
-              originalDate: track.originalDate,
-              duration: 0,
-              discs: []
-            };
-
-            albums.push(album);
-          }
-
-          let disc = _.find(album.discs, {number: track.discNumber});
-
-          if (!disc) {
-            disc = {
-              number: track.discNumber,
-              title: track.discSubtitle,
-              duration: 0,
-              tracks: []
-            };
-
-            album.discs.push(disc);
-          }
-
-          album.duration += track.duration;
-          disc.duration += track.duration;
-          disc.tracks.push(track);
-        });
-
-      albums = _(albums)
-        .sortBy('releaseDate')
-        .each(album => {
-          album.discs = _(album.discs)
-            .sortBy('number')
-            .each(disc => {
-              disc.tracks = _.sortBy(disc.tracks, 'number');
-            });
-        });
-
-      this.setState({albums});
-    }, err => {
-      console.error(err.message);
-    });
+      });
   }
 }

@@ -6,3 +6,4 @@ extends:
 
 rules:
   no-await-in-loop: off
+  capitalized-comments: off

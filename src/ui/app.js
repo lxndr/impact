@@ -1,21 +1,35 @@
 import React from 'react';
-import {Switch, Route, Redirect} from 'react-router';
+import PropTypes from 'prop-types';
+import {MemoryRouter, Switch, Route, Redirect} from 'react-router';
+import {remote} from 'electron';
 import {Controls} from './components/controls';
 import {Library} from './components/library';
 import {Preferences} from './components/preferences';
 
 export class App extends React.Component {
+  static childContextTypes = {
+    app: PropTypes.any
+  }
+
+  getChildContext() {
+    return {
+      app: remote.require('../app').impact
+    };
+  }
+
   render() {
     return (
-      <app>
-        <Route component={Controls}/>
+      <MemoryRouter>
+        <div className="app">
+          <Controls/>
 
-        <Switch>
-          <Route path="/preferences" component={Preferences}/>
-          <Route path="/library" component={Library}/>
-          <Redirect to={'/library'}/>
-        </Switch>
-      </app>
+          <Switch>
+            <Route path="/preferences" component={Preferences}/>
+            <Route path="/library" component={Library}/>
+            <Redirect to="/library"/>
+          </Switch>
+        </div>
+      </MemoryRouter>
     );
   }
 }

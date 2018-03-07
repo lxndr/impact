@@ -1,120 +1,122 @@
-import _ from 'lodash';
 import {BehaviorSubject} from 'rxjs';
-import {Player} from './gst';
-import * as collection from './collection';
+import {Player} from '@lxndr/gst';
 
-export const track$ = new BehaviorSubject(null);
-export const state$ = new BehaviorSubject(null);
-export const error$ = new BehaviorSubject(null);
-let player = null;
-let queue = [];
+export class Playback {
+  _playlist = null
 
-export function stop() {
-  if (player) {
-    player.stop();
-    player.onprogress = null;
-    player.onend = null;
-    player.onerror = null;
-    player = null;
-    track$.next(null);
-    state$.next(null);
-  }
-}
+  player = null
 
-function setup(track) {
-  stop();
+  track$ = new BehaviorSubject(null)
 
-  player = new Player();
+  state$ = new BehaviorSubject({})
 
-  player.onprogress = secs => {
-    state$.next({
-      state: state$.value ? state$.value.state : null,
-      duration: player.duration,
-      position: secs
-    });
-  };
-
-  player.onstatechange = state => {
-    state$.next({
-      state,
-      duration: player.duration,
-      position: player.position
-    });
-  };
-
-  player.onend = () => {
-    next();
-  };
-
-  player.onerror = error => {
-    console.error(`Error: ${error.message}`);
-  };
-
-  player.uri = track.path;
-
-  track$.next(track);
-}
-
-async function _play(trackId) {
-  stop();
-
-  let track = _.find(queue, {_id: trackId});
-  if (!track) {
-    track = await collection.trackById(trackId);
+  constructor(collection) {
+    this.collection = collection;
   }
 
-  if (track) {
-    setup(track);
-    player.play();
+  set playlist(pl) {
+    if (pl === this._playlist) {
+      return;
+    }
+
+    this.stop();
+    this._playlist = pl;
   }
-}
 
-export function play(trackId) {
-  _play(trackId).catch(err => {
-    console.error(err);
-  });
-}
+  get playlist() {
+    return this._playlist;
+  }
 
-export function toggle() {
-  if (player) {
-    if (state$.value.state === 'playing') {
-      player.pause();
-    } else {
-      player.play();
+  stop() {
+    if (this.player) {
+      this.player.stop();
+      this.player.onprogress = null;
+      this.player.onend = null;
+      this.player.onerror = null;
+      this.player = null;
+      this.track$.next(null);
+      this.state$.next(null);
     }
   }
-}
 
-export function previous() {
-  const index = _.findIndex(queue, {_id: track$.value._id});
-  stop();
+  setup(track) {
+    this.stop();
 
-  if (index > 0) {
-    setup(queue[index - 1]);
-    player.play();
+    this.player = new Player();
+
+    this.player.onprogress = secs => {
+      this.state$.next({
+        state: this.player.state,
+        duration: this.player.duration,
+        position: secs
+      });
+    };
+
+    this.player.onstatechange = state => {
+      if (!this.player) {
+        this.state$.next(null);
+        return;
+      }
+
+      this.state$.next({
+        state,
+        duration: this.player.duration,
+        position: this.player.position
+      });
+    };
+
+    this.player.onend = () => {
+      this.next();
+    };
+
+    this.player.onerror = error => {
+      console.error(`Error: ${error.message}`);
+    };
+
+    this.player.uri = track.file.path;
+
+    this.track$.next(track);
   }
-}
 
-export function next() {
-  const index = _.findIndex(queue, {_id: track$.value._id});
-  stop();
+  async _play(trackId) {
+    this.stop();
 
-  if (index < queue.length - 1) {
-    setup(queue[index + 1]);
-    player.play();
+    const track = await this.collection.trackById(trackId);
+
+    if (!track) {
+      return;
+    }
+
+    track.album = await this.collection.albumById(track.album);
+    track.file = await this.collection.fileById(track.file);
+
+    this.setup(track);
+    this.player.play();
   }
-}
 
-export function clean() {
-  stop();
-  queue = [];
-}
+  play(trackId) {
+    this._play(trackId).catch(console.error);
+  }
 
-export async function setupPlaylist(fnName, options) {
-  queue = [];
+  toggle() {
+    if (this.player) {
+      if (this.state$.getValue().state === 'playing') {
+        this.player.pause();
+      } else {
+        this.player.play();
+      }
+    }
+  }
 
-  for (const id of options) {
-    const track = await collection.trackById(id);
-    queue.push(track);
+  previous() {
+    const currentTrack = this.track$.getValue();
+    const track = this.playlist.previous(currentTrack);
+    this.play(track._id);
+  }
+
+  next() {
+    const currentTrack = this.track$.getValue();
+    const track = this.playlist.next(currentTrack);
+    this.play(track._id);
   }
 }

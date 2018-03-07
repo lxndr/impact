@@ -1,29 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {autobind} from 'core-decorators';
-import classnames from 'classnames';
-import {collection} from '../store';
+import cn from 'classnames';
 
 class Artist extends React.Component {
   static propTypes = {
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     selected: PropTypes.bool,
     onClick: PropTypes.func.isRequired
   }
 
   static defaultProps = {
+    name: null,
     selected: false
   }
 
   render() {
     const {name, selected} = this.props;
-    const className = classnames({selected});
+    const className = cn({selected, unknown: !name});
 
     return (
       <li className={className}>
-        <a href="#" onClick={this.handleClick}>
-          {name}
-        </a>
+        <a href="#" onClick={this.handleClick}>{name || 'Unknown artist'}</a>
       </li>
     );
   }
@@ -39,6 +37,10 @@ export class ArtistList extends React.Component {
     onSelect: PropTypes.func.isRequired
   }
 
+  static contextTypes = {
+    app: PropTypes.any
+  }
+
   state = {
     artists: [],
     selected: null
@@ -46,7 +48,7 @@ export class ArtistList extends React.Component {
 
   render() {
     return (
-      <artist-list>
+      <div className="artist-list">
         <ul>
           {this.state.artists.map(artist => (
             <Artist
@@ -57,29 +59,18 @@ export class ArtistList extends React.Component {
             />
           ))}
         </ul>
-      </artist-list>
+      </div>
     );
   }
 
   componentDidMount() {
-    this._update();
-    this.updateSubscription = collection.update$.subscribe(() => {
-      this._update();
-    });
+    this.refresh().catch(console.error);
   }
 
-  componentWillUnmount() {
-    this.updateSubscription.unsubscribe();
-  }
-
-  _update() {
-    collection.albumArtists().then(artists => {
-      this.setState({
-        artists: artists.sort()
-      });
-    }, err => {
-      console.error(err.message);
-    });
+  async refresh() {
+    const {app} = this.context;
+    const artists = await app.collection.artists();
+    this.setState({artists});
   }
 
   @autobind

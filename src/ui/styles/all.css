@@ -17,108 +17,104 @@ body {
   bottom: 0;
   left: 300px;
 }
-library {
+.library {
   display: flex;
   flex-flow: row;
 }
-#app-container {
+#app {
   height: 100%;
   width: 100%;
   display: block;
 }
-app {
+.app {
   height: 100%;
   width: 100%;
   display: flex;
   flex-flow: column;
 }
-app > :first-child {
+.app > :first-child {
   flex: 0 1 auto;
 }
-app > :last-child {
+.app > :last-child {
   flex: 1;
 }
-media-controls {
-  display: block;
-  background: #ccc;
-  padding: 5px;
+.media-controls {
+  display: grid;
+  grid-template-areas: "prev play next cover title wmin wmax wcls" "prev play next cover album pref pref pref" "prev play next cover seek  pref pref pref";
+  grid-template-columns: 40px 50px 40px 50px auto 30px 30px 30px;
   -webkit-app-region: drag;
+  background: #ccc;
 }
-media-controls .playback {
+.media-controls .prev,
+.media-controls .play,
+.media-controls .next,
+.media-controls .wmin,
+.media-controls .wmax,
+.media-controls .wcls,
+.media-controls .pref,
+.media-controls .seek {
   -webkit-app-region: no-drag;
-  width: 140px;
-}
-media-controls .playback .previous,
-media-controls .playback .play,
-media-controls .playback .next {
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  border-radius: 5px;
-  background-color: #f00;
   cursor: pointer;
 }
-media-controls .playback .previous,
-media-controls .playback .next {
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
+.media-controls .prev,
+.media-controls .play,
+.media-controls .next {
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 4px;
+  background-color: #f00;
+}
+.media-controls .prev {
+  grid-area: prev;
   margin: 5px 0px;
 }
-media-controls .playback .play {
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
+.media-controls .play {
+  grid-area: play;
   margin: 0px 4px;
 }
-media-controls .window {
-  -webkit-app-region: no-drag;
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 25px;
-  width: 90px;
-  cursor: pointer;
+.media-controls .next {
+  grid-area: next;
+  margin: 5px 0px;
 }
-media-controls .window .maximize,
-media-controls .window .minimize,
-media-controls .window .close {
-  position: absolute;
-  top: 0;
-  height: 25px;
-  width: 30px;
-  line-height: 25px;
-  text-align: center;
-  vertical-align: middle;
-  font-weight: bold;
+.media-controls .cover {
+  grid-area: cover;
+  height: 50px;
 }
-media-controls .window .close {
-  right: 0;
+.media-controls .title {
+  grid-area: title;
+}
+.media-controls .album {
+  grid-area: album;
+}
+.media-controls .seek {
+  grid-area: seek;
+}
+.media-controls .wmin {
+  grid-area: wmin;
+  height: 25px;
+  color: #fff;
+  background: #6495ed;
+}
+.media-controls .wmin:hover {
+  background: #00f;
+}
+.media-controls .wmax {
+  grid-area: wmax;
+  height: 25px;
+  color: #fff;
+  background: #6495ed;
+}
+.media-controls .wmax:hover {
+  background: #00f;
+}
+.media-controls .wcls {
+  grid-area: wcls;
+  height: 25px;
   color: #fff;
   background: #f00;
 }
-media-controls .window .maximize {
-  right: 30px;
-  color: #fff;
-  background: #6495ed;
-}
-media-controls .window .maximize:hover {
-  background: #00f;
-}
-media-controls .window .minimize {
-  right: 60px;
-  color: #fff;
-  background: #6495ed;
-}
-media-controls .window .minimize:hover {
-  background: #00f;
-}
-media-controls .preferences {
-  -webkit-app-region: no-drag;
-  position: absolute;
-  top: 30px;
-  right: 0px;
-  width: 90px;
+.media-controls .pref {
+  grid-area: pref;
   height: 25px;
   color: #fff;
   font-weight: bold;
@@ -126,19 +122,6 @@ media-controls .preferences {
   vertical-align: middle;
   line-height: 25px;
   background: #228b22;
-  cursor: pointer;
-}
-media-controls .cover {
-  height: 50px;
-  display: block;
-  float: left;
-  margin-right: 5px;
-}
-media-controls .cover .track-info {
-  margin-left: 60px;
-}
-media-controls button {
-  -webkit-app-region: no-drag;
 }
 album {
   display: block;
@@ -180,68 +163,74 @@ album > .info > .disc .track:hover {
 album > .info > .disc .track .number {
   color: #808080;
 }
-artist-list {
+.artist-list {
   flex: 0 1 auto;
   overflow: auto;
+  background: #333;
+  border-right: #1b9bff solid 3px;
 }
-artist-list ul {
+.artist-list ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  background: #333;
   font-weight: bold;
-  border-right: #1b9bff solid 3px;
 }
-artist-list ul li a {
+.artist-list ul li a {
   display: block;
-  padding: 8px 0 8px 16px;
+  padding: 8px 8px 8px 16px;
   text-decoration: none;
   color: #fff;
   transition: 0.2s;
 }
-artist-list ul li a:hover {
+.artist-list ul li a:hover {
   color: #000;
   background-color: #f1f1f1;
 }
-artist-list ul li.selected a {
+.artist-list ul li.selected a {
   background: #1b9bff;
 }
-artist-track-list {
+.artist-list ul li.unknown a {
+  font-style: italic;
+}
+.artist-track-list {
   flex: 1;
   overflow-y: auto;
 }
-artist-track-list album {
+.artist-track-list .album {
   clear: both;
   margin: 4px;
 }
-artist-track-list .album-title {
+.artist-track-list .album-title {
   font-weight: bold;
   font-size: 1.1em;
 }
-artist-track-list disc {
+.artist-track-list .disc {
   display: block;
   margin: 8px 0;
 }
-artist-track-list disc .cover {
+.artist-track-list .disc .cover {
   width: 200px;
   float: left;
 }
-artist-track-list .disc-title,
-artist-track-list .track-list {
+.artist-track-list .disc-title,
+.artist-track-list .track-list {
   margin: 0 0 0 210px;
   padding-left: 4px;
   border-left: 1px solid #ccc;
 }
-artist-track-list .disc-title {
+.artist-track-list .disc-title {
   font-style: italic;
 }
-artist-track-list .track-list {
+.artist-track-list .track-list {
   list-style-type: none;
 }
-artist-track-list .track-list li.playing a {
+.artist-track-list .track-list li:not(.playing) .play-icon {
+  visibility: hidden;
+}
+.artist-track-list .track-list li.playing a {
   background: #ff0;
 }
-artist-track-list .track-list a {
+.artist-track-list .track-list a {
   display: block;
   background: #fff;
   color: #000;
@@ -249,10 +238,10 @@ artist-track-list .track-list a {
   padding: 3px 4px;
   border-radius: 2px;
 }
-artist-track-list .track-list a:hover {
+.artist-track-list .track-list a:hover {
   background: #ccc;
 }
-artist-track-list .track-list .number {
+.artist-track-list .track-list .number {
   width: 30px;
   display: inline-block;
   text-align: right;

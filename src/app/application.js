@@ -1,83 +1,31 @@
-import {app, dialog, ipcMain, globalShortcut, BrowserWindow} from 'electron';
-import * as db from './database';
-import * as collection from './collection';
-import * as playback from './playback';
+import {ExtensionManager} from './extension-manager';
+import {Database} from './database';
+import {Collection} from './collection';
+import {Scanner, flacHandler} from './scanner';
+import {Playback} from './playback';
+import {Playlist} from './playlist';
 
-let win = null;
-let closed = false;
+export class Application {
+  constructor() {
+    this.extensionManager = new ExtensionManager();
+    this.database = new Database();
+    this.collection = new Collection(this.database);
+    this.scanner = new Scanner(this.collection);
+    this.playback = new Playback(this.collection);
 
-async function init() {
-  await db.init();
+    this.scanner.registerType('flac', flacHandler);
+  }
 
-  collection.start();
+  async startup() {
+    await this.extensionManager.init();
+    await this.database.init();
+    await this.scanner.run();
+  }
 
-  return;
+  async shutdown() {
+  }
 
-  /* window */
-  win = new BrowserWindow({
-    width: 1600,
-    height: 700,
-    frame: false,
-    webPreferences: {
-      webgl: false,
-      webaudio: false
-    }
-  });
-
-  win.loadURL(`file://${__dirname}/../../src/ui/index.html`);
-  win.setMenu(null);
-  win.openDevTools();
-
-  app.on('before-quit', event => {
-    if (!closed) {
-      event.preventDefault();
-      deinit().catch(err => {
-        dialog.showErrorBox('Error while shutting down:', err.message);
-        console.error(err.stack);
-      });
-    }
-  });
-
-  app.on('window-all-closed', () => {
-    app.quit();
-  });
-
-  /* shortcuts */
-  globalShortcut.register('MediaPreviousTrack', playback.previous);
-  globalShortcut.register('MediaPlayPause', playback.toggle);
-  globalShortcut.register('MediaNextTrack', playback.next);
-
-  /* ipc */
-  ipcMain.on('window/minimize', event => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.minimize();
-  });
-
-  ipcMain.on('window/maximize', event => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (win.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win.maximize();
-    }
-  });
-
-  ipcMain.on('window/close', event => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.close();
-  });
+  createPlaylist() {
+    return new Playlist(this.collection);
+  }
 }
-
-async function deinit() {
-  closed = true;
-  await db.deinit();
-  app.quit();
-}
-
-app.on('ready', () => {
-  init().catch(err => {
-    app.quit();
-    dialog.showErrorBox('Error while starting up:', err.message);
-    console.error(err);
-  });
-});

@@ -1,12 +1,9 @@
 import _ from 'lodash';
 import path from 'path';
-import iconv from 'iconv-lite';
-import globby from 'globby';
 import debug from 'debug';
-import {BehaviorSubject} from 'rxjs';
-import * as metadata from './metadata';
+import iconv from 'iconv-lite';
+import invariant from 'invariant';
 import {fs} from './util';
-import {stores} from './database';
 
 /*
 
@@ -16,9 +13,6 @@ Schemas:
     _id
     path
     mtime
-    index
-      path
-      mtime
 
   tracks
     _id
@@ -26,9 +20,8 @@ Schemas:
     number
     album
     duration
-    source
-      file
-      offset
+    file
+    ?offset
 
   albums
     _id
@@ -38,65 +31,116 @@ Schemas:
       name
       path
 
-  playlists
-    _id
-    name
-    tracks
-
 */
 
 const log = debug('impact:collection');
 
-const directories = [
-  '/home/lxndr/_Music'
-];
-
-export const update$ = new BehaviorSubject(null).auditTime(1000);
-export const error$ = new BehaviorSubject(null);
-
-export function start() {
-  update().catch(err => {
-    console.error(err);
-    error$.next(err);
-  });
-}
-
-export async function clear() {
-  await stores.tracks.remove({}, {multi: true});
-}
-
-export async function update() {
-  const patterns = directories.map(directory => path.join(directory, '**'));
-  const files = await globby(patterns, {nodir: true, nosort: true});
-
-  const dbfiles = await stores.files.find({});
-
-  for (const dbfile of dbfiles) {
-    _.pull(files, dbfile.path);
-
-    try {
-      const st = await fs.stat(dbfile.path);
-
-      /* modified file */
-      if (st.mtime > dbfile.mtime) {
-        await updateFile(dbfile, st);
-      }
-    } catch (err) {
-      /* remove non existing or invalid */
-      await removeFile(dbfile);
-    }
+export class Collection {
+  constructor(database) {
+    this.database = database;
   }
 
-  /* add files */
-  for (const file of files) {
-    try {
-      await addFile(file);
-    } catch (err) {
-      console.error(`Error reading file '${file}': ${err.stack}`);
-    }
+  async clear() {
+    await this.database.tracks.remove({}, {multi: true});
+    await this.database.albums.remove({}, {multi: true});
+    await this.database.files.remove({}, {multi: true});
   }
 
-  log('scanning complete');
+  async files() {
+    return this.database.files.find({});
+  }
+
+  async fileById(_id) {
+    return this.database.files.findOne({_id});
+  }
+
+  async fileByPath(path) {
+    return this.database.files.findOne({path});
+  }
+
+  async artists() {
+    const list = await this.database.albums.find({}, {artist: 1});
+    return _(list).map('artist').uniq().sort().value();
+  }
+
+  async allOfArtist(artist) {
+    const albums = await this.database.albums.find({artist});
+    const ids = _.map(albums, '_id');
+    const tracks = await this.database.tracks.find({album: {$in: ids}});
+    return {albums, tracks};
+  }
+
+  async albumById(_id) {
+    return this.database.albums.findOne({_id});
+  }
+
+  async trackById(_id) {
+    return this.database.tracks.findOne({_id});
+  }
+
+  async tracks() {
+    return this.database.tracks.find({});
+  }
+
+  async upsertTrack({file, track, album}) {
+    log(`upserting file ${file.path}`);
+
+    /* file */
+    let dbfile = await this.database.files.findOne({path: file.path});
+
+    if (!dbfile) {
+      dbfile = await this.database.files.insert(file);
+    }
+
+    /* album */
+    _.defaults(album, {
+      artist: null,
+      title: null,
+      releaseDate: null,
+      releaseType: null,
+      discSubtitle: null,
+      discNumber: null
+    });
+
+    if (!album.title) {
+      _.assign(album, {
+        releaseDate: null,
+        releaseType: null,
+        discSubtitle: null,
+        discNumber: null
+      });
+    }
+
+    let dbalbum = await this.database.albums.findOne(album);
+
+    if (!dbalbum) {
+      dbalbum = await this.database.albums.insert(album);
+    }
+
+    /* track */
+    _.defaults(track, {
+      title: null,
+      genre: null,
+      number: null
+    });
+
+    _.assign(track, {
+      file: dbfile._id,
+      album: dbalbum._id
+    });
+
+    const dbtrack = await this.database.tracks.insert(track);
+  }
+
+  async removeFile({file, dbfile}) {
+    invariant(file || dbfile, 'file or dbfile must be specified');
+
+    if (!dbfile) {
+      dbfile = await this.fileByPath(file);
+    }
+
+    await this.database.files.remove({_id: dbfile._id});
+  }
 }
 
 async function inspectFile(file, getstat) {
@@ -120,108 +164,6 @@ async function inspectFile(file, getstat) {
   }
 
   return {type, info, stat};
-}
-
-async function addFile(file) {
-  let dbfile = await stores.files.findOne({
-    path: file
-  });
-
-  if (dbfile && dbfile.index) {
-    return;
-  }
-
-  const {type, info, stat} = await inspectFile(file, true);
-
-  if (!type) {
-    return;
-  }
-
-  log(`adding file ${file}`);
-
-  dbfile = await stores.files.insert({
-    path: file,
-    size: stat.size,
-    mtime: stat.mtime
-  });
-
-  switch (type) {
-    case 'index':
-      await addCue(dbfile, info);
-      break;
-    case 'media':
-      await addSingleTrack(dbfile, info);
-      break;
-    default:
-      break;
-  }
-}
-
-async function updateFile(dbfile, st) {
-  log(`updating file ${dbfile.path}`);
-
-  await stores.files.update({
-    _id: dbfile._id
-  }, {
-    ...dbfile,
-    size: st.size,
-    mtime: st.mtime
-  });
-}
-
-async function removeFile(file) {
-  log(`removing file ${file.path}`);
-
-  if (file.media || file.index) {
-    await stores.files.remove({_id: file.media || file.index});
-  }
-
-  await stores.files.remove({_id: file._id});
-}
-
-async function removeFileByPath(path) {
-  const file = await stores.files.findOne({path});
-
-  if (file) {
-    await removeFile(file);
-  }
-}
-
-async function addTrack(dbfile, info) {
-  const album = {
-    artist: info.albumArtist,
-    title: info.album,
-    releaseDate: info.releaseDate,
-    releaseType: info.releaseType,
-    discSubtitle: info.discSubtitle,
-    discNumber: info.discNumber
-  };
-
-  if (typeof album.discSubtitle === 'undefined') {
-    delete album.discSubtitle;
-  }
-
-  let dbalbum = await stores.albums.findOne(album);
-
-  if (!dbalbum) {
-    dbalbum = await stores.albums.insert({...album, items: []});
-  }
-
-  const dbtrack = await stores.tracks.insert({
-    title: info.title,
-    album: dbalbum._id,
-    genre: info.genre,
-    number: info.number
-  });
-
-  await stores.albums.update(
-    {_id: dbalbum._id},
-    {$push: {items: dbtrack._id}}
-  );
-}
-
-async function addSingleTrack(dbfile, info) {
-  await addTrack(dbfile, info);
 }
 
 async function addCue(dbfile, cue) {
@@ -280,27 +222,4 @@ async function addCue(dbfile, cue) {
       );
     }
   }
-}
-
-export function trackById(id) {
-  return stores.tracks.findOne({_id: id});
-}
-
-export async function albumArtists() {
-  const tracks = await stores.tracks.find({}, {albumArtist: 1, _id: 0});
-
-  return _(tracks)
-    .map('albumArtist')
-    .uniq()
-    .sort()
-    .value();
-}
-
-export function allOfArtist(artist) {
-  return stores.tracks.find({
-    $or: [
-      {albumArtist: artist},
-      {artist}
-    ]
-  });
 }

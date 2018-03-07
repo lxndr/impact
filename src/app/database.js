@@ -11,40 +11,40 @@ export const stores = {
     }]
   },
   tracks: {
-    indexes: []
+    indexes: [{
+      fieldName: 'file'
+    }, {
+      fieldName: 'album'
+    }]
   },
   albums: {
     indexes: [{
       fieldName: 'artist'
     }]
-  },
-  playlists: {
-    indexes: []
   }
 };
 
-export function init() {
-  const userDirectory = app.getPath('userData');
-  const dbPath = path.join(userDirectory, 'databases');
+export class Database {
+  async init() {
+    const userDirectory = app.getPath('userData');
+    const dbPath = path.join(userDirectory, 'databases');
 
-  return Promise.all(
-    _.map(stores, async (desc, name) => {
-      const store = new Datastore({
-        filename: path.join(dbPath, `${name}.db`)
-      });
+    return Promise.all(
+      _.map(stores, async (desc, name) => {
+        const store = new Datastore({
+          filename: path.join(dbPath, `${name}.db`)
+        });
 
-      await store.loadDatabase();
+        await store.loadDatabase();
 
-      if (desc.indexes) {
-        for (const index of desc.indexes) {
-          await store.ensureIndex(index);
+        if (desc.indexes) {
+          for (const index of desc.indexes) {
+            await store.ensureIndex(index);
+          }
         }
-      }
 
-      stores[name] = store;
-    })
-  );
-}
-
-export async function deinit() {
+        this[name] = store;
+      })
+    );
+  }
 }

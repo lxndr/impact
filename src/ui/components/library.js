@@ -4,17 +4,14 @@ import {ArtistList} from './artist-list';
 import {ArtistTrackList} from './artist-track-list';
 
 export class Library extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+  state = {}
 
   render() {
     return (
-      <library>
+      <div className="library">
         <ArtistList onSelect={this.handleArtistSelect}/>
         <ArtistTrackList artist={this.state.artist}/>
-      </library>
+      </div>
     );
   }
 

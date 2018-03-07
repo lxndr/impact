@@ -1,87 +1,97 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {ipcRenderer} from 'electron';
-import {playback} from '../store';
+import {autobind} from 'core-decorators';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 export class Controls extends React.Component {
-  static propTypes = {
-    history: PropTypes.object.isRequired
+  static contextTypes = {
+    router: PropTypes.object,
+    app: PropTypes.any
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-
-    this.handlePrevious = this.handlePrevious.bind(this);
-    this.handleToggle = this.handleToggle.bind(this);
-    this.handleNext = this.handleNext.bind(this);
-    this.handleMinimize = this.handleMinimize.bind(this);
-    this.handleMaximize = this.handleMaximize.bind(this);
-    this.handleClose = this.handleClose.bind(this);
-    this.handlePreferences = this.handlePreferences.bind(this);
-  }
-
-  render() {
-    const track = this.state.track || {};
-
-    return (
-      <media-controls>
-        <div className="playback">
-          <div className="previous" onClick={this.handlePrevious}>&#171;</div>
-          <div className="play" onClick={this.handleToggle}>&#9654;</div>
-          <div className="next" onClick={this.handleNext}>&#187;</div>
-        </div>
-        <div className="window">
-          <div className="minimize" onClick={this.handleMinimize}>_</div>
-          <div className="maximize" onClick={this.handleMaximize}>&nbsp;</div>
-          <div className="close" onClick={this.handleClose}>X</div>
-        </div>
-        <div className="preferences" onClick={this.handlePreferences}>prefs</div>
-        <img className="cover" src="images/album.svg"/>
-        <div className="track-info">
-          <div className="album-artist">{track.albumArtist}</div>
-          <div className="album">{track.album}</div>
-          <div className="title">{track.title}</div>
-        </div>
-      </media-controls>
-    );
+  state = {
+    track: null,
+    state: null
   }
 
   componentDidMount() {
-    this._trackSub = playback.track$.subscribe(track => {
+    const {app} = this.context;
+
+    this._trackSub = app.playback.track$.subscribe(track => {
       this.setState({track});
+    });
+
+    this._stateSub = app.playback.state$.subscribe(state => {
+      this.setState({state});
     });
   }
 
   componentWillUnmount() {
     this._trackSub.unsubscribe();
+    this._stateSub.unsubscribe();
   }
 
+  render() {
+    const track = this.state.track || {album: {}};
+    const state = this.state.state || {};
+    const albumTitle = `by ${track.album.artist} from ${track.album.title}`;
+
+    return (
+      <div className="media-controls">
+        <div className="prev" onClick={this.handlePrevious}><FontAwesomeIcon icon="backward"/></div>
+        <div className="play" onClick={this.handleToggle}><FontAwesomeIcon icon={state.state === 'playing' ? 'pause' : 'play'}/></div>
+        <div className="next" onClick={this.handleNext}><FontAwesomeIcon icon="forward"/></div>
+        <div className="wmin" onClick={this.handleMinimize}><FontAwesomeIcon icon="window-minimize"/></div>
+        <div className="wmax" onClick={this.handleMaximize}><FontAwesomeIcon icon="window-maximize"/></div>
+        <div className="wcls" onClick={this.handleClose}><FontAwesomeIcon icon="window-close"/></div>
+        <div className="pref" onClick={this.handlePreferences}>prefs</div>
+        <img className="cover" src="images/album.svg"/>
+        <div className="title">{track.title}</div>
+        <div className="album">{albumTitle}</div>
+        <div className="seek">
+          {state.position}
+        </div>
+      </div>
+    );
+  }
+
+  @autobind
   handlePrevious() {
-    playback.previous();
+    const {app} = this.context;
+    app.playback.previous();
   }
 
+  @autobind
   handleToggle() {
-    playback.toggle();
+    const {app} = this.context;
+    app.playback.toggle();
   }
 
+  @autobind
   handleNext() {
-    playback.next();
+    const {app} = this.context;
+    app.playback.next();
   }
 
+  @autobind
   handleMinimize() {
     ipcRenderer.send('window/minimize');
   }
 
+  @autobind
   handleMaximize() {
     ipcRenderer.send('window/maximize');
   }
 
+  @autobind
   handleClose() {
     ipcRenderer.send('window/close');
   }
 
+  @autobind
   handlePreferences() {
-    this.props.history.push('/preferences');
+    const {router} = this.context;
+    router.history.push('/preferences');
   }
 }

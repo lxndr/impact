@@ -1,8 +1,8 @@
-artist-track-list
+.artist-track-list
   flex: 1
   overflow-y: auto
 
-  album
+  .album
     clear: both
     margin: 4px
 
@@ -10,7 +10,7 @@ artist-track-list
       font-weight: bold
       font-size: 1.1em
 
-  disc
+  .disc
     display: block
     margin: 8px 0
     .cover
@@ -28,6 +28,10 @@ artist-track-list
 
   .track-list
     list-style-type: none
+
+    li:not(.playing)
+      .play-icon
+        visibility: hidden
 
     li.playing
       a

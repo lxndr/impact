@@ -1,3 +1,4 @@
+import path from 'path';
 import promisifyAll from 'thenify-all';
 
 export const fs = promisifyAll(require('fs-extra'), [
@@ -13,3 +14,13 @@ export const fs = promisifyAll(require('fs-extra'), [
   'emptyDir',
   'ensureDir'
 ]);
+
+export function extname(fname) {
+  const ext = path.extname(fname);
+
+  if (ext.length > 1) {
+    return ext.substr(1).toLowerCase();
+  }
+
+  return null;
+}
