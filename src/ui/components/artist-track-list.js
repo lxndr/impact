@@ -4,29 +4,24 @@ import PropTypes from 'prop-types';
 import {autobind} from 'core-decorators';
 import cn from 'classnames';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import {formatDuration} from '../util';
 
 class Track extends React.PureComponent {
   static propTypes = {
     track: PropTypes.object.isRequired,
-    playing: PropTypes.bool,
+    playing: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired
-  }
-
-  static defaultProps = {
-    playing: false
   }
 
   render() {
     const {track, playing} = this.props;
 
     return (
-      <li key={track._id} className={cn({playing})}>
-        <a href="#" onClick={this.handleClick}>
-          <FontAwesomeIcon className="play-icon" icon="play"/>
-          <span className="number">{track.number}</span>
-          <span className="title">{track.title || 'Unknown title'}</span>
-          <span className="duration"> ({track.duration} secs)</span>
-        </a>
+      <li key={track._id} className={cn({playing})} onClick={this.handleClick}>
+        <FontAwesomeIcon className="play-icon" icon="play"/>
+        <div className="number">{track.number}</div>
+        <div className="title">{track.title || 'Unknown title'}</div>
+        <div className="duration">{formatDuration(track.duration)}</div>
       </li>
     );
   }

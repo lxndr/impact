@@ -204,6 +204,12 @@ album > .info > .disc .track .number {
   overflow: auto;
   width: 20em;
 }
+.artist-list::-webkit-scrollbar {
+  width: 4px;
+}
+.artist-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
 .artist-list ul {
   list-style-type: none;
   margin: 0;
@@ -214,12 +220,14 @@ album > .info > .disc .track .number {
   padding: 8px 8px 8px 16px;
   text-decoration: none;
   transition: 0.2s;
+  color: #000;
 }
 .artist-list ul li a:hover {
-  background-color: #f1f1f1;
+  background-color: #ccc;
 }
 .artist-list ul li.selected a {
-  background: #1b9bff;
+  background: #808080;
+  color: #fff;
 }
 .artist-list ul li.unknown a {
   font-style: italic;
@@ -256,27 +264,39 @@ album > .info > .disc .track .number {
 .artist-track-list .track-list {
   list-style-type: none;
 }
-.artist-track-list .track-list li:not(.playing) .play-icon {
-  visibility: hidden;
-}
-.artist-track-list .track-list li.playing a {
-  background: #ff0;
-}
-.artist-track-list .track-list a {
-  display: block;
+.artist-track-list .track-list li {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
   color: #000;
   text-decoration: none;
   padding: 3px 4px;
   border-radius: 2px;
+  cursor: pointer;
 }
-.artist-track-list .track-list a:hover {
+.artist-track-list .track-list li:hover {
   background: #ccc;
+}
+.artist-track-list .track-list li:not(.playing) .play-icon {
+  visibility: hidden;
+}
+.artist-track-list .track-list li.playing {
+  background: #808080;
+}
+.artist-track-list .track-list li.playing > * {
+  color: #fff;
 }
 .artist-track-list .track-list .number {
   width: 30px;
   display: inline-block;
   text-align: right;
   margin-right: 5px;
+  color: #808080;
+}
+.artist-track-list .track-list .title {
+  flex: 1;
+}
+.artist-track-list .track-list .duration {
   color: #808080;
 }
 preferences {

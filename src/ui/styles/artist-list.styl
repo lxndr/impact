@@ -3,6 +3,12 @@
   overflow: auto
   width: 20em
 
+  &::-webkit-scrollbar
+    width: 4px
+
+  &::-webkit-scrollbar-thumb
+    background: #ccc
+
   ul
     list-style-type: none
     margin: 0
@@ -14,11 +20,13 @@
         padding: 8px 8px 8px 16px
         text-decoration: none
         transition: 0.2s
+        color: black
       a:hover
-        background-color: #f1f1f1
+        background-color: #ccc
 
     li.selected a
-      background: #1b9bff
+      background: gray
+      color: white
 
     li.unknown a
       font-style: italic

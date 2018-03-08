@@ -6,7 +6,7 @@ import {fs, extname} from './util';
 import * as flac from './metadata/flac';
 
 const directories = [
-  '/home/lxndr/_Music'
+  '/home/lxndr/Music'
 ];
 
 export class Scanner {
