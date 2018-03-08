@@ -6,8 +6,13 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     clean: [
-      ''
+      'app',
+      'dist'
     ],
+
+    copy: {
+      'app/index.html': 'src/ui/index.html'
+    },
 
     eslint: {
       files: 'src/**/*.js'
@@ -16,10 +21,7 @@ module.exports = function (grunt) {
     stylus: {
       compile: {
         files: {
-          'src/ui/styles/all.css': 'src/ui/styles/all.styl'
-        },
-        options: {
-          compress: false
+          'app/bundle.css': 'src/ui/styles/all.styl'
         }
       }
     },
@@ -39,7 +41,7 @@ module.exports = function (grunt) {
           presets: [
             ['env', {
               targets: {
-                electron: '1.7.9'
+                electron: '2.0.0-beta.2'
               }
             }]
           ]
@@ -48,19 +50,13 @@ module.exports = function (grunt) {
     },
 
     webpack: {
-      renderer: {
-        entry: './src/ui/index.js',
-        output: {
-          path: path.resolve(__dirname, 'dist'),
-          filename: 'renderer.js',
-          pathinfo: true
-        },
-        target: 'electron-renderer',
+      options: {
         module: {
           rules: [{
             test: /\.jsx?$/,
             include: [
-              path.resolve(__dirname, 'src/ui')
+              path.resolve(__dirname, 'src'),
+              path.resolve(__dirname, 'node_modules/@lxndr')
             ],
             loader: 'babel-loader',
             options: {
@@ -74,17 +70,46 @@ module.exports = function (grunt) {
                 ['@babel/env', {
                   modules: false,
                   targets: {
-                    electron: '1.7.9'
+                    electron: '2.0.0-beta.2'
                   }
                 }]
               ]
             }
           }]
         }
+      },
+      main: {
+        entry: './src/app/index.js',
+        output: {
+          path: path.resolve(__dirname, 'app'),
+          filename: 'main.js',
+          libraryTarget: 'commonjs2',
+          pathinfo: true
+        },
+        target: 'electron-main',
+        node: {
+          __dirname: false
+        },
+        externals: [function (context, request, callback) {
+          if (/^(@lxndr\/gst|thenify-all|nedb-promise|globby)/.test(request)) {
+            return callback(null, 'commonjs ' + request);
+          }
+
+          callback();
+        }]
+      },
+      renderer: {
+        entry: './src/ui/index.js',
+        output: {
+          path: path.resolve(__dirname, 'app'),
+          filename: 'renderer.js',
+          pathinfo: true
+        },
+        target: 'electron-renderer'
       }
     }
   });
 
-  grunt.registerTask('default', ['babel:main', 'webpack:renderer', 'stylus']);
+  grunt.registerTask('default', ['webpack:main', 'webpack:renderer', 'copy', 'stylus']);
   grunt.registerTask('lint', ['eslint']);
 };

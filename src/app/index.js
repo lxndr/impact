@@ -17,11 +17,7 @@ async function run() {
     }
   });
 
-  win.webContents.on('dom-ready', () => {
-    win.webContents.executeJavaScript(`require('../ui/index.babel.js')`);
-  });
-
-  win.loadURL(`file://${__dirname}/../../src/ui/index.html`);
+  win.loadURL(`file://${__dirname}/index.html`);
   win.setMenu(null);
 
   if (process.env.NODE_ENV === 'development') {

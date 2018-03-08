@@ -13,7 +13,7 @@ export class App extends React.Component {
 
   getChildContext() {
     return {
-      app: remote.require('../app').impact
+      app: remote.require('./main').impact
     };
   }
 

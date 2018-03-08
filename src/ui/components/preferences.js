@@ -1,40 +1,42 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {autobind} from 'core-decorators';
+import {Form, Field} from '@lxndr/react-webui';
 
 export class Preferences extends React.Component {
   static propTypes = {
-    history: PropTypes.object
+    history: PropTypes.object.isRequired
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {};
-
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
+  state = {
+    value: {}
   }
 
   render() {
     return (
-      <preferences>
-        <form onSubmit={this.handleSubmit}>
-          <div>
-            <label htmlFor="libraryPath">Library path</label>
-            <input id="libraryPath" name="libraryPath"/>
-          </div>
-          <div>
+      <div className="preferences">
+        <Form value={this.state.value} onChange={this.handleChange} onSubmit={this.handleSubmit}>
+          <Field name="libraryPath" label="Music library path"/>
+          <div className="actionbar">
             <button type="submit">Save</button>
-            <button onClick={this.handleCancel}>Cancel</button>
+            <button type="button" onClick={this.handleCancel}>Cancel</button>
           </div>
-        </form>
-      </preferences>
+        </Form>
+      </div>
     );
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
+  @autobind
+  handleChange(value) {
+    this.setState({value});
   }
 
+  @autobind
+  handleSubmit() {
+    this.props.history.goBack();
+  }
+
+  @autobind
   handleCancel() {
     this.props.history.goBack();
   }
