@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {ipcRenderer} from 'electron';
 import {autobind} from 'core-decorators';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import {Seeker} from './seeker';
 
 export class Controls extends React.Component {
   static contextTypes = {
@@ -33,27 +34,47 @@ export class Controls extends React.Component {
   }
 
   render() {
-    const track = this.state.track || {album: {}};
-    const state = this.state.state || {};
-    const albumTitle = `by ${track.album.artist} from ${track.album.title}`;
+    const {track, state} = this.state;
+    let title = null;
+    let album = null;
+    let playing = false;
+    let duration = 0;
+    let position = 0;
+
+    if (track) {
+      const _artist = track.album.artist || 'Unknown artist';
+      const _album = track.album.title || 'Unknown album';
+      title = track.title || 'Unknown title';
+      album = `by ${_artist} from ${_album}`;
+      duration = track.duration;
+    }
+
+    if (state) {
+      playing = state.state === 'playing';
+      position = state.position;
+    }
 
     return (
       <div className="media-controls">
         <div className="prev" onClick={this.handlePrevious}><FontAwesomeIcon icon="backward"/></div>
-        <div className="play" onClick={this.handleToggle}><FontAwesomeIcon icon={state.state === 'playing' ? 'pause' : 'play'}/></div>
+        <div className="play" onClick={this.handleToggle}><FontAwesomeIcon icon={playing ? 'pause' : 'play'}/></div>
         <div className="next" onClick={this.handleNext}><FontAwesomeIcon icon="forward"/></div>
         <div className="wmin" onClick={this.handleMinimize}><FontAwesomeIcon icon="window-minimize"/></div>
         <div className="wmax" onClick={this.handleMaximize}><FontAwesomeIcon icon="window-maximize"/></div>
         <div className="wcls" onClick={this.handleClose}><FontAwesomeIcon icon="window-close"/></div>
-        <div className="pref" onClick={this.handlePreferences}>prefs</div>
+        <div className="pref" onClick={this.handlePreferences}><FontAwesomeIcon icon="cog"/></div>
         <img className="cover" src="images/album.svg"/>
-        <div className="title">{track.title}</div>
-        <div className="album">{albumTitle}</div>
-        <div className="seek">
-          {state.position}
-        </div>
+        <div className="title">{title}</div>
+        <div className="album">{album}</div>
+        <Seeker duration={duration} position={position} onSeek={this.handleSeek}/>
       </div>
     );
+  }
+
+  @autobind
+  handleSeek(time) {
+    const {app} = this.context;
+    app.playback.seek(time);
   }
 
   @autobind

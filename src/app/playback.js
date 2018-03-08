@@ -8,7 +8,7 @@ export class Playback {
 
   track$ = new BehaviorSubject(null)
 
-  state$ = new BehaviorSubject({})
+  state$ = new BehaviorSubject(null).sampleTime(200)
 
   constructor(collection) {
     this.collection = collection;
@@ -118,5 +118,11 @@ export class Playback {
     const currentTrack = this.track$.getValue();
     const track = this.playlist.next(currentTrack);
     this.play(track._id);
+  }
+
+  seek(time) {
+    if (this.player) {
+      this.player.position = time;
+    }
   }
 }

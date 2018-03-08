@@ -2,7 +2,7 @@ require('@babel/register')({
   presets: [
     ['@babel/env', {
       targets: {
-        electron: '1.8.2'
+        electron: '2.0.0-beta.2'
       }
     }]
   ],

@@ -1,7 +1,3 @@
-* {
-  font-family: 'Open Sans';
-  font-size: 12px;
-}
 html,
 body {
   margin: 0;
@@ -9,6 +5,8 @@ body {
   height: 100%;
   width: 100%;
   -webkit-user-select: none;
+  font-family: 'Open Sans';
+  font-size: 12px;
 }
 .album-list {
   position: absolute;
@@ -20,6 +18,10 @@ body {
 .library {
   display: flex;
   flex-flow: row;
+}
+body {
+  background: #f1f1f1;
+  color: #000;
 }
 #app {
   height: 100%;
@@ -39,11 +41,10 @@ body {
   flex: 1;
 }
 .media-controls {
-  display: grid;
-  grid-template-areas: "prev play next cover title wmin wmax wcls" "prev play next cover album pref pref pref" "prev play next cover seek  pref pref pref";
-  grid-template-columns: 40px 50px 40px 50px auto 30px 30px 30px;
+  display: block;
   -webkit-app-region: drag;
-  background: #ccc;
+  border-bottom: 1px solid #ccc;
+  height: 7em;
 }
 .media-controls .prev,
 .media-controls .play,
@@ -52,7 +53,7 @@ body {
 .media-controls .wmax,
 .media-controls .wcls,
 .media-controls .pref,
-.media-controls .seek {
+.media-controls .seeker {
   -webkit-app-region: no-drag;
   cursor: pointer;
 }
@@ -61,37 +62,85 @@ body {
 .media-controls .next {
   text-align: center;
   vertical-align: middle;
-  border-radius: 4px;
-  background-color: #f00;
+  border-radius: 2px;
+  border: 1px solid #c4c4c4;
+  background: #e0e0e0;
+  color: rgba(30,30,30,0.75);
+}
+.media-controls .prev:hover,
+.media-controls .play:hover,
+.media-controls .next:hover {
+  box-shadow: #aaa 0px 0px 6px 0px;
+  transition: box-shadow 1s;
 }
 .media-controls .prev {
-  grid-area: prev;
-  margin: 5px 0px;
+  position: absolute;
+  top: 1.5em;
+  left: 1.5em;
+  line-height: 4em;
+  width: 4em;
 }
 .media-controls .play {
-  grid-area: play;
-  margin: 0px 4px;
+  position: absolute;
+  top: 1em;
+  left: 6em;
+  line-height: 5em;
+  width: 5em;
 }
 .media-controls .next {
-  grid-area: next;
-  margin: 5px 0px;
+  position: absolute;
+  top: 1.5em;
+  left: 11.5em;
+  line-height: 4em;
+  width: 4em;
 }
 .media-controls .cover {
-  grid-area: cover;
-  height: 50px;
+  position: absolute;
+  top: 0.1em;
+  left: 17em;
+  height: 6.8em;
+  background: #ccc;
 }
 .media-controls .title {
-  grid-area: title;
+  position: absolute;
+  top: 1em;
+  left: 24.5em;
+  font-weight: bold;
 }
 .media-controls .album {
-  grid-area: album;
+  position: absolute;
+  top: 3em;
+  left: 24.5em;
 }
-.media-controls .seek {
-  grid-area: seek;
+.media-controls .seeker {
+  position: absolute;
+  top: 5.5em;
+  left: 24.5em;
+  right: 0.5em;
+  background: #ccc;
+  height: 0.5em;
+}
+.media-controls .seeker .poser {
+  background: #808080;
+}
+.media-controls .pref,
+.media-controls .wmin,
+.media-controls .wmax,
+.media-controls .wcls {
+  position: absolute;
+  top: 0;
+  line-height: 2em;
+  width: 2.5em;
+  text-align: center;
+  vertical-align: middle;
+}
+.media-controls .pref {
+  right: 8em;
+  color: #fff;
+  background: #228b22;
 }
 .media-controls .wmin {
-  grid-area: wmin;
-  height: 25px;
+  right: 5em;
   color: #fff;
   background: #6495ed;
 }
@@ -99,8 +148,7 @@ body {
   background: #00f;
 }
 .media-controls .wmax {
-  grid-area: wmax;
-  height: 25px;
+  right: 2.5em;
   color: #fff;
   background: #6495ed;
 }
@@ -108,20 +156,8 @@ body {
   background: #00f;
 }
 .media-controls .wcls {
-  grid-area: wcls;
-  height: 25px;
-  color: #fff;
+  right: 0;
   background: #f00;
-}
-.media-controls .pref {
-  grid-area: pref;
-  height: 25px;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  vertical-align: middle;
-  line-height: 25px;
-  background: #228b22;
 }
 album {
   display: block;
@@ -166,24 +202,20 @@ album > .info > .disc .track .number {
 .artist-list {
   flex: 0 1 auto;
   overflow: auto;
-  background: #333;
-  border-right: #1b9bff solid 3px;
+  width: 20em;
 }
 .artist-list ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  font-weight: bold;
 }
 .artist-list ul li a {
   display: block;
   padding: 8px 8px 8px 16px;
   text-decoration: none;
-  color: #fff;
   transition: 0.2s;
 }
 .artist-list ul li a:hover {
-  color: #000;
   background-color: #f1f1f1;
 }
 .artist-list ul li.selected a {
@@ -232,7 +264,6 @@ album > .info > .disc .track .number {
 }
 .artist-track-list .track-list a {
   display: block;
-  background: #fff;
   color: #000;
   text-decoration: none;
   padding: 3px 4px;

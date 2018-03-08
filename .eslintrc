@@ -7,3 +7,4 @@ extends:
 rules:
   no-await-in-loop: off
   capitalized-comments: off
+  react/jsx-sort-props: off

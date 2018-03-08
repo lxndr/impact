@@ -7,8 +7,6 @@ async function run() {
   await impact.startup();
 
   /* window */
-  BrowserWindow.addDevToolsExtension('/home/lxndr/.config/chromium/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0/');
-
   const win = new BrowserWindow({
     width: 1600,
     height: 700,
@@ -25,7 +23,11 @@ async function run() {
 
   win.loadURL(`file://${__dirname}/../../src/ui/index.html`);
   win.setMenu(null);
-  win.openDevTools();
+
+  if (process.env.NODE_ENV === 'development') {
+    BrowserWindow.addDevToolsExtension('/home/lxndr/.config/chromium/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.1.0_0/');
+    win.openDevTools();
+  }
 
   app.on('before-quit', () => {
     impact.shutdown().catch(err => {

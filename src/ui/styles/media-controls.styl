@@ -1,11 +1,8 @@
 .media-controls
-  display: grid
-  grid-template-areas:   "prev play next cover title wmin wmax wcls"\
-                         "prev play next cover album pref pref pref"\
-                         "prev play next cover seek  pref pref pref"
-  grid-template-columns: 40px  50px 40px 50px  auto  30px 30px 30px
+  display: block
   -webkit-app-region: drag
-  background: #ccc
+  border-bottom: 1px solid #ccc
+  height: 7em
 
   .prev
   .play
@@ -14,7 +11,7 @@
   .wmax
   .wcls
   .pref
-  .seek
+  .seeker
     -webkit-app-region: no-drag
     cursor: pointer
 
@@ -23,62 +20,95 @@
   .next
     text-align: center
     vertical-align: middle
-    border-radius: 4px
-    background-color: red
+    border-radius: 2px
+    border: 1px solid #c4c4c4
+    background: #e0e0e0
+    color: rgba(30, 30, 30, 0.75)
+
+    &:hover
+      box-shadow: #aaa 0px 0px 6px 0px
+      transition: box-shadow 1s
 
   .prev
-    grid-area: prev
-    margin: 5px 0px
+    position: absolute
+    top: 1.5em
+    left: 1.5em
+    line-height: 4em
+    width: 4em
 
   .play
-    grid-area: play
-    margin: 0px 4px
+    position: absolute
+    top: 1em
+    left: 6em
+    line-height: 5em
+    width: 5em
 
   .next
-    grid-area: next
-    margin: 5px 0px
+    position: absolute
+    top: 1.5em
+    left: 11.5em
+    line-height: 4em
+    width: 4em
 
   .cover
-    grid-area: cover
-    height: 50px
+    position: absolute
+    top: 0.1em
+    left: 17em
+    height: 6.8em
+    background: #ccc
 
   .title
-    grid-area: title
+    position: absolute
+    top: 1em
+    left: 24.5em
+    font-weight: bold
 
   .album
-    grid-area: album
+    position: absolute
+    top: 3em
+    left: 24.5em
 
-  .seek
-    grid-area: seek
+  .seeker
+    position: absolute
+    top: 5.5em
+    left: 24.5em
+    right: 0.5em
+    background: #ccc
+    height: 0.5em
+
+    .poser
+      background: gray
+
+  .pref
+  .wmin
+  .wmax
+  .wcls
+    position: absolute
+    top: 0
+    line-height: 2em
+    width: 2.5em
+    text-align: center
+    vertical-align: middle
+
+  .pref
+    right: 8em
+    color: white
+    background: forestgreen
 
   .wmin
-    grid-area: wmin
-    height: 25px
+    right: 5em
     color: white
     background: cornflowerblue
     &:hover
       background: blue
 
   .wmax
-    grid-area: wmax
-    height: 25px
+    right: 2.5em
     color: white
     background: cornflowerblue
     &:hover
       background: blue
 
   .wcls
-    grid-area: wcls
-    height: 25px
-    color: white
+    right: 0
     background: red
-
-  .pref
-    grid-area: pref
-    height: 25px
-    color: white
-    font-weight: bold
-    text-align: center
-    vertical-align: middle
-    line-height: 25px
-    background: forestgreen
