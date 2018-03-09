@@ -1,6 +1,6 @@
 {
   "name": "impact",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Music Management and Playback",
   "main": "app/main.js",
   "author": "lxndr",
@@ -14,8 +14,7 @@
     "dist": "electron-builder"
   },
   "build": {
-    "appId": "org.lxndr.impact",
-    "asar": false
+    "appId": "org.lxndr.impact"
   },
   "dependencies": {
     "@lxndr/gst": "github:lxndr/node-gst",
@@ -24,12 +23,6 @@
     "thenify-all": "^1.6.0"
   },
   "devDependencies": {
-    "rxjs": "^5.5.6",
-    "iconv-lite": "^0.4.19",
-    "lodash": "^4.17.5",
-    "debug": "^3.1.0",
-    "fs-extra": "^5.0.0",
-    "7zip-bin-linux": "^1.3.1",
     "@babel/core": "^7.0.0-beta.40",
     "@babel/plugin-proposal-class-properties": "^7.0.0-beta.40",
     "@babel/plugin-proposal-decorators": "^7.0.0-beta.40",
@@ -42,30 +35,35 @@
     "@fortawesome/react-fontawesome": "0.0.17",
     "@lxndr/react-webui": "github:lxndr/react-webui",
     "ajv": "^5.5.2",
-    "app-builder-bin-linux": "^1.7.2",
     "babel-eslint": "^8.2.2",
     "babel-loader": "^8.0.0-beta.2",
     "classnames": "^2.2.5",
     "core-decorators": "^0.20.0",
+    "debug": "^3.1.0",
     "devtron": "^1.4.0",
     "document-ready": "^2.0.1",
     "electron": "^2.0.0-beta.2",
-    "electron-builder": "^20.4.0",
+    "electron-builder": "^20.4.1",
     "eslint": "^4.18.2",
     "eslint-config-xo-react": "^0.16.0",
     "eslint-config-xo-space": "^0.18.0",
     "eslint-plugin-babel": "^4.1.1",
     "eslint-plugin-react": "^7.7.0",
+    "fs-extra": "^5.0.0",
     "grunt": "^1.0.2",
+    "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-stylus": "^1.2.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-webpack": "^3.0.2",
+    "iconv-lite": "^0.4.19",
     "load-grunt-tasks": "^3.5.2",
+    "lodash": "^4.17.5",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router": "^4.2.0",
+    "rxjs": "^5.5.6",
     "stylus": "^0.54.5",
     "webpack": "^3.11.0"
   }

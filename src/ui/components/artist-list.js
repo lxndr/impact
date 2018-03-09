@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {autobind} from 'core-decorators';
 import cn from 'classnames';
 
-class Artist extends React.Component {
+class Artist extends React.PureComponent {
   static propTypes = {
     name: PropTypes.string,
     selected: PropTypes.bool,
@@ -32,7 +32,7 @@ class Artist extends React.Component {
   }
 }
 
-export class ArtistList extends React.Component {
+export class ArtistList extends React.PureComponent {
   static propTypes = {
     onSelect: PropTypes.func.isRequired
   }

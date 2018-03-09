@@ -2,129 +2,8 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import {autobind} from 'core-decorators';
-import cn from 'classnames';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import {formatDuration} from '../util';
-
-class Track extends React.PureComponent {
-  static propTypes = {
-    track: PropTypes.object.isRequired,
-    playing: PropTypes.bool.isRequired,
-    onClick: PropTypes.func.isRequired
-  }
-
-  render() {
-    const {track, playing} = this.props;
-
-    return (
-      <li key={track._id} className={cn({playing})} onClick={this.handleClick}>
-        <FontAwesomeIcon className="play-icon" icon="play"/>
-        <div className="number">{track.number}</div>
-        <div className="title">{track.title || 'Unknown title'}</div>
-        <div className="duration">{formatDuration(track.duration)}</div>
-      </li>
-    );
-  }
-
-  @autobind
-  handleClick() {
-    this.props.onClick(this.props.track);
-  }
-}
-
-class TrackList extends React.PureComponent {
-  static propTypes = {
-    tracks: PropTypes.array,
-    playingTrack: PropTypes.object,
-    onSelect: PropTypes.func.isRequired
-  }
-
-  static defaultProps = {
-    tracks: [],
-    playingTrack: null
-  }
-
-  render() {
-    const {tracks, playingTrack, onSelect} = this.props;
-
-    return (
-      <ul className="track-list">
-        {tracks.map(track => {
-          const playing = playingTrack && playingTrack._id === track._id;
-          return <Track key={track._id} track={track} playing={playing} onClick={onSelect}/>;
-        })}
-      </ul>
-    );
-  }
-}
-
-class Disc extends React.PureComponent {
-  static propTypes = {
-    number: PropTypes.number,
-    title: PropTypes.string,
-    tracks: PropTypes.array,
-    image: PropTypes.string,
-    playingTrack: PropTypes.object,
-    onSelect: PropTypes.func.isRequired
-  }
-
-  static defaultProps = {
-    number: 1,
-    title: null,
-    tracks: [],
-    image: null,
-    playingTrack: null
-  }
-
-  render() {
-    const {number, title, tracks, image = 'images/album.svg', playingTrack, onSelect} = this.props;
-
-    return (
-      <div className="disc">
-        {(number || title) &&
-          <div className="disc-title">
-            {title ? `Disc ${number}: ${title}` : `Disc ${number}`}
-          </div>
-        }
-        <div className="cover-container">
-          <img className="cover" src={image}/>
-        </div>
-        <TrackList tracks={tracks} playingTrack={playingTrack} onSelect={onSelect}/>
-      </div>
-    );
-  }
-}
-
-class Album extends React.Component {
-  static propTypes = {
-    title: PropTypes.string,
-    releaseDate: PropTypes.string,
-    discs: PropTypes.array,
-    playingTrack: PropTypes.object,
-    onSelect: PropTypes.func.isRequired
-  }
-
-  static defaultProps = {
-    title: null,
-    releaseDate: null,
-    discs: [],
-    playingTrack: null
-  }
-
-  render() {
-    const {title, releaseDate, discs, playingTrack, onSelect} = this.props;
-
-    return (
-      <div className="album">
-        <div className="album-title">{title || 'Unknown album'}</div>
-        <div className="release-date">{releaseDate}</div>
-        {discs.map(disc => (
-          <Disc key={disc._id} {...disc} playingTrack={playingTrack} onSelect={onSelect}/>
-        ))}
-      </div>
-    );
-  }
-}
+import {Album} from './album';
+import {remoteCall} from '../remote-call';
 
 export class ArtistTrackList extends React.Component {
   static contextTypes = {
@@ -141,7 +20,6 @@ export class ArtistTrackList extends React.Component {
 
   state = {
     albums: [],
-    tracks: [],
     playingTrack: null
   }
 
@@ -170,8 +48,14 @@ export class ArtistTrackList extends React.Component {
     return (
       <div className="artist-track-list">
         {albums.map(album => {
-          const key = [album.title, album.releaseDate].join('/');
-          return <Album key={key} {...album} playingTrack={playingTrack} onSelect={this.handleSelect}/>;
+          return (
+            <Album
+              key={album._id}
+              album={album}
+              playingTrack={playingTrack}
+              onSelect={this.handleSelect}
+            />
+          );
         })}
       </div>
     );
@@ -190,8 +74,7 @@ export class ArtistTrackList extends React.Component {
   }
 
   async _fetch(artist) {
-    const {app} = this.context;
-    const {albums, tracks} = await app.collection.allOfArtist(artist);
+    const {albums, tracks} = await remoteCall('app.collection.allOfArtist', artist);
 
     this.setState({
       albums: _.cloneDeep(albums),
@@ -210,6 +93,7 @@ export class ArtistTrackList extends React.Component {
 
       if (!album) {
         album = {
+          _id: [_album.title, _album.releaseDate].join('/'),
           title: _album.title,
           releaseDate: _album.releaseDate,
           originalDate: _album.originalDate,

@@ -36,7 +36,8 @@ Schemas:
 const log = debug('impact:collection');
 
 export class Collection {
-  constructor(database) {
+  constructor(application, database) {
+    this.application = application;
     this.database = database;
   }
 
@@ -63,8 +64,12 @@ export class Collection {
     return _(list).map('artist').uniq().sort().value();
   }
 
+  async albumsByArtist(artist) {
+    return this.database.albums.find({artist});
+  }
+
   async allOfArtist(artist) {
-    const albums = await this.database.albums.find({artist});
+    const albums = await this.albumsByArtist(artist);
     const ids = _.map(albums, '_id');
     const tracks = await this.database.tracks.find({album: {$in: ids}});
     return {albums, tracks};
@@ -80,6 +85,10 @@ export class Collection {
 
   async tracks() {
     return this.database.tracks.find({});
+  }
+
+  async tracksByAlbum(album) {
+    return this.database.tracks.find({album});
   }
 
   async upsertTrack({file, track, album}) {

@@ -5,10 +5,12 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
-    clean: [
-      'app',
-      'dist'
-    ],
+    clean: {
+      files: [
+        'app',
+        'dist'
+      ]
+    },
 
     copy: {
       'app/index.html': 'src/ui/index.html'
@@ -21,7 +23,7 @@ module.exports = function (grunt) {
     stylus: {
       compile: {
         files: {
-          'app/bundle.css': 'src/ui/styles/all.styl'
+          'app/renderer.css': 'src/ui/styles/all.styl'
         }
       }
     },
@@ -110,6 +112,6 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('default', ['webpack:main', 'webpack:renderer', 'copy', 'stylus']);
+  grunt.registerTask('default', ['clean', 'webpack:main', 'webpack:renderer', 'copy', 'stylus']);
   grunt.registerTask('lint', ['eslint']);
 };

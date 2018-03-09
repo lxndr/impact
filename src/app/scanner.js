@@ -5,10 +5,6 @@ import invariant from 'invariant';
 import {fs, extname} from './util';
 import * as flac from './metadata/flac';
 
-const directories = [
-  '/home/lxndr/Music'
-];
-
 export class Scanner {
   types = {};
 
@@ -21,6 +17,7 @@ export class Scanner {
   }
 
   async run() {
+    const directories = [this.collection.application.libararyPath];
     const exts = Object.keys(this.types).join('|');
     const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
     const files = await globby(patterns, {onlyFiles: true});

@@ -6,10 +6,12 @@ import {Playback} from './playback';
 import {Playlist} from './playlist';
 
 export class Application {
+  libararyPath = null
+
   constructor() {
     this.extensionManager = new ExtensionManager();
     this.database = new Database();
-    this.collection = new Collection(this.database);
+    this.collection = new Collection(this, this.database);
     this.scanner = new Scanner(this.collection);
     this.playback = new Playback(this.collection);
 

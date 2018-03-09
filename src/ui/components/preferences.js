@@ -4,6 +4,10 @@ import {autobind} from 'core-decorators';
 import {Form, Field} from '@lxndr/react-webui';
 
 export class Preferences extends React.Component {
+  static contextTypes = {
+    app: PropTypes.any
+  }
+
   static propTypes = {
     history: PropTypes.object.isRequired
   }
@@ -12,10 +16,14 @@ export class Preferences extends React.Component {
     value: {}
   }
 
+  componentDidMount() {
+    this.setState({value: {libraryPath: this.context.app.libraryPath}});
+  }
+
   render() {
     return (
       <div className="preferences">
-        <Form value={this.state.value} onChange={this.handleChange} onSubmit={this.handleSubmit}>
+        <Form value={this.state.value} onChange={this.handleChange} onSubmit={this.handleSubmit} readOnly>
           <Field name="libraryPath" label="Music library path"/>
           <div className="actionbar">
             <button type="submit">Save</button>

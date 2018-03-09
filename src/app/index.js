@@ -1,9 +1,12 @@
+import path from 'path';
 import {app, dialog, ipcMain, globalShortcut, BrowserWindow} from 'electron';
 import {Application} from './application';
+import {registerRemoteCallTarget} from './remote-call';
 
 export const impact = new Application();
 
 async function run() {
+  impact.libararyPath = path.join(app.getPath('userData'), 'Music');
   await impact.startup();
 
   /* window */
@@ -68,6 +71,8 @@ async function run() {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.close();
   });
+
+  registerRemoteCallTarget('app', impact);
 }
 
 app.on('ready', () => {

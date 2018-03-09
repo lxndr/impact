@@ -100,7 +100,8 @@ export class Playback {
 
   toggle() {
     if (this.player) {
-      if (this.state$.getValue().state === 'playing') {
+      const state = this.state$.source.getValue();
+      if (state && state.state === 'playing') {
         this.player.pause();
       } else {
         this.player.play();
