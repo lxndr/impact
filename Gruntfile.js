@@ -13,7 +13,8 @@ module.exports = function (grunt) {
     },
 
     copy: {
-      'app/index.html': 'src/ui/index.html'
+      'app/frontend.html': 'src/frontend/index.html',
+      'app/backend.html': 'src/backend/index.html'
     },
 
     eslint: {
@@ -23,7 +24,7 @@ module.exports = function (grunt) {
     stylus: {
       compile: {
         files: {
-          'app/renderer.css': 'src/ui/styles/all.styl'
+          'app/frontend.css': 'src/frontend/styles/all.styl'
         }
       }
     },
@@ -53,6 +54,7 @@ module.exports = function (grunt) {
 
     webpack: {
       options: {
+        mode: process.env.NODE_ENV || 'production',
         module: {
           rules: [{
             test: /\.jsx?$/,
@@ -65,14 +67,14 @@ module.exports = function (grunt) {
               plugins: [
                 '@babel/proposal-object-rest-spread',
                 '@babel/proposal-decorators',
-                '@babel/proposal-class-properties'
+                ['@babel/proposal-class-properties', {loose: true}]
               ],
               presets: [
                 '@babel/react',
                 ['@babel/env', {
                   modules: false,
                   targets: {
-                    electron: '2.0.0-beta.2'
+                    electron: '2.0.0-beta.7'
                   }
                 }]
               ]
@@ -81,7 +83,7 @@ module.exports = function (grunt) {
         }
       },
       main: {
-        entry: './src/app/index.js',
+        entry: './src/main/index.js',
         output: {
           path: path.resolve(__dirname, 'app'),
           filename: 'main.js',
@@ -91,23 +93,26 @@ module.exports = function (grunt) {
         target: 'electron-main',
         node: {
           __dirname: false
+        }
+      },
+      renderer: {
+        entry: {
+          // backend: './src/backend/index.js',
+          frontend: './src/frontend/index.js'
         },
+        output: {
+          path: path.resolve(__dirname, 'app'),
+          filename: '[name].js',
+          pathinfo: true
+        },
+        target: 'electron-renderer',
         externals: [function (context, request, callback) {
-          if (/^(@lxndr\/gst|thenify-all|nedb-promise|globby)/.test(request)) {
+          if (/^(@lxndr\/vlc|globby)/.test(request)) {
             return callback(null, 'commonjs ' + request);
           }
 
           callback();
         }]
-      },
-      renderer: {
-        entry: './src/ui/index.js',
-        output: {
-          path: path.resolve(__dirname, 'app'),
-          filename: 'renderer.js',
-          pathinfo: true
-        },
-        target: 'electron-renderer'
       }
     }
   });
