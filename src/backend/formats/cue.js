@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import fs from 'fs-extra';
+import path from 'path';
 
 function parseTime(str) {
   const a = str.split(':');
@@ -85,4 +87,46 @@ export function parse(str) {
     });
 
   return cue;
+}
+
+export default async function ({file, scanner}) {
+  const str = await fs.readFile(file, 'utf8');
+  const info = parse(str);
+
+  const date = _.chain(info.remarks).find({key: 'DATE'}).get('value').value();
+  const genre = _.chain(info.remarks).find({key: 'GENRE'}).get('value').value();
+
+  const album = {
+    artist: info.performer || null,
+    title: info.title,
+    date
+  };
+
+  const files = await Promise.all(
+    info.files.map(async f => {
+      const mediaPath = path.resolve(path.dirname(file), f.name);
+      const mediaInfo = await scanner.inspect(mediaPath);
+      let {duration: totalDuration} = mediaInfo.data.track;
+
+      return {
+        path: mediaPath,
+        tracks: f.tracks.slice().reverse().map(track => {
+          const offset = _(track.indexes).sortBy('index').last().time;
+          const duration = totalDuration - offset;
+          totalDuration = offset;
+
+          return {
+            number: track.number,
+            title: track.title,
+            artists: [track.performer],
+            genre,
+            offset,
+            duration
+          };
+        }).reverse()
+      };
+    })
+  );
+
+  return {type: 'index', data: {album, files}};
 }

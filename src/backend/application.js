@@ -20,7 +20,7 @@ export class Application {
   async startup() {
     await this.configuration.load();
     await this.database.open();
-    this.scanner.run();
+    this.scanner.update();
   }
 
   async shutdown() {

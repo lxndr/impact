@@ -18,6 +18,10 @@ export class Playback {
     this.player.on('position', time => {
       const track = this.track$.getValue();
 
+      if (!track) {
+        return;
+      }
+
       if (time > (track.offset + track.duration)) {
         this.next();
         return;

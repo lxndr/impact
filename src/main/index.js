@@ -8,11 +8,7 @@ app.on('ready', () => {
   const win = new BrowserWindow({
     width: 1600,
     height: 700,
-    frame: false,
-    webPreferences: {
-      webgl: false,
-      webaudio: false
-    }
+    frame: false
   });
 
   win.loadURL(`file://${__dirname}/frontend.html`);

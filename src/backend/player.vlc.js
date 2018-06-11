@@ -96,7 +96,7 @@ export class Player extends EventEmitter {
 
   close() {
     this.removeAllListeners();
-    this.uri = null;
+    this._uri = null;
     this._player.close();
   }
 }

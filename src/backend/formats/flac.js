@@ -71,3 +71,27 @@ export async function read(fd) {
     ...tags
   };
 }
+
+export default async function ({file}) {
+  const fd = await fs.open(file, 'r');
+  const info = await read(fd);
+  await fs.close(fd);
+
+  const album = {
+    artist: info.albumArtist || null,
+    title: info.album,
+    releaseDate: info.releaseDate,
+    releaseType: info.releaseType,
+    discTitle: info.discTitle,
+    discNumber: info.discNumber
+  };
+
+  const track = {
+    title: info.title,
+    genre: info.genre,
+    number: info.number,
+    duration: info.duration
+  };
+
+  return {type: 'media', data: {album, track}};
+}

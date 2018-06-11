@@ -144,7 +144,8 @@ export class Collection {
       _.defaults(track, {
         title: null,
         genre: null,
-        number: null
+        number: null,
+        offset: 0
       });
 
       _.assign(track, {

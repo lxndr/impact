@@ -7,8 +7,8 @@ import {inject} from '@lxndr/di';
 import {Configuration} from './configuration';
 import {Collection} from './collection';
 import {extname} from './util';
-import * as flac from './metadata/flac';
-import * as cue from './metadata/cue';
+import handleCue from './formats/cue';
+import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
 
 export class Scanner {
@@ -20,7 +20,7 @@ export class Scanner {
 
   formats = []
 
-  queue = []
+  working = false
 
   constructor() {
     this.registerType('index', this.addIndexFile);
@@ -39,15 +39,19 @@ export class Scanner {
     this.formats.push({ext, handler});
   }
 
-  start() {
-    this.run();
+  async update() {
+    const fileDiff = await this.findChangedFiles();
+
+    for (const file of fileDiff.changed) {
+      const oldData = await this.getExistingData(file);
+      // const newData = await this.;
+    }
   }
 
-  stop() {
-    this.queue = [];
-  }
+  async findChangedFiles() {
+    const changed = [];
+    const removed = [];
 
-  async run() {
     const directories = this.configuration.libararyPath;
     const exts = _(this.formats).map('ext').join('|');
     const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
@@ -60,24 +64,44 @@ export class Scanner {
       try {
         const st = await fs.stat(dbfile.path);
 
-        /* modified file */
         if (st.mtime > dbfile.mtime) {
-          await this.upsertFile({dbfile, st});
+          changed.push({dbfile, st});
         }
       } catch (err) {
-        /* remove non existing or invalid */
-        await this.collection.removeFile(dbfile);
+        removed.push({dbfile});
       }
     }
 
-    /* add files */
+    return {added: files, changed, removed};
+  }
+
+  async getExistingData(dbfile) {
+    const files = [dbfile];
+
     for (const file of files) {
-      try {
-        await this.upsertFile({file});
-      } catch (err) {
-        console.error(`Error reading file '${file}': ${err.stack}`);
+      if (file.rels) {
+        for (const id of file.rels) {
+          if (!_.find(files, {id})) {
+            const rel = await this.collection.fileById(id);
+            files.push(rel);
+          }
+        }
       }
     }
+
+    const tracks = _.flatten(
+      await Promise.all(
+        files.map(
+          await this.collection.tracksByFile(file.id)
+        )
+      )
+    );
+
+    const albums = await Promise.all(
+      _.uniqBy(tracks, 'id').map(id => this.collection.albumById(id))
+    );
+
+    return {files, albums, tracks};
   }
 
   async inspect(file) {
@@ -139,70 +163,4 @@ export class Scanner {
 
     await this.collection.upsertFile({...indexFile, rels: _.uniq(rels)});
   }
-}
-
-export async function handleFlac({file}) {
-  const fd = await fs.open(file, 'r');
-  const info = await flac.read(fd);
-  await fs.close(fd);
-
-  const album = {
-    artist: info.albumArtist || null,
-    title: info.album,
-    releaseDate: info.releaseDate,
-    releaseType: info.releaseType,
-    discTitle: info.discTitle,
-    discNumber: info.discNumber
-  };
-
-  const track = {
-    title: info.title,
-    genre: info.genre,
-    number: info.number,
-    duration: info.duration
-  };
-
-  return {type: 'media', data: {album, track}};
-}
-
-export async function handleCue({file, scanner}) {
-  const str = await fs.readFile(file, 'utf8');
-  const info = cue.parse(str);
-
-  const date = _.chain(info.remarks).find({key: 'DATE'}).get('value').value();
-  const genre = _.chain(info.remarks).find({key: 'GENRE'}).get('value').value();
-
-  const album = {
-    artist: info.performer || null,
-    title: info.title,
-    date
-  };
-
-  const files = await Promise.all(
-    info.files.map(async f => {
-      const mediaPath = path.resolve(path.dirname(file), f.name);
-      const mediaInfo = await scanner.inspect(mediaPath);
-      let {duration: totalDuration} = mediaInfo.data.track;
-
-      return {
-        path: mediaPath,
-        tracks: f.tracks.slice().reverse().map(track => {
-          const offset = _(track.indexes).sortBy('index').last().time;
-          const duration = totalDuration - offset;
-          totalDuration = offset;
-
-          return {
-            number: track.number,
-            title: track.title,
-            artists: [track.performer],
-            genre,
-            offset,
-            duration
-          };
-        }).reverse()
-      };
-    })
-  );
-
-  return {type: 'index', data: {album, files}};
 }

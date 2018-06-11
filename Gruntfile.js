@@ -66,7 +66,7 @@ module.exports = function (grunt) {
             options: {
               plugins: [
                 '@babel/proposal-object-rest-spread',
-                '@babel/proposal-decorators',
+                ['@babel/proposal-decorators', {legacy: true}],
                 ['@babel/proposal-class-properties', {loose: true}]
               ],
               presets: [
@@ -107,7 +107,7 @@ module.exports = function (grunt) {
         },
         target: 'electron-renderer',
         externals: [function (context, request, callback) {
-          if (/^(@lxndr\/vlc|globby)/.test(request)) {
+          if (/^(@lxndr\/gst|@lxndr\/vlc|globby)/.test(request)) {
             return callback(null, 'commonjs ' + request);
           }
 
