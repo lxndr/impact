@@ -13,11 +13,11 @@ const tagMap = {
   genre: 'genre',
   tracknumber: 'number',
   discnumber: 'discNumber',
-  discsubtitle: 'discTitle'
+  discsubtitle: 'discTitle',
 };
 
 const tagArray = [
-  'artists'
+  'artists',
 ];
 
 export function readVorbisComment(fd, buf) {

@@ -8,13 +8,13 @@ export class Playlist {
   }
 
   async forArtist(artist) {
-    const {albums, tracks} = await this.collection.allOfArtist(artist);
+    const { albums, tracks } = await this.collection.allOfArtist(artist);
 
     const _albums = _.sortBy(albums, 'releaseDate');
 
     this.queue = tracks.sort((a, b) => {
-      const ia = _.findIndex(_albums, {id: a.album});
-      const ib = _.findIndex(_albums, {id: b.album});
+      const ia = _.findIndex(_albums, { id: a.album });
+      const ib = _.findIndex(_albums, { id: b.album });
 
       return ia === ib ?
         a.number - b.number :
@@ -27,7 +27,7 @@ export class Playlist {
     let nextIndex = count - 1;
 
     if (currentTrack) {
-      const index = _.findIndex(this.queue, {id: currentTrack.id});
+      const index = _.findIndex(this.queue, { id: currentTrack.id });
 
       if (index > 0) {
         nextIndex = index - 1;
@@ -42,7 +42,7 @@ export class Playlist {
     let nextIndex = 0;
 
     if (currentTrack) {
-      const index = _.findIndex(this.queue, {id: currentTrack.id});
+      const index = _.findIndex(this.queue, { id: currentTrack.id });
 
       if (index > -1 && index < (count - 1)) {
         nextIndex = index + 1;

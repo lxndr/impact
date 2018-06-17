@@ -1,7 +1,7 @@
-import {BehaviorSubject} from 'rxjs';
-import {inject} from '@lxndr/di';
-import {Collection} from './collection';
-import {Player} from './player.vlc';
+import { BehaviorSubject } from 'rxjs';
+import { inject } from '@lxndr/di';
+import { Collection } from './collection';
+import { Player } from './player.vlc';
 
 export class Playback {
   @inject(Collection) collection
@@ -15,7 +15,7 @@ export class Playback {
   state$ = new BehaviorSubject(null)
 
   constructor() {
-    this.player.on('position', time => {
+    this.player.on('position', (time) => {
       const track = this.track$.getValue();
 
       if (!track) {
@@ -30,7 +30,7 @@ export class Playback {
       this.state$.next({
         state: this.player.state,
         duration: track.duration,
-        position: time - track.offset
+        position: time - track.offset,
       });
     });
 
@@ -42,7 +42,7 @@ export class Playback {
         state = {
           state: this.player.state,
           duration: track.duration,
-          position: this.player.position - track.offset
+          position: this.player.position - track.offset,
         };
       }
 
@@ -53,7 +53,7 @@ export class Playback {
       this.next();
     });
 
-    this.player.on('error', error => {
+    this.player.on('error', (error) => {
       console.error(`Error: ${error.message}`);
     });
   }

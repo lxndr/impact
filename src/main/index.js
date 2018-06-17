@@ -1,22 +1,23 @@
-import path from 'path';
-import {app, ipcMain, globalShortcut, BrowserWindow} from 'electron';
+import { app, ipcMain, globalShortcut, BrowserWindow } from 'electron';
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 app.on('ready', () => {
-  const userdir = app.getPath('home');
-
   /* window */
   const win = new BrowserWindow({
     width: 1600,
     height: 700,
-    frame: false
+    frame: false,
   });
 
   win.loadURL(`file://${__dirname}/frontend.html`);
   win.setMenu(null);
 
   if (process.env.NODE_ENV === 'development') {
-    const dir = path.join(userdir, '.config/chromium/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.2.1_0/');
-    BrowserWindow.addDevToolsExtension(dir);
+    Promise.all([
+      installExtension(REACT_DEVELOPER_TOOLS),
+      installExtension(REDUX_DEVTOOLS),
+    ]).catch(console.error);
+
     win.openDevTools();
   }
 
@@ -38,12 +39,12 @@ app.on('ready', () => {
   });
 
   /* ipc */
-  ipcMain.on('window/minimize', event => {
+  ipcMain.on('window/minimize', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.minimize();
   });
 
-  ipcMain.on('window/toggle', event => {
+  ipcMain.on('window/toggle', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win.isMaximized()) {
       win.unmaximize();
@@ -52,7 +53,7 @@ app.on('ready', () => {
     }
   });
 
-  ipcMain.on('window/close', event => {
+  ipcMain.on('window/close', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.close();
   });

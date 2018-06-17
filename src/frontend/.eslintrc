@@ -1,2 +1,8 @@
 env:
   browser: true
+  jest: true
+
+globals:
+  render: true
+  shallow: true
+  mount: true

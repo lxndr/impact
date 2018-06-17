@@ -1,5 +1,5 @@
-import {EventEmitter} from 'events';
-import {GstPlayer} from '@lxndr/gst';
+import { EventEmitter } from 'events';
+import { GstPlayer } from '@lxndr/gst';
 
 export class Player extends EventEmitter {
   _player = new GstPlayer()
@@ -13,7 +13,7 @@ export class Player extends EventEmitter {
   constructor() {
     super();
 
-    this._player.onstate = state => {
+    this._player.onstate = (state) => {
       if (state === 3) {
         this._player.seek((this._position * 1000000000) / this.duration);
       }
@@ -28,12 +28,12 @@ export class Player extends EventEmitter {
       this.emit('end');
     };
 
-    this._player.onposition = ns => {
+    this._player.onposition = (ns) => {
       this._position = ns / 1000000000;
       this.emit('position', this._position);
     };
 
-    this._player.onerror = error => {
+    this._player.onerror = (error) => {
       this.emit('error', error);
     };
   }
@@ -46,7 +46,7 @@ export class Player extends EventEmitter {
     this._uri = file;
 
     if (file) {
-      this._player.uri = 'file://' + file;
+      this._player.uri = `file://${file}`;
     }
   }
 

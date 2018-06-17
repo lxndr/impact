@@ -1,31 +1,28 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Track from './album-track';
+import { trackShape } from '../utils';
+import { AlbumTrack } from '.';
 
-export default class TrackList extends React.PureComponent {
-  static propTypes = {
-    tracks: PropTypes.array,
-    playingTrack: PropTypes.object,
-    onSelect: PropTypes.func
-  }
+const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
+  <ul className="track-list">
+    {tracks.map((track) => {
+      const playing = playingTrack && playingTrack.id === track.id;
+      return <AlbumTrack key={track.id} track={track} playing={playing} onClick={onSelect} />;
+    })}
+  </ul>
+);
 
-  static defaultProps = {
-    tracks: [],
-    playingTrack: null,
-    onSelect: _.noop
-  }
+AlbumTrackList.propTypes = {
+  tracks: PropTypes.arrayOf(trackShape),
+  playingTrack: trackShape,
+  onSelect: PropTypes.func,
+};
 
-  render() {
-    const {tracks, playingTrack, onSelect} = this.props;
+AlbumTrackList.defaultProps = {
+  tracks: [],
+  playingTrack: null,
+  onSelect: _.noop,
+};
 
-    return (
-      <ul className="track-list">
-        {tracks.map(track => {
-          const playing = playingTrack && playingTrack.id === track.id;
-          return <Track key={track.id} track={track} playing={playing} onClick={onSelect}/>;
-        })}
-      </ul>
-    );
-  }
-}
+export { AlbumTrackList };

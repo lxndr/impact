@@ -3,10 +3,10 @@ import path from 'path';
 import globby from 'globby';
 import invariant from 'invariant';
 import fs from 'fs-extra';
-import {inject} from '@lxndr/di';
-import {Configuration} from './configuration';
-import {Collection} from './collection';
-import {extname} from './util';
+import { inject } from '@lxndr/di';
+import { Configuration } from './configuration';
+import { Collection } from './collection';
+import { extname } from './util';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
@@ -36,7 +36,7 @@ export class Scanner {
   }
 
   registerFormat(ext, handler) {
-    this.formats.push({ext, handler});
+    this.formats.push({ ext, handler });
   }
 
   async update() {
@@ -55,7 +55,7 @@ export class Scanner {
     const directories = this.configuration.libararyPath;
     const exts = _(this.formats).map('ext').join('|');
     const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
-    const files = await globby(patterns, {onlyFiles: true});
+    const files = await globby(patterns, { onlyFiles: true });
     const dbfiles = await this.collection.files();
 
     for (const dbfile of dbfiles) {
@@ -65,14 +65,14 @@ export class Scanner {
         const st = await fs.stat(dbfile.path);
 
         if (st.mtime > dbfile.mtime) {
-          changed.push({dbfile, st});
+          changed.push({ dbfile, st });
         }
       } catch (err) {
-        removed.push({dbfile});
+        removed.push({ dbfile });
       }
     }
 
-    return {added: files, changed, removed};
+    return { added: files, changed, removed };
   }
 
   async getExistingData(dbfile) {
@@ -81,7 +81,7 @@ export class Scanner {
     for (const file of files) {
       if (file.rels) {
         for (const id of file.rels) {
-          if (!_.find(files, {id})) {
+          if (!_.find(files, { id })) {
             const rel = await this.collection.fileById(id);
             files.push(rel);
           }
@@ -89,40 +89,32 @@ export class Scanner {
       }
     }
 
-    const tracks = _.flatten(
-      await Promise.all(
-        files.map(
-          await this.collection.tracksByFile(file.id)
-        )
-      )
-    );
+    const tracks = _.flatten(await Promise.all(files.map(await this.collection.tracksByFile(file.id))));
 
-    const albums = await Promise.all(
-      _.uniqBy(tracks, 'id').map(id => this.collection.albumById(id))
-    );
+    const albums = await Promise.all(_.uniqBy(tracks, 'id').map(id => this.collection.albumById(id)));
 
-    return {files, albums, tracks};
+    return { files, albums, tracks };
   }
 
   async inspect(file) {
     const ext = extname(file);
-    const format = _.find(this.formats, {ext});
+    const format = _.find(this.formats, { ext });
 
     if (!format) {
       throw new Error(`Unknown format '${ext}'`);
     }
 
-    return format.handler({file, scanner: this});
+    return format.handler({ file, scanner: this });
   }
 
-  async upsertFile({file, dbfile, st}) {
+  async upsertFile({ file, dbfile, st }) {
     invariant(file || dbfile, 'file or dbfile must be specified');
 
     if (!file) {
       file = dbfile.path;
     }
 
-    const {type, data} = await this.inspect(file);
+    const { type, data } = await this.inspect(file);
 
     if (!st) {
       st = await fs.stat(file);
@@ -131,17 +123,17 @@ export class Scanner {
     dbfile = {
       path: file,
       size: st.size,
-      mtime: st.mtime
+      mtime: st.mtime,
     };
 
     await Reflect.apply(this.types[type], this, [dbfile, data]);
   }
 
-  async addMediaFile(file, {album, track}) {
-    await this.collection.upsertTrack({file, album, track});
+  async addMediaFile(file, { album, track }) {
+    await this.collection.upsertTrack({ file, album, track });
   }
 
-  async addIndexFile(indexFile, {album, files}) {
+  async addIndexFile(indexFile, { album, files }) {
     const indexFileId = await this.collection.upsertFile(indexFile);
     const rels = [];
 
@@ -152,15 +144,15 @@ export class Scanner {
         path: file.path,
         size: st.size,
         mtime: st.mtime,
-        rels: [indexFileId]
+        rels: [indexFileId],
       };
 
       for (const track of file.tracks) {
-        const {fileId} = await this.collection.upsertTrack({file: dbfile, album, track});
+        const { fileId } = await this.collection.upsertTrack({ file: dbfile, album, track });
         rels.push(fileId);
       }
     }
 
-    await this.collection.upsertFile({...indexFile, rels: _.uniq(rels)});
+    await this.collection.upsertFile({ ...indexFile, rels: _.uniq(rels) });
   }
 }

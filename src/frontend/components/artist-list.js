@@ -1,80 +1,56 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {autobind} from 'core-decorators';
+import { connect } from 'react-redux';
 import cn from 'classnames';
-import {withBackend} from '../backend-context';
+import { changeCurrentArtist } from '../store';
+import { artistShape } from '../utils';
 
-class Artist extends React.PureComponent {
-  static propTypes = {
-    name: PropTypes.string,
-    selected: PropTypes.bool,
-    onClick: PropTypes.func.isRequired
-  }
+const Artist = ({ name, selected, onClick }) => (
+  <li className={cn({ selected, unknown: !name })}>
+    <a href="#" onClick={onClick}>{name || 'Unknown artist'}</a>
+  </li>
+);
 
-  static defaultProps = {
-    name: null,
-    selected: false
-  }
+Artist.propTypes = {
+  name: PropTypes.string,
+  selected: PropTypes.bool,
+  onClick: PropTypes.func.isRequired,
+};
 
-  render() {
-    const {name, selected} = this.props;
-    const className = cn({selected, unknown: !name});
+Artist.defaultProps = {
+  name: null,
+  selected: false,
+};
 
-    return (
-      <li className={className}>
-        <a href="#" onClick={this.handleClick}>{name || 'Unknown artist'}</a>
-      </li>
-    );
-  }
+let ArtistList = ({ artists, selected, select }) => (
+  <div className="artist-list">
+    <ul>
+      {artists.map(artist => (
+        <Artist
+          key={artist}
+          name={artist}
+          selected={artist === selected}
+          onClick={() => select(artist)}
+        />
+      ))}
+    </ul>
+  </div>
+);
 
-  @autobind
-  handleClick() {
-    this.props.onClick(this.props.name);
-  }
-}
+ArtistList.propTypes = {
+  artists: PropTypes.arrayOf(artistShape).isRequired,
+  selected: PropTypes.string.isRequired,
+  select: PropTypes.func.isRequired,
+};
 
-@withBackend
-export default class ArtistList extends React.PureComponent {
-  static propTypes = {
-    backend: PropTypes.any.isRequired,
-    onSelect: PropTypes.func.isRequired
-  }
+ArtistList = connect(
+  state => ({
+    artists: state.library.artists,
+    selected: state.library.currentArtist,
+  }),
+  dispatch => ({
+    select: artist => dispatch(changeCurrentArtist(artist)),
+  }),
+)(ArtistList);
 
-  state = {
-    artists: [],
-    selected: ''
-  }
-
-  render() {
-    return (
-      <div className="artist-list">
-        <ul>
-          {this.state.artists.map(artist => (
-            <Artist
-              key={artist}
-              name={artist}
-              selected={artist === this.state.selected}
-              onClick={this.handleClick}
-            />
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    this.refresh().catch(console.error);
-  }
-
-  async refresh() {
-    const {backend} = this.props;
-    const artists = await backend.collection.artists();
-    this.setState({artists});
-  }
-
-  @autobind
-  handleClick(selected) {
-    this.setState({selected});
-    this.props.onSelect(selected);
-  }
-}
+export { ArtistList };

@@ -1,5 +1,5 @@
-import {EventEmitter} from 'events';
-import {VlcMedia, VlcMediaPlayer} from '@lxndr/vlc';
+import { EventEmitter } from 'events';
+import { VlcMedia, VlcMediaPlayer } from '@lxndr/vlc';
 
 /*
  * NOTE:
@@ -38,7 +38,7 @@ export class Player extends EventEmitter {
       this.emit('end');
     };
 
-    this._player.ontime = ms => {
+    this._player.ontime = (ms) => {
       this._time = ms / 1000;
       this.emit('position', this._time);
     };
@@ -61,7 +61,7 @@ export class Player extends EventEmitter {
 
     if (file) {
       this._uri = file;
-      this._player.media = new VlcMedia('file://' + file);
+      this._player.media = new VlcMedia(`file://${file}`);
     }
   }
 

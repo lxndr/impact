@@ -1,22 +1,11 @@
 import React from 'react';
-import {autobind} from 'core-decorators';
-import ArtistList from './artist-list';
-import ArtistTrackList from './artist-track-list';
+import { ArtistList, ArtistTrackList } from '.';
 
-export default class Library extends React.Component {
-  state = {}
+const Library = () => (
+  <div className="library">
+    <ArtistList />
+    <ArtistTrackList />
+  </div>
+);
 
-  render() {
-    return (
-      <div className="library">
-        <ArtistList onSelect={this.handleArtistSelect}/>
-        <ArtistTrackList artist={this.state.artist}/>
-      </div>
-    );
-  }
-
-  @autobind
-  handleArtistSelect(artist) {
-    this.setState({artist});
-  }
-}
+export { Library };

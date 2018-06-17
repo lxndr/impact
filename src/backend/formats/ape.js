@@ -41,11 +41,11 @@ async function parse(file) {
   const fd = await fs.open(file, 'r');
   const info = await readHeader(fd);
   await fs.close(fd);
-  return {info};
+  return { info };
 }
 
-export default async function ({file}) {
-  const {info} = await parse(file);
+export default async function ({ file }) {
+  const { info } = await parse(file);
 
   const totalBlocks = info.totalFrames === 0 ? 0 : ((info.totalFrames - 1) * info.blocksPerFrame) + info.finalFrameBlocks;
 
@@ -56,8 +56,8 @@ export default async function ({file}) {
       track: {
         duration: totalBlocks / info.sampleRate,
         nChannels: info.nChannels,
-        sampleRate: info.sampleRate
-      }
-    }
+        sampleRate: info.sampleRate,
+      },
+    },
   };
 }

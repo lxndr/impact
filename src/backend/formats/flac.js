@@ -1,4 +1,4 @@
-import {readVorbisComment} from './vorbis';
+import { readVorbisComment } from './vorbis';
 import fs from 'fs-extra';
 
 async function readBlockHeader(fd, offset) {
@@ -9,7 +9,7 @@ async function readBlockHeader(fd, offset) {
   return {
     last: buf.readUInt8(0) >> 7,
     type: buf.readUInt8(0) & 0x7f,
-    length: buf.readUInt32BE(0) & 0xffffff
+    length: buf.readUInt32BE(0) & 0xffffff,
   };
 }
 
@@ -22,7 +22,7 @@ async function readStreamInfo(fd, buf) {
     sampleRate: buf.readUInt32BE(10) >> 12,
     nChannels: ((buf.readUInt8(12) & 0xe) >> 1) + 1,
     bitsPerSample: ((buf.readUInt16BE(12) & 0x1f0) >> 4) + 1,
-    totalSamples: buf.readUInt32BE(14)  /* FIXME: has to be 36 bits */
+    totalSamples: buf.readUInt32BE(14), /* FIXME: has to be 36 bits */
   };
 }
 
@@ -68,11 +68,11 @@ export async function read(fd) {
     nChannels: streamInfo.nChannels,
     bitsPerSample: streamInfo.bitsPerSample,
     duration: Math.ceil(streamInfo.totalSamples / streamInfo.sampleRate),
-    ...tags
+    ...tags,
   };
 }
 
-export default async function ({file}) {
+export default async function ({ file }) {
   const fd = await fs.open(file, 'r');
   const info = await read(fd);
   await fs.close(fd);
@@ -83,15 +83,15 @@ export default async function ({file}) {
     releaseDate: info.releaseDate,
     releaseType: info.releaseType,
     discTitle: info.discTitle,
-    discNumber: info.discNumber
+    discNumber: info.discNumber,
   };
 
   const track = {
     title: info.title,
     genre: info.genre,
     number: info.number,
-    duration: info.duration
+    duration: info.duration,
   };
 
-  return {type: 'media', data: {album, track}};
+  return { type: 'media', data: { album, track } };
 }

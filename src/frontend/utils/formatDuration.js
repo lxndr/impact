@@ -1,4 +1,4 @@
-export function formatDuration(secs) {
+export const formatDuration = (secs) => {
   if (!(secs && secs >= 0)) {
     secs = 0;
   }
@@ -10,25 +10,13 @@ export function formatDuration(secs) {
   let ret = '';
 
   if (hours) {
-    ret += hours + ':';
+    ret += `${hours}:`;
     ret += minutes.toString().padStart(2, '0');
   } else {
     ret += minutes;
   }
 
-  ret += ':' + seconds.toString().padStart(2, '0');
+  ret += `:${seconds.toString().padStart(2, '0')}`;
 
   return ret;
-}
-
-export function defer() {
-  let resolve;
-  let reject;
-
-  const promise = new Promise((...args) => {
-    resolve = args[0];
-    reject = args[1];
-  });
-
-  return {resolve, reject, promise};
-}
+};

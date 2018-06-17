@@ -1,51 +1,63 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {autobind} from 'core-decorators';
-import {Form, Field} from '@lxndr/react-webui';
-import {withBackend} from '../backend-context';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { Field, reduxForm } from 'redux-form';
+import { changeConfig } from '../store';
+import { configShape } from '../utils';
 
-@withBackend
-export default class Preferences extends React.Component {
-  static propTypes = {
-    backend: PropTypes.any.isRequired,
-    history: PropTypes.object.isRequired
-  }
+let PreferencesForm = ({ handleSubmit, onCancel }) => (
+  <form onSubmit={handleSubmit}>
+    <div className="form-field">
+      <label htmlFor="libraryPath">Music library path</label>
+      <Field id="libraryPath" name="libraryPath" component="input" type="text" />
+    </div>
 
-  state = {
-    value: {}
-  }
+    <div className="actionbar">
+      <button type="submit">Save</button>
+      <button type="button" onClick={onCancel}>Cancel</button>
+    </div>
+  </form>
+);
 
-  componentDidMount() {
-    const {backend} = this.props;
-    this.setState({value: {libraryPath: backend.libraryPath}});
-  }
+PreferencesForm.propTypes = {
+  handleSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+};
 
-  render() {
-    return (
-      <div className="preferences">
-        <Form value={this.state.value} onChange={this.handleChange} onSubmit={this.handleSubmit} readOnly>
-          <Field name="libraryPath" label="Music library path"/>
-          <div className="actionbar">
-            <button type="submit">Save</button>
-            <button type="button" onClick={this.handleCancel}>Cancel</button>
-          </div>
-        </Form>
-      </div>
-    );
-  }
+PreferencesForm = reduxForm({
+  form: 'preferences',
+})(PreferencesForm);
 
-  @autobind
-  handleChange(value) {
-    this.setState({value});
-  }
+let Preferences = ({ initialValues, save, cancel }) => (
+  <div className="preferences">
+    <PreferencesForm initialValues={initialValues} onSubmit={save} onCancel={cancel} />
+  </div>
+);
 
-  @autobind
-  handleSubmit() {
-    this.props.history.goBack();
-  }
+Preferences.propTypes = {
+  initialValues: configShape.isRequired,
+  save: PropTypes.func.isRequired,
+  cancel: PropTypes.func.isRequired,
+};
 
-  @autobind
-  handleCancel() {
-    this.props.history.goBack();
-  }
-}
+Preferences = compose(
+  withRouter,
+  connect(
+    state => ({
+      initialValues: state.config,
+    }),
+    (dispatch, props) => ({
+      save(value) {
+        dispatch(changeConfig(value));
+        props.history.goBack();
+      },
+      cancel() {
+        props.history.goBack();
+      },
+    }),
+  ),
+)(Preferences);
+
+export { Preferences };

@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import debug from 'debug';
 import invariant from 'invariant';
-import {inject} from '@lxndr/di';
-import {Database} from './database';
+import { inject } from '@lxndr/di';
+import { Database } from './database';
 
 /*
 
@@ -50,7 +50,7 @@ export class Collection {
    * @return {Number}
    */
   async upsertFile(file) {
-    const dbfile = await this.database.files.get({path: file.path});
+    const dbfile = await this.database.files.get({ path: file.path });
 
     if (dbfile) {
       await this.database.files.update(dbfile.id, file);
@@ -69,7 +69,7 @@ export class Collection {
   }
 
   async fileByPath(path) {
-    return this.database.files.get({path});
+    return this.database.files.get({ path });
   }
 
   async artists() {
@@ -78,14 +78,14 @@ export class Collection {
 
   async albumsByArtist(artist) {
     artist = artist || '';
-    return this.database.albums.where({artist}).toArray();
+    return this.database.albums.where({ artist }).toArray();
   }
 
   async allOfArtist(artist) {
     const albums = await this.albumsByArtist(artist);
     const ids = _.map(albums, 'id');
     const tracks = await this.database.tracks.where('album').anyOf(ids).toArray();
-    return {albums, tracks};
+    return { albums, tracks };
   }
 
   async albumById(id) {
@@ -101,10 +101,10 @@ export class Collection {
   }
 
   async tracksByAlbum(album) {
-    return this.database.tracks.get({album});
+    return this.database.tracks.get({ album });
   }
 
-  async upsertTrack({file, track, album}) {
+  async upsertTrack({ file, track, album }) {
     log(`upserting file ${file.path}`);
 
     const db = this.database;
@@ -119,7 +119,7 @@ export class Collection {
           releaseDate: null,
           releaseType: null,
           discTitle: null,
-          discNumber: null
+          discNumber: null,
         });
       }
 
@@ -129,12 +129,10 @@ export class Collection {
         releaseDate: '',
         releaseType: null,
         discTitle: '',
-        discNumber: 1
+        discNumber: 1,
       };
 
-      _.assignWith(album, defaultAlbum, (objValue, srcValue) => {
-        return _.isNil(objValue) ? srcValue : objValue;
-      });
+      _.assignWith(album, defaultAlbum, (objValue, srcValue) => (_.isNil(objValue) ? srcValue : objValue));
 
       const q = _.pick(album, ['artist', 'title', 'releaseDate', 'discNumber', 'discTitle']);
       const dbalbum = await db.albums.get(q);
@@ -145,21 +143,21 @@ export class Collection {
         title: null,
         genre: null,
         number: null,
-        offset: 0
+        offset: 0,
       });
 
       _.assign(track, {
         file: fileId,
-        album: albumId
+        album: albumId,
       });
 
       const trackId = await this.database.tracks.put(track);
 
-      return {fileId, albumId, trackId};
+      return { fileId, albumId, trackId };
     });
   }
 
-  async removeFile({file, dbfile}) {
+  async removeFile({ file, dbfile }) {
     invariant(file || dbfile, 'file or dbfile must be specified');
 
     if (!dbfile) {

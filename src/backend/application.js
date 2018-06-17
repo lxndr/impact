@@ -1,10 +1,10 @@
-import {inject} from '@lxndr/di';
-import {Configuration} from './configuration';
-import {Database} from './database';
-import {Collection} from './collection';
-import {Scanner} from './scanner';
-import {Playback} from './playback';
-import {Playlist} from './playlist';
+import { inject } from '@lxndr/di';
+import { Configuration } from './configuration';
+import { Database } from './database';
+import { Collection } from './collection';
+import { Scanner } from './scanner';
+import { Playback } from './playback';
+import { Playlist } from './playlist';
 
 export class Application {
   @inject(Configuration) configuration

@@ -1,42 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Disc from './album-disc';
+import { trackShape, albumShape } from '../utils';
+import { AlbumDisc } from '.';
 
-export default class Album extends React.Component {
-  static propTypes = {
-    album: PropTypes.object.isRequired,
-    playingTrack: PropTypes.object,
-    onSelect: PropTypes.func.isRequired
-  }
+const Album = ({ album, playingTrack, onSelect }) => (
+  <div className="album">
+    <div className="header">
+      <div className="title">{album.title || 'Unknown album'}</div>
+      <div className="release-date">{album.releaseDate}</div>
+    </div>
 
-  static defaultProps = {
-    playingTrack: null
-  }
+    {album.discs.map((disc) => {
+      const showTitle = Boolean(disc.title || album.discs.length > 1);
 
-  render() {
-    const {album, playingTrack, onSelect} = this.props;
+      return (
+        <AlbumDisc
+          key={disc.id}
+          disc={disc}
+          showTitle={showTitle}
+          playingTrack={playingTrack}
+          onSelect={onSelect}
+        />
+      );
+    })}
+  </div>
+);
 
-    return (
-      <div className="album">
-        <div className="header">
-          <div className="title">{album.title || 'Unknown album'}</div>
-          <div className="release-date">{album.releaseDate}</div>
-        </div>
+Album.propTypes = {
+  album: albumShape.isRequired,
+  playingTrack: trackShape,
+  onSelect: PropTypes.func.isRequired,
+};
 
-        {album.discs.map(disc => {
-          const showTitle = Boolean(disc.title || album.discs.length > 1);
+Album.defaultProps = {
+  playingTrack: null,
+};
 
-          return (
-            <Disc
-              key={disc.id}
-              disc={disc}
-              showTitle={showTitle}
-              playingTrack={playingTrack}
-              onSelect={onSelect}
-            />
-          );
-        })}
-      </div>
-    );
-  }
-}
+export { Album };
