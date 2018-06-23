@@ -36,18 +36,6 @@ module.exports = (grunt) => {
           src: '**/*.js',
           dest: 'dist/main',
         }],
-        options: {
-          plugins: [
-            'transform-object-rest-spread',
-          ],
-          presets: [
-            ['env', {
-              targets: {
-                electron: '2.0.0-beta.2',
-              },
-            }],
-          ],
-        },
       },
     },
 

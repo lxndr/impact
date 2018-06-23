@@ -1,4 +1,3 @@
-import { inject } from '@lxndr/di';
 import { Configuration } from './configuration';
 import { Database } from './database';
 import { Collection } from './collection';
@@ -7,15 +6,13 @@ import { Playback } from './playback';
 import { Playlist } from './playlist';
 
 export class Application {
-  @inject(Configuration) configuration
-
-  @inject(Database) database
-
-  @inject(Collection) collection
-
-  @inject(Scanner) scanner
-
-  @inject(Playback) playback
+  constructor() {
+    this.configuration = new Configuration();
+    this.database = new Database();
+    this.collection = new Collection(this);
+    this.scanner = new Scanner(this);
+    this.playback = new Playback(this);
+  }
 
   async startup() {
     await this.configuration.load();

@@ -16,5 +16,5 @@ test('creation', () => {
     onSelect: jest.fn(),
   };
 
-  render(<Album {...props} />);
+  mount(<Album {...props} />);
 });

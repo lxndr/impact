@@ -1,11 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
-import { inject } from '@lxndr/di';
-import { Collection } from './collection';
 import { Player } from './player.vlc';
 
 export class Playback {
-  @inject(Collection) collection
-
   _playlist = null
 
   player = new Player()
@@ -14,7 +10,9 @@ export class Playback {
 
   state$ = new BehaviorSubject(null)
 
-  constructor() {
+  constructor(application) {
+    this.collection = application.collection;
+
     this.player.on('position', (time) => {
       const track = this.track$.getValue();
 

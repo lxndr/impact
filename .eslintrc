@@ -5,6 +5,7 @@ extends: airbnb
 rules:
   import/prefer-default-export: off
   import/no-mutable-exports: off
+  import/no-cycle: off
 
   react/jsx-filename-extension:
   - error

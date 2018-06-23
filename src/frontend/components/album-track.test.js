@@ -4,24 +4,37 @@ import { AlbumTrack } from '.';
 let cmp;
 const onClick = jest.fn();
 
-const props = {
-  track: {
+test('with title', () => {
+  const track = {
     id: 1,
     number: 1,
     title: 'Title',
     duration: 1000,
-  },
-  playing: true,
-  onClick,
-};
+  };
 
-test('with title', () => {
-  cmp = shallow(<AlbumTrack {...props} />);
+  cmp = mount((
+    <AlbumTrack
+      track={track}
+      playing
+      onClick={onClick}
+    />
+  ));
 });
 
 test('without title', () => {
-  delete props.track.title;
-  cmp = shallow(<AlbumTrack {...props} />);
+  const track = {
+    id: 1,
+    number: 1,
+    duration: 1000,
+  };
+
+  cmp = mount((
+    <AlbumTrack
+      track={track}
+      playing
+      onClick={onClick}
+    />
+  ));
 });
 
 test('click', () => {

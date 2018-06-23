@@ -1,5 +1,12 @@
 import React from 'react';
-import { MemoryRouter, Switch, Route, Redirect } from 'react-router';
+
+import {
+  MemoryRouter,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router';
+
 import { IntlProvider } from 'react-intl';
 import { Controls, Library, Preferences } from '.';
 

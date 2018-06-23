@@ -1,9 +1,12 @@
-import _ from 'lodash';
+// import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { playTrack } from '../store';
+import { albumShape, trackShape } from '../utils';
 import { Album } from '.';
 
+/*
 const formAlbumList = (_albums) => {
   const albums = [];
 
@@ -57,36 +60,43 @@ const formAlbumList = (_albums) => {
         });
     });
 };
+*/
 
-let ArtistTrackList = ({ albums }) => (
-  <div className="artist-track-list">
+let AlbumList = ({ albums, playingTrack, playTrack }) => (
+  <div className="album-list">
     {albums.map(album => (
       <Album
         key={album.id}
         album={album}
         playingTrack={playingTrack}
-        onSelect={this.handleSelect}
+        onSelect={playTrack}
       />
-      ))}
+    ))}
   </div>
 );
 
-ArtistTrackList.propTypes = {
-  artist: PropTypes.string,
+AlbumList.propTypes = {
+  albums: PropTypes.arrayOf(albumShape),
+  playingTrack: trackShape,
+  playTrack: PropTypes.func.isRequired,
 };
 
-ArtistTrackList.defaultProps = {
-  artist: null,
+AlbumList.defaultProps = {
+  albums: [],
+  playingTrack: null,
 };
 
-ArtistTrackList = connect(
+AlbumList = connect(
   state => ({
-    albums: [],
-    playingTrack: null,
+    albums: state.library.albums,
+    playingTrack: state.playback.track,
   }),
-)(ArtistTrackList);
+  {
+    playTrack,
+  },
+)(AlbumList);
 
-export { ArtistTrackList };
+export { AlbumList };
 
 /*
 export class ArtistTrackList extends React.Component {
@@ -106,14 +116,6 @@ export class ArtistTrackList extends React.Component {
 
   componentWillUnmount() {
     this._trackSub.unsubscribe();
-  }
-
-  render() {
-    const { playingTrack } = this.state;
-    const albums = this.formAlbumList();
-
-    return (
-    );
   }
 
   @autobind

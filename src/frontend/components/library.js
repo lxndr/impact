@@ -1,10 +1,10 @@
 import React from 'react';
-import { ArtistList, ArtistTrackList } from '.';
+import { ArtistList, AlbumList } from '.';
 
 const Library = () => (
   <div className="library">
     <ArtistList />
-    <ArtistTrackList />
+    <AlbumList />
   </div>
 );
 

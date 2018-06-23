@@ -3,26 +3,22 @@ import path from 'path';
 import globby from 'globby';
 import invariant from 'invariant';
 import fs from 'fs-extra';
-import { inject } from '@lxndr/di';
-import { Configuration } from './configuration';
-import { Collection } from './collection';
 import { extname } from './util';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
 
 export class Scanner {
-  @inject(Configuration) configuration
-
-  @inject(Collection) collection
-
   types = {}
 
   formats = []
 
   working = false
 
-  constructor() {
+  constructor(application) {
+    this.configuration = application.configuration;
+    this.collection = application.collection;
+
     this.registerType('index', this.addIndexFile);
     this.registerType('media', this.addMediaFile);
 

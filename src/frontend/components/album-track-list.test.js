@@ -12,5 +12,5 @@ test('creation', () => {
     onClick: jest.fn(),
   };
 
-  render(<AlbumTrackList {...props} />);
+  mount(<AlbumTrackList {...props} />);
 });

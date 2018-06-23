@@ -48,13 +48,13 @@ Preferences = compose(
     state => ({
       initialValues: state.config,
     }),
-    (dispatch, props) => ({
+    (dispatch, { history }) => ({
       save(value) {
         dispatch(changeConfig(value));
-        props.history.goBack();
+        history.goBack();
       },
       cancel() {
-        props.history.goBack();
+        history.goBack();
       },
     }),
   ),

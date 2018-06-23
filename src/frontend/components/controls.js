@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { compose, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { trackShape, stateShape } from '../utils';
-import { Seeker } from '.';
+import { Seeker } from './seeker';
 
 import {
   seekPlayback,
@@ -76,6 +76,11 @@ Controls.propTypes = {
   maximizeWindow: PropTypes.func.isRequired,
   closeWindow: PropTypes.func.isRequired,
   showPreferences: PropTypes.func.isRequired,
+};
+
+Controls.defaultProps = {
+  track: null,
+  state: null,
 };
 
 Controls = compose(

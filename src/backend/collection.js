@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import debug from 'debug';
 import invariant from 'invariant';
-import { inject } from '@lxndr/di';
-import { Database } from './database';
 
 /*
 
@@ -37,7 +35,9 @@ Schemas:
 const log = debug('impact:collection');
 
 export class Collection {
-  @inject(Database) database
+  constructor(application) {
+    this.database = application.database;
+  }
 
   async clear() {
     await this.database.tracks.clear();

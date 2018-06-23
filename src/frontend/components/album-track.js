@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import fontawesome from '@fortawesome/fontawesome';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/fontawesome-free-solid';
 import cn from 'classnames';
 import { formatDuration, trackShape } from '../utils';
