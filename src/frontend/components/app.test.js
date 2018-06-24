@@ -1,6 +1,12 @@
 import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '../store';
 import { App } from '.';
 
 test('creation', () => {
-  shallow(<App />);
+  shallow((
+    <Provider store={store}>
+      <App />
+    </Provider>
+  ));
 });

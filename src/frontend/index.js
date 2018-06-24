@@ -1,24 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import ready from 'document-ready';
-import { createApplication } from '../backend';
-import { store } from './store';
+import { store, initApplication } from './store';
 import { App } from './components';
 
-async function start() {
-  // const backend = createApplication();
-  // await backend.startup();
+store.dispatch(initApplication());
 
-  const app = (
-    <Provider store={store}>
-      <App />
-    </Provider>
-  );
+const app = (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
 
-  ReactDOM.render(app, document.getElementById('app'));
-}
-
-ready(() => {
-  start().catch(console.error);
-});
+const container = document.getElementById('app');
+ReactDOM.render(app, container);

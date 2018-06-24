@@ -1,12 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { store, changeArtistList } from '../store';
+import { store, setLibraryArtists } from '../store';
 import { ArtistList } from '.';
 
 let cmp;
 
 test('component', () => {
-  store.dispatch(changeArtistList([
+  store.dispatch(setLibraryArtists([
     'Artist 1',
     'Artist 2',
     '',

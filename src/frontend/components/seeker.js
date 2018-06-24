@@ -1,42 +1,40 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-const poserStyle = ({ position, duration }) => {
-  const right = 100 - ((position / duration) * 100);
+const Seeker = class extends React.Component {
+  static propTypes = {
+    duration: PropTypes.number.isRequired,
+    position: PropTypes.number.isRequired,
+    onSeek: PropTypes.func.isRequired,
+  }
 
-  return {
-    position: 'absolute',
-    top: 0,
-    right: `${right}%`,
-    bottom: 0,
-    left: 0,
-  };
+  handleClick = ({ currentTarget, clientX }) => {
+    const { onSeek, duration } = this.props;
+    const width = currentTarget.clientWidth;
+    const pos = clientX - currentTarget.offsetLeft;
+    const f = pos / width;
+    onSeek(duration * f);
+  }
+
+  render() {
+    const { position, duration } = this.props;
+
+    const right = 100 - ((position / duration) * 100);
+
+    const style = {
+      position: 'absolute',
+      top: 0,
+      right: `${right}%`,
+      bottom: 0,
+      left: 0,
+    };
+
+    return (
+      <div className="seeker" onClick={this.handleClick}>
+        <div className="poser" style={style} />
+      </div>
+    );
+  }
 };
-
-let Seeker = ({ position, duration, handleClick }) => (
-  <div className="seeker" onClick={handleClick}>
-    <div className="poser" style={poserStyle({ position, duration })} />
-  </div>
-);
-
-Seeker.propTypes = {
-  duration: PropTypes.number.isRequired,
-  position: PropTypes.number.isRequired,
-  onSeek: PropTypes.func.isRequired,
-  handleClick: PropTypes.func.isRequired,
-};
-
-Seeker = connect(
-  null,
-  (dispatch, props) => ({
-    handleClick({ currentTarget, clientX }) {
-      const width = currentTarget.clientWidth;
-      const pos = clientX - currentTarget.offsetLeft;
-      const f = pos / width;
-      props.onSeek(props.duration * f);
-    },
-  }),
-)(Seeker);
 
 export { Seeker };

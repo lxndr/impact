@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 export const artistShape = PropTypes.string;
 
 export const albumShape = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
 });
 
 export const trackShape = PropTypes.shape({

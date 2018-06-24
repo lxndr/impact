@@ -7,6 +7,7 @@ rules:
   import/no-mutable-exports: off
   import/no-cycle: off
 
+  react/jsx-one-expression-per-line: off
   react/jsx-filename-extension:
   - error
   - extensions:

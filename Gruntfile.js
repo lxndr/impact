@@ -1,4 +1,8 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackTemplate = require('html-webpack-template');
+
+const production = process.env.NODE_ENV === 'production';
 
 module.exports = (grunt) => {
   require('load-grunt-tasks')(grunt);
@@ -41,7 +45,7 @@ module.exports = (grunt) => {
 
     webpack: {
       options: {
-        mode: process.env.NODE_ENV || 'production',
+        mode: process.env.NODE_ENV || 'development',
         module: {
           rules: [{
             test: /\.jsx?$/,
@@ -93,6 +97,7 @@ module.exports = (grunt) => {
           pathinfo: true,
         },
         target: 'electron-renderer',
+        devtool: 'inline-source-map',
         externals: [(context, request, callback) => {
           if (/^(@lxndr\/gst|@lxndr\/vlc|globby)/.test(request)) {
             callback(null, `commonjs ${request}`);
@@ -101,6 +106,18 @@ module.exports = (grunt) => {
 
           callback();
         }],
+        plugins: [new HtmlWebpackPlugin({
+          title: 'Impact',
+          filename: 'frontend.html',
+          inject: false,
+          template: HtmlWebpackTemplate,
+          appMountIds: ['app'],
+          meta: [{
+            'http-equiv': 'Content-Security-Policy',
+            content: 'script-src \'self\' file://*',
+          }],
+          links: ['frontend.css'],
+        })],
       },
     },
   });

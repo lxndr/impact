@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import cn from 'classnames';
-import { changeCurrentArtist } from '../store';
+import { changeLibraryArtist } from '../store';
 import { artistShape } from '../utils';
 
 const Artist = ({ name, selected, onClick }) => (
@@ -22,7 +22,7 @@ Artist.defaultProps = {
   selected: false,
 };
 
-let ArtistList = ({ artists, selected, select }) => (
+let ArtistList = ({ artists, selected, changeLibraryArtist }) => (
   <div className="artist-list">
     <ul>
       {artists.map(artist => (
@@ -30,7 +30,7 @@ let ArtistList = ({ artists, selected, select }) => (
           key={artist}
           name={artist}
           selected={artist === selected}
-          onClick={() => select(artist)}
+          onClick={() => changeLibraryArtist(artist)}
         />
       ))}
     </ul>
@@ -40,17 +40,17 @@ let ArtistList = ({ artists, selected, select }) => (
 ArtistList.propTypes = {
   artists: PropTypes.arrayOf(artistShape).isRequired,
   selected: PropTypes.string.isRequired,
-  select: PropTypes.func.isRequired,
+  changeLibraryArtist: PropTypes.func.isRequired,
 };
 
 ArtistList = connect(
   state => ({
     artists: state.library.artists,
-    selected: state.library.currentArtist,
+    selected: state.library.artist,
   }),
-  dispatch => ({
-    select: artist => dispatch(changeCurrentArtist(artist)),
-  }),
+  {
+    changeLibraryArtist,
+  },
 )(ArtistList);
 
 export { ArtistList };

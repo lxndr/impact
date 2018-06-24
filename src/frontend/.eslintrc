@@ -3,6 +3,5 @@ env:
   jest: true
 
 globals:
-  render: true
   shallow: true
   mount: true

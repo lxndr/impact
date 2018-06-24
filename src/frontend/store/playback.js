@@ -1,5 +1,5 @@
 import { createAction, createReducer } from 'redux-act';
-import { takeLatest } from 'redux-saga/effects';
+import { call, select, takeLatest } from 'redux-saga/effects';
 
 const initialState = {
   track: null,
@@ -25,10 +25,16 @@ export const playbackReducer = createReducer({
   }),
 }, initialState);
 
+function* playTrackSaga({ payload: track }) {
+  const { backend, library } = yield select();
+  const playlist = backend.createPlaylist();
+  yield call([playlist, 'forArtist'], library.artist);
+  backend.playback.playlist = playlist;
+  backend.playback.play(track.id);
+}
+
 export function* playbackSaga() {
-  yield takeLatest(playTrack, (track) => {
-    const { id } = track;
-  });
+  yield takeLatest(playTrack, playTrackSaga);
 
   yield takeLatest(playNextTrack, () => {
   });

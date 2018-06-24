@@ -4,7 +4,7 @@ import { Album } from '.';
 test('creation', () => {
   const props = {
     album: {
-      id: 1,
+      id: '1',
       discs: [{
         id: 1,
         title: 'Disc title',

@@ -13,11 +13,7 @@ const AlbumDisc = ({
   onSelect,
 }) => (
   <div className="disc">
-    {showTitle && (
-      <div className="disc-title">
-        {displayTitle(disc)}
-      </div>
-    )}
+    {showTitle && <div className="disc-title">{displayTitle(disc)}</div>}
 
     <div className="cover-container">
       {disc.images && disc.images.map(image => (
