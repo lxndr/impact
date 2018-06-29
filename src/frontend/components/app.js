@@ -1,4 +1,5 @@
 import React from 'react';
+import { IntlProvider } from 'react-intl';
 
 import {
   MemoryRouter,
@@ -7,17 +8,17 @@ import {
   Redirect,
 } from 'react-router';
 
-import { IntlProvider } from 'react-intl';
-import { Controls, Library, Preferences } from '.';
+import { Header } from './header';
+import { Library } from './library';
 
 const App = () => (
   <IntlProvider locale="en">
     <MemoryRouter>
       <div className="app">
-        <Controls />
+        <Header />
 
         <Switch>
-          <Route path="/preferences" component={Preferences} />
+          {/* <Route path="/preferences" component={Preferences} /> */}
           <Route path="/library" component={Library} />
           <Redirect to="/library" />
         </Switch>

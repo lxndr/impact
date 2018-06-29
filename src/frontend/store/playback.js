@@ -1,41 +1,46 @@
-import { createAction, createReducer } from 'redux-act';
-import { call, select, takeLatest } from 'redux-saga/effects';
+import { observable, computed } from 'mobx';
+import { backend } from '.';
 
-const initialState = {
-  track: null,
-  state: null,
-};
+export class PlaybackStore {
+  @observable track = null
 
-export const setCurrentTrack = createAction('playback/setTrack');
-export const setCurrentState = createAction('playback/setState');
-export const playTrack = createAction('playback/play');
-export const seekPlayback = createAction('playback/seek');
-export const playNextTrack = createAction('playback/next');
-export const playPrevTrack = createAction('playback/prev');
-export const togglePlayback = createAction('playback/toggle');
+  @observable state = null
 
-export const playbackReducer = createReducer({
-  [setCurrentTrack]: (state, track) => ({
-    ...state,
-    track,
-  }),
-  [setCurrentState]: (oldState, state) => ({
-    ...oldState,
-    state,
-  }),
-}, initialState);
+  @computed get displayedTrack() {
+    if (!this.track) {
+      return {
+        title: '',
+        album: '',
+        duration: 0,
+      };
+    }
 
-function* playTrackSaga({ payload: track }) {
-  const { backend, library } = yield select();
-  const playlist = backend.createPlaylist();
-  yield call([playlist, 'forArtist'], library.artist);
-  backend.playback.playlist = playlist;
-  backend.playback.play(track.id);
-}
+    const artist = this.track.album.artist || 'Unknown artist';
+    const album = this.track.album.title || 'Unknown album';
 
-export function* playbackSaga() {
-  yield takeLatest(playTrack, playTrackSaga);
+    return {
+      title: this.track.title || 'Unknown title',
+      album: `by ${artist} from ${album}`,
+      duration: this.track.duration,
+    };
+  }
 
-  yield takeLatest(playNextTrack, () => {
-  });
+  play = async (track) => {
+    const playlist = backend.createPlaylist();
+    await playlist.forArtist(library.artist);
+    backend.playback.playlist = playlist;
+    backend.playback.play(track.id);
+  }
+
+  seek = (position) => {
+  }
+
+  next = () => {
+  }
+
+  prev = () => {
+  }
+
+  toggle = () => {
+  }
 }

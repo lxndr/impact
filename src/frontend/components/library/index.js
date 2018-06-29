@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArtistList, AlbumList } from '.';
+import { ArtistList } from './artist-list';
+import { AlbumList } from './album-list';
 
 const Library = () => (
   <div className="library">

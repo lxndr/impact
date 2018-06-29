@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Seeker = class extends React.Component {
+export class Seeker extends React.Component {
   static propTypes = {
     duration: PropTypes.number.isRequired,
     position: PropTypes.number.isRequired,
@@ -35,6 +35,4 @@ const Seeker = class extends React.Component {
       </div>
     );
   }
-};
-
-export { Seeker };
+}

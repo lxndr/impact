@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { discShape, trackShape } from '../utils';
-import { AlbumTrackList } from '.';
+import { discShape, trackShape } from '../../utils';
+import { AlbumTrackList } from './album-track-list';
 
 const displayTitle = disc => (disc.title ? `Disc ${disc.number}: ${disc.title}` : `Disc ${disc.number}`);
 

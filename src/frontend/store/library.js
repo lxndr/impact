@@ -1,46 +1,6 @@
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
-
-import {
-  call,
-  put,
-  select,
-  takeLatest,
-} from 'redux-saga/effects';
-
-const initialState = {
-  artists: [],
-  artist: '',
-  albums: [],
-};
-
-export const refreshLibraryArtists = createAction('library/refreshArtists');
-export const setLibraryArtists = createAction('library/setArtists');
-export const changeLibraryArtist = createAction('library/changeArtist');
-export const setLibraryArtist = createAction('library/setArtist');
-export const setLibraryAlbums = createAction('library/setAlbums');
-
-export const libraryReducer = createReducer({
-  [setLibraryArtists]: (state, artists) => ({
-    ...state,
-    artists,
-  }),
-  [setLibraryArtist]: (state, artist) => ({
-    ...state,
-    artist,
-    albums: [],
-  }),
-  [setLibraryAlbums]: (state, albums) => ({
-    ...state,
-    albums,
-  }),
-}, initialState);
-
-function* refreshArtistsSaga() {
-  const { backend } = yield select();
-  const artists = yield call([backend.collection, 'artists']);
-  yield put(setLibraryArtists(artists));
-}
+import { observable } from 'mobx';
+import { backend } from '.';
 
 function formAlbumList({ albums, tracks }) {
   const retAlbums = [];
@@ -96,14 +56,20 @@ function formAlbumList({ albums, tracks }) {
     });
 }
 
-function* changeArtistSaga({ payload: artist }) {
-  const { backend } = yield select();
-  const result = yield call([backend.collection, 'allOfArtist'], artist);
-  const albums = formAlbumList(result);
-  yield put(setLibraryAlbums(albums));
-}
+export class LibraryStore {
+  @observable artists = []
 
-export function* librarySaga() {
-  yield takeLatest(refreshLibraryArtists, refreshArtistsSaga);
-  yield takeLatest(changeLibraryArtist, changeArtistSaga);
+  @observable artist = ''
+
+  @observable albums = []
+
+  refreshArtists = async () => {
+    this.artists = await backend.collection.artists();
+  }
+
+  changeArtist = async (artist) => {
+    const result = await backend.collection.allOfArtist(artist);
+    this.albums = formAlbumList(result);
+    this.artist = artist;
+  }
 }

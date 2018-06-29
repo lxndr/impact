@@ -1,49 +1,29 @@
-import {
-  compose,
-  createStore,
-  combineReducers,
-  applyMiddleware,
-} from 'redux';
-
-import { reducer as formReducer } from 'redux-form';
-import createSagaMiddleware from 'redux-saga';
-import { fork } from 'redux-saga/effects';
 import { Application } from '../../backend';
-import { libraryReducer, librarySaga } from './library';
-import { configReducer } from './config';
-import { coreSaga } from './core';
-import { playbackReducer, playbackSaga } from './playback';
-import { windowSaga } from './window';
 
-export * from './config';
-export * from './core';
-export * from './library';
-export * from './playback';
-export * from './window';
+// import { libraryReducer, librarySaga } from './library';
+// import { configReducer } from './config';
+// import { coreSaga } from './core';
+import { PlaybackStore } from './playback';
+import { WindowStore } from './window';
 
-const backend = new Application();
-const sagaMiddleware = createSagaMiddleware();
+// export * from './config';
+// export * from './core';
+// export * from './library';
 
-const reducer = combineReducers({
-  backend: (state = backend) => state,
-  form: formReducer,
-  config: configReducer,
-  library: libraryReducer,
-  playback: playbackReducer,
-});
+export const backend = new Application();
 
-const composeEnhancers = global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+export const store = {
+  notifications: {},
+  config: {},
+  library: {},
+  playback: new PlaybackStore(),
+  window: new WindowStore(),
 
-const store = createStore(
-  reducer,
-  composeEnhancers(applyMiddleware(sagaMiddleware)),
-);
-
-sagaMiddleware.run(function* rootSaga() {
-  yield fork(coreSaga);
-  yield fork(librarySaga);
-  yield fork(playbackSaga);
-  yield fork(windowSaga);
-});
-
-export { store };
+  async init() {
+    try {
+      await backend.startup();
+    } catch (err) {
+      this.notifications.error(err);
+    }
+  },
+};

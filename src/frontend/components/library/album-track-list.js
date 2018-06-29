@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trackShape } from '../utils';
-import { AlbumTrack } from '.';
+import { trackShape } from '../../utils';
+import { AlbumTrack } from './album-track';
 
 const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
   <ul className="track-list">

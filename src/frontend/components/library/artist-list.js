@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import cn from 'classnames';
-import { changeLibraryArtist } from '../store';
-import { artistShape } from '../utils';
+import { artistShape } from '../../utils';
 
 const Artist = ({ name, selected, onClick }) => (
   <li className={cn({ selected, unknown: !name })}>

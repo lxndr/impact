@@ -32,20 +32,10 @@ module.exports = (grunt) => {
       },
     },
 
-    babel: {
-      main: {
-        files: [{
-          expand: true,
-          cwd: 'src/app',
-          src: '**/*.js',
-          dest: 'dist/main',
-        }],
-      },
-    },
-
     webpack: {
       options: {
         mode: process.env.NODE_ENV || 'development',
+        devtool: 'inline-source-map',
         module: {
           rules: [{
             test: /\.jsx?$/,
@@ -55,14 +45,15 @@ module.exports = (grunt) => {
             ],
             loader: 'babel-loader',
             options: {
+              babelrc: false,
               plugins: [
-                'transform-object-rest-spread',
-                'transform-decorators-legacy',
-                'transform-class-properties',
+                '@babel/plugin-proposal-object-rest-spread',
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-proposal-class-properties', { loose: true }],
               ],
               presets: [
-                'react',
-                ['env', {
+                '@babel/react',
+                ['@babel/env', {
                   modules: false,
                   targets: {
                     electron: '2.0.0',
@@ -97,7 +88,6 @@ module.exports = (grunt) => {
           pathinfo: true,
         },
         target: 'electron-renderer',
-        devtool: 'inline-source-map',
         externals: [(context, request, callback) => {
           if (/^(@lxndr\/gst|@lxndr\/vlc|globby)/.test(request)) {
             callback(null, `commonjs ${request}`);

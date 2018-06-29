@@ -1,5 +1,11 @@
-import { app, ipcMain, globalShortcut, BrowserWindow } from 'electron';
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import {
+  app,
+  ipcMain,
+  globalShortcut,
+  BrowserWindow,
+} from 'electron';
+
+import installExtension, { REACT_DEVELOPER_TOOLS, MOBX_DEVTOOLS } from 'electron-devtools-installer';
 
 app.on('ready', () => {
   /* window */
@@ -15,7 +21,7 @@ app.on('ready', () => {
   if (process.env.NODE_ENV === 'development') {
     Promise.all([
       installExtension(REACT_DEVELOPER_TOOLS),
-      installExtension(REDUX_DEVTOOLS),
+      installExtension(MOBX_DEVTOOLS),
     ]).catch(console.error);
 
     win.openDevTools();

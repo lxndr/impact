@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { store, initApplication } from './store';
+import { render } from 'react-dom';
+import { Provider } from 'mobx-react';
+import { store } from './store';
 import { App } from './components';
 
-store.dispatch(initApplication());
+store.init();
 
 const app = (
   <Provider store={store}>
@@ -12,5 +12,4 @@ const app = (
   </Provider>
 );
 
-const container = document.getElementById('app');
-ReactDOM.render(app, container);
+render(app, document.getElementById('app'));

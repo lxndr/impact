@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trackShape, albumShape } from '../utils';
-import { AlbumDisc } from '.';
+import { trackShape, albumShape } from '../../utils';
+import { AlbumDisc } from './album-disc';
 
 const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">

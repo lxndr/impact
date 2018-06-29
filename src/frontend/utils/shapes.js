@@ -29,3 +29,12 @@ export const stateShape = PropTypes.shape({
 export const configShape = PropTypes.shape({
   libraryPath: PropTypes.string,
 });
+
+export const iconShape = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.shape({
+    prefix: PropTypes.string.isRequired,
+    iconName: PropTypes.string.isRequired,
+    icon: PropTypes.array.isRequired,
+  }),
+]);

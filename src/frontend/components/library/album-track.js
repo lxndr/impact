@@ -4,11 +4,11 @@ import fontawesome from '@fortawesome/fontawesome';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/fontawesome-free-solid';
 import cn from 'classnames';
-import { formatDuration, trackShape } from '../utils';
+import { formatDuration, trackShape } from '../../utils';
 
 fontawesome.library.add(faPlay);
 
-const AlbumTrack = ({ track, playing, onClick }) => (
+export const AlbumTrack = ({ track, playing, onClick }) => (
   <li
     className={cn({ playing })}
     onClick={() => onClick(track)}
@@ -25,5 +25,3 @@ AlbumTrack.propTypes = {
   playing: PropTypes.bool.isRequired,
   onClick: PropTypes.func.isRequired,
 };
-
-export { AlbumTrack };

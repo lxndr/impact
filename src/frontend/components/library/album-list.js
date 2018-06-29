@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { playTrack } from '../store';
-import { albumShape, trackShape } from '../utils';
-import { Album } from '.';
+import { albumShape, trackShape } from '../../utils';
+import { Album } from './album';
 
 let AlbumList = ({ albums, playingTrack, playTrack }) => (
   <div className="album-list">
@@ -39,19 +37,3 @@ AlbumList = connect(
 )(AlbumList);
 
 export { AlbumList };
-
-/*
-export class ArtistTrackList extends React.Component {
-  @autobind
-  handleSelect(track) {
-    const { backend } = this.props;
-
-    Promise.resolve().then(async () => {
-      const playlist = backend.createPlaylist();
-      await playlist.forArtist(this.props.artist);
-      backend.playback.playlist = playlist;
-      backend.playback.play(track.id);
-    }, console.error);
-  }
-}
-*/
