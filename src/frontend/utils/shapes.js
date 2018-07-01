@@ -26,6 +26,8 @@ export const stateShape = PropTypes.shape({
   state: PropTypes.string.isRequired,
 });
 
+export const storeShape = PropTypes.object;
+
 export const configShape = PropTypes.shape({
   libraryPath: PropTypes.string,
 });
@@ -38,3 +40,5 @@ export const iconShape = PropTypes.oneOfType([
     icon: PropTypes.array.isRequired,
   }),
 ]);
+
+export const historyShape = PropTypes.object;

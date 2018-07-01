@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { trackShape, albumShape } from '../../utils';
 import { AlbumDisc } from './album-disc';
 
-const Album = ({ album, playingTrack, onSelect }) => (
+export const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">
     <div className="header">
       <div className="title">{album.title || 'Unknown album'}</div>
@@ -35,5 +35,3 @@ Album.propTypes = {
 Album.defaultProps = {
   playingTrack: null,
 };
-
-export { Album };

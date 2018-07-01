@@ -1,39 +1,32 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { albumShape, trackShape } from '../../utils';
+import { observer } from 'mobx-react';
+import { store } from '../../store';
 import { Album } from './album';
 
-let AlbumList = ({ albums, playingTrack, playTrack }) => (
-  <div className="album-list">
-    {albums.map(album => (
-      <Album
-        key={album.id}
-        album={album}
-        playingTrack={playingTrack}
-        onSelect={playTrack}
-      />
-    ))}
-  </div>
-);
+@observer
+export class AlbumList extends React.Component {
+  render() {
+    const {
+      library: {
+        albums,
+      },
+      playback: {
+        track,
+        play,
+      },
+    } = store;
 
-AlbumList.propTypes = {
-  albums: PropTypes.arrayOf(albumShape).isRequired,
-  playingTrack: trackShape,
-  playTrack: PropTypes.func.isRequired,
-};
-
-AlbumList.defaultProps = {
-  playingTrack: null,
-};
-
-AlbumList = connect(
-  state => ({
-    albums: state.library.albums,
-    playingTrack: state.playback.track,
-  }),
-  {
-    playTrack,
-  },
-)(AlbumList);
-
-export { AlbumList };
+    return (
+      <div className="album-list">
+        {albums.map(album => (
+          <Album
+            key={album.id}
+            album={album}
+            playingTrack={track}
+            onSelect={play}
+          />
+        ))}
+      </div>
+    );
+  }
+}

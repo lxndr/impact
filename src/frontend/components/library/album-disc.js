@@ -6,7 +6,7 @@ import { AlbumTrackList } from './album-track-list';
 
 const displayTitle = disc => (disc.title ? `Disc ${disc.number}: ${disc.title}` : `Disc ${disc.number}`);
 
-const AlbumDisc = ({
+export const AlbumDisc = ({
   disc,
   showTitle,
   playingTrack,
@@ -39,5 +39,3 @@ AlbumDisc.defaultProps = {
   playingTrack: null,
   onSelect: _.noop,
 };
-
-export { AlbumDisc };

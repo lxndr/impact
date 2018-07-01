@@ -1,12 +1,13 @@
-import { observable, computed } from 'mobx';
-import { backend } from '.';
+import { backend } from './backend';
 
-export class PlaybackStore {
-  @observable track = null
+export const playback = {
+  track: null,
+  state: null,
 
-  @observable state = null
-
-  @computed get displayedTrack() {
+  /**
+   * Computes track info for displaying.
+   */
+  get displayedTrack() {
     if (!this.track) {
       return {
         title: '',
@@ -23,24 +24,24 @@ export class PlaybackStore {
       album: `by ${artist} from ${album}`,
       duration: this.track.duration,
     };
-  }
+  },
 
-  play = async (track) => {
+  play: async (track) => {
     const playlist = backend.createPlaylist();
-    await playlist.forArtist(library.artist);
+    await playlist.forArtist(this.library.artist);
     backend.playback.playlist = playlist;
     backend.playback.play(track.id);
-  }
+  },
 
-  seek = (position) => {
-  }
+  seek: (position) => {
+  },
 
-  next = () => {
-  }
+  next: () => {
+  },
 
-  prev = () => {
-  }
+  prev: () => {
+  },
 
-  toggle = () => {
-  }
-}
+  toggle: () => {
+  },
+};

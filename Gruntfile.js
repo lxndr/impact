@@ -44,23 +44,9 @@ module.exports = (grunt) => {
               path.resolve(__dirname, 'node_modules/@lxndr'),
             ],
             loader: 'babel-loader',
-            options: {
-              babelrc: false,
-              plugins: [
-                '@babel/plugin-proposal-object-rest-spread',
-                ['@babel/plugin-proposal-decorators', { legacy: true }],
-                ['@babel/plugin-proposal-class-properties', { loose: true }],
-              ],
-              presets: [
-                '@babel/react',
-                ['@babel/env', {
-                  modules: false,
-                  targets: {
-                    electron: '2.0.0',
-                  },
-                }],
-              ],
-            },
+          }, {
+            test: /\.(png|svg)$/,
+            loader: 'url-loader',
           }],
         },
       },
@@ -79,7 +65,6 @@ module.exports = (grunt) => {
       },
       renderer: {
         entry: {
-          // backend: './src/backend/index.js',
           frontend: './src/frontend/index.js',
         },
         output: {

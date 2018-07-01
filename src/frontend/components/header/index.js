@@ -1,7 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
-import { observer, inject } from 'mobx-react';
+import { observer } from 'mobx-react';
+import { injectIntl, intlShape } from 'react-intl';
 
 import {
   faBackward,
@@ -14,16 +14,19 @@ import {
   faCog,
 } from '@fortawesome/free-solid-svg-icons';
 
+import { store } from '../../store';
 import { Button } from './button';
 import { Seeker } from './seeker';
+import { historyShape } from '../../utils';
+import defaultAlbumCover from '../../assets/album.svg';
 
 @withRouter
-@inject('store')
+@injectIntl
 @observer
 export class Header extends React.Component {
   static propTypes = {
-    store: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
+    intl: intlShape.isRequired,
+    history: historyShape.isRequired,
   }
 
   showPreferences = () => {
@@ -32,7 +35,7 @@ export class Header extends React.Component {
   }
 
   render() {
-    const { store } = this.props;
+    const { intl } = this.props;
     const { state, displayedTrack } = store.playback;
 
     let playing = false;
@@ -44,16 +47,78 @@ export class Header extends React.Component {
     }
 
     return (
-      <div className="media-controls">
-        <Button className="prev" onClick={store.playback.prev} icon={faBackward} />
-        <Button className="play" onClick={store.playback.toggle} icon={playing ? faPause : faPlay} />
-        <Button className="next" onClick={store.playback.next} icon={faForward} />
-        <Button className="wmin" onClick={store.window.minimize} icon={faWindowMinimize} />
-        <Button className="wmax" onClick={store.window.maximize} icon={faWindowMaximize} />
-        <Button className="wcls" onClick={store.window.close} icon={faWindowClose} />
-        <Button className="pref" onClick={this.showPreferences} icon={faCog} />
+      <div className="header">
+        <Button
+          className="prev"
+          onClick={store.playback.prev}
+          icon={faBackward}
+          title={intl.formatMessage({
+            id: 'header.prev',
+            defaultMessage: 'Previous track',
+          })}
+        />
 
-        <img className="cover" alt="Album cover" src="images/album.svg" />
+        <Button
+          className="play"
+          onClick={store.playback.toggle}
+          icon={playing ? faPause : faPlay}
+          title={intl.formatMessage({
+            id: playing ? 'header.pause' : 'header.play',
+            defaultMessage: playing ? 'Puase' : 'Play',
+          })}
+        />
+
+        <Button
+          className="next"
+          onClick={store.playback.next}
+          icon={faForward}
+          title={intl.formatMessage({
+            id: 'header.next',
+            defaultMessage: 'Next track',
+          })}
+        />
+
+        <Button
+          className="wmin"
+          onClick={store.minimize}
+          icon={faWindowMinimize}
+          title={intl.formatMessage({
+            id: 'header.minimizeWindow',
+            defaultMessage: 'Minimize window',
+          })}
+        />
+
+        <Button
+          className="wmax"
+          onClick={store.maximize}
+          icon={faWindowMaximize}
+          title={intl.formatMessage({
+            id: 'header.maximizeWindow',
+            defaultMessage: 'Maximize window',
+          })}
+        />
+
+        <Button
+          className="wcls"
+          onClick={store.close}
+          icon={faWindowClose}
+          title={intl.formatMessage({
+            id: 'header.closeWindow',
+            defaultMessage: 'Close',
+          })}
+        />
+
+        <Button
+          className="pref"
+          onClick={this.showPreferences}
+          icon={faCog}
+          title={intl.formatMessage({
+            id: 'header.preferences',
+            defaultMessage: 'Preferences',
+          })}
+        />
+
+        <img className="cover" alt="Album cover" src={defaultAlbumCover} />
         <div className="title">{displayedTrack.title}</div>
         <div className="album">{displayedTrack.album}</div>
 

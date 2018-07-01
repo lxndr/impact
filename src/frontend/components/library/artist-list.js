@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import { artistShape } from '../../utils';
+import { observer } from 'mobx-react';
+import { store } from '../../store';
 
 const Artist = ({ name, selected, onClick }) => (
   <li className={cn({ selected, unknown: !name })}>
@@ -20,35 +21,30 @@ Artist.defaultProps = {
   selected: false,
 };
 
-let ArtistList = ({ artists, selected, changeLibraryArtist }) => (
-  <div className="artist-list">
-    <ul>
-      {artists.map(artist => (
-        <Artist
-          key={artist}
-          name={artist}
-          selected={artist === selected}
-          onClick={() => changeLibraryArtist(artist)}
-        />
-      ))}
-    </ul>
-  </div>
-);
+@observer
+export class ArtistList extends React.Component {
+  render() {
+    const {
+      library: {
+        artists,
+        artist: selected,
+        changeArtist,
+      },
+    } = store;
 
-ArtistList.propTypes = {
-  artists: PropTypes.arrayOf(artistShape).isRequired,
-  selected: PropTypes.string.isRequired,
-  changeLibraryArtist: PropTypes.func.isRequired,
-};
-
-ArtistList = connect(
-  state => ({
-    artists: state.library.artists,
-    selected: state.library.artist,
-  }),
-  {
-    changeLibraryArtist,
-  },
-)(ArtistList);
-
-export { ArtistList };
+    return (
+      <div className="artist-list">
+        <ul>
+          {artists.map(artist => (
+            <Artist
+              key={artist}
+              name={artist}
+              selected={artist === selected}
+              onClick={() => changeArtist(artist)}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}

@@ -87,6 +87,7 @@
     "load-grunt-tasks": "^4.0.0",
     "redux-mock-store": "^1.5.3",
     "stylus": "^0.54.5",
+    "url-loader": "^1.0.1",
     "webpack": "^4.13.0"
   }
 }

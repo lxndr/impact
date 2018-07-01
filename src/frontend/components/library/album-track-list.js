@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { trackShape } from '../../utils';
 import { AlbumTrack } from './album-track';
 
-const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
+export const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
   <ul className="track-list">
     {tracks.map((track) => {
       const playing = playingTrack && playingTrack.id === track.id;
@@ -24,5 +24,3 @@ AlbumTrackList.defaultProps = {
   playingTrack: null,
   onSelect: _.noop,
 };
-
-export { AlbumTrackList };

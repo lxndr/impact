@@ -1,3 +1,5 @@
+/* eslint-env jest */
+/* eslint-disable import/no-extraneous-dependencies */
 import Enzyme, { shallow, mount } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 

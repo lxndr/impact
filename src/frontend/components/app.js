@@ -1,5 +1,7 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl';
+import { IntlProvider, addLocaleData } from 'react-intl';
+import en from 'react-intl/locale-data/en';
+import ru from 'react-intl/locale-data/ru';
 
 import {
   MemoryRouter,
@@ -8,11 +10,14 @@ import {
   Redirect,
 } from 'react-router';
 
+import messages from '../l18n';
 import { Header } from './header';
 import { Library } from './library';
 
-const App = () => (
-  <IntlProvider locale="en">
+addLocaleData([...en, ...ru]);
+
+export const App = () => (
+  <IntlProvider locale="en" messages={messages.en}>
     <MemoryRouter>
       <div className="app">
         <Header />
@@ -26,5 +31,3 @@ const App = () => (
     </MemoryRouter>
   </IntlProvider>
 );
-
-export { App };
