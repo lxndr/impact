@@ -1,3 +1,6 @@
 {
-  "playback.playPrev": "Предыдущий трек"
+  "playback.prev": "Предыдущий трек",
+  "playback.play": "Воспроизвести",
+  "playback.pause": "Пауза",
+  "playback.next": "Следующий трек"
 }

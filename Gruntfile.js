@@ -2,10 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackTemplate = require('html-webpack-template');
 
-const production = process.env.NODE_ENV === 'production';
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = (grunt) => {
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt); // eslint-disable-line global-require
 
   grunt.initConfig({
     clean: {
@@ -34,7 +34,7 @@ module.exports = (grunt) => {
 
     webpack: {
       options: {
-        mode: process.env.NODE_ENV || 'development',
+        mode: NODE_ENV,
         devtool: 'inline-source-map',
         module: {
           rules: [{

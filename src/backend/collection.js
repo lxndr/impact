@@ -76,8 +76,7 @@ export class Collection {
     return this.database.albums.orderBy('artist').uniqueKeys();
   }
 
-  async albumsByArtist(artist) {
-    artist = artist || '';
+  async albumsByArtist(artist = '') {
     return this.database.albums.where({ artist }).toArray();
   }
 

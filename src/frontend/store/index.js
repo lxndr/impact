@@ -5,6 +5,10 @@ import { library } from './library';
 import { playback } from './playback';
 
 export const store = observable({
+  config: {
+    language: 'en',
+  },
+
   library,
   playback,
 

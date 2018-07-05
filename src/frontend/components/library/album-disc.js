@@ -16,14 +16,12 @@ export const AlbumDisc = ({
     {showTitle && <div className="disc-title">{displayTitle(disc)}</div>}
 
     <div className="cover-container">
-      {disc.images && disc.images.map(image => (
+      {disc.images.map(image => (
         <img alt="album cover" key={image.id} className="cover" src={image.path} />
       ))}
     </div>
 
-    {disc.tracks && (
-      <AlbumTrackList tracks={disc.tracks} playingTrack={playingTrack} onSelect={onSelect} />
-    )}
+    <AlbumTrackList tracks={disc.tracks} playingTrack={playingTrack} onSelect={onSelect} />
   </div>
 );
 

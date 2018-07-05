@@ -1,63 +1,48 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { Field, reduxForm } from 'redux-form';
-import { changeConfig } from '../store';
-import { configShape } from '../utils';
+import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
+import { observer } from 'mobx-react';
+import { Form, Field } from './form';
+import { store } from '../store';
+import { historyShape } from '../utils';
 
-let PreferencesForm = ({ handleSubmit, onCancel }) => (
-  <form onSubmit={handleSubmit}>
-    <div className="form-field">
-      <label htmlFor="libraryPath">Music library path</label>
-      <Field id="libraryPath" name="libraryPath" component="input" type="text" />
-    </div>
+@withRouter
+@injectIntl
+@observer
+export class Preferences extends React.Component {
+  static propTypes = {
+    intl: intlShape.isRequired,
+    history: historyShape.isRequired,
+  }
 
-    <div className="actionbar">
-      <button type="submit">Save</button>
-      <button type="button" onClick={onCancel}>Cancel</button>
-    </div>
-  </form>
-);
+  handleBack = () => {
+    const { history } = this.props;
+    history.goBack();
+  }
 
-PreferencesForm.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-};
+  render() {
+    const { intl } = this.props;
 
-PreferencesForm = reduxForm({
-  form: 'preferences',
-})(PreferencesForm);
+    return (
+      <div className="preferences">
+        <Form model={store.config}>
+          <Field
+            name="libraryPath"
+            label={intl.formatMessage({
+              id: 'preferences.libraryPath',
+              defaultMessage: 'Music library path',
+            })}
+          />
 
-let Preferences = ({ initialValues, save, cancel }) => (
-  <div className="preferences">
-    <PreferencesForm initialValues={initialValues} onSubmit={save} onCancel={cancel} />
-  </div>
-);
+          <button type="submit" onSubmit={this.handleBack}>
+            <FormattedMessage id="prefernces.save" defaultMessage="Save" />
+          </button>
 
-Preferences.propTypes = {
-  initialValues: configShape.isRequired,
-  save: PropTypes.func.isRequired,
-  cancel: PropTypes.func.isRequired,
-};
-
-Preferences = compose(
-  withRouter,
-  connect(
-    state => ({
-      initialValues: state.config,
-    }),
-    (dispatch, { history }) => ({
-      save(value) {
-        dispatch(changeConfig(value));
-        history.goBack();
-      },
-      cancel() {
-        history.goBack();
-      },
-    }),
-  ),
-)(Preferences);
-
-export { Preferences };
+          <button type="button" onClick={this.handleBack}>
+            <FormattedMessage id="prefernces.back" defaultMessage="Back" />
+          </button>
+        </Form>
+      </div>
+    );
+  }
+}

@@ -16,6 +16,9 @@ export class Seeker extends React.Component {
     onSeek(duration * f);
   }
 
+  handleKeyPress = () => {
+  }
+
   render() {
     const { position, duration } = this.props;
 
@@ -30,7 +33,16 @@ export class Seeker extends React.Component {
     };
 
     return (
-      <div className="seeker" onClick={this.handleClick}>
+      <div
+        className="seeker"
+        role="slider"
+        aria-valuemax={duration}
+        aria-valuemin={0}
+        aria-valuenow={position}
+        tabIndex={0}
+        onClick={this.handleClick}
+        onKeyPress={this.handleKeyPress}
+      >
         <div className="poser" style={style} />
       </div>
     );

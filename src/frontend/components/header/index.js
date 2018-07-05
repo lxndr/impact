@@ -43,7 +43,7 @@ export class Header extends React.Component {
 
     if (state) {
       playing = state.state === 'playing';
-      position = state.position;
+      position = state.position; // eslint-disable-line prefer-destructuring
     }
 
     return (
@@ -53,7 +53,7 @@ export class Header extends React.Component {
           onClick={store.playback.prev}
           icon={faBackward}
           title={intl.formatMessage({
-            id: 'header.prev',
+            id: 'playback.prev',
             defaultMessage: 'Previous track',
           })}
         />
@@ -63,7 +63,7 @@ export class Header extends React.Component {
           onClick={store.playback.toggle}
           icon={playing ? faPause : faPlay}
           title={intl.formatMessage({
-            id: playing ? 'header.pause' : 'header.play',
+            id: playing ? 'playback.pause' : 'playback.play',
             defaultMessage: playing ? 'Puase' : 'Play',
           })}
         />
@@ -73,7 +73,7 @@ export class Header extends React.Component {
           onClick={store.playback.next}
           icon={faForward}
           title={intl.formatMessage({
-            id: 'header.next',
+            id: 'playback.next',
             defaultMessage: 'Next track',
           })}
         />
@@ -83,7 +83,7 @@ export class Header extends React.Component {
           onClick={store.minimize}
           icon={faWindowMinimize}
           title={intl.formatMessage({
-            id: 'header.minimizeWindow',
+            id: 'window.minimize',
             defaultMessage: 'Minimize window',
           })}
         />
@@ -93,7 +93,7 @@ export class Header extends React.Component {
           onClick={store.maximize}
           icon={faWindowMaximize}
           title={intl.formatMessage({
-            id: 'header.maximizeWindow',
+            id: 'window.maximize',
             defaultMessage: 'Maximize window',
           })}
         />
@@ -103,7 +103,7 @@ export class Header extends React.Component {
           onClick={store.close}
           icon={faWindowClose}
           title={intl.formatMessage({
-            id: 'header.closeWindow',
+            id: 'window.close',
             defaultMessage: 'Close',
           })}
         />
@@ -119,8 +119,14 @@ export class Header extends React.Component {
         />
 
         <img className="cover" alt="Album cover" src={defaultAlbumCover} />
-        <div className="title">{displayedTrack.title}</div>
-        <div className="album">{displayedTrack.album}</div>
+
+        <div className="title">
+          {displayedTrack.title}
+        </div>
+
+        <div className="album">
+          {displayedTrack.album}
+        </div>
 
         <Seeker
           duration={displayedTrack.duration}
