@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import { observableArray, observableObject } from 'mobx';
+import { PropTypes as MobXPropTypes } from 'mobx-react';
 
 export const modelShape = PropTypes.oneOfType([
-  observableArray,
-  observableObject,
+  MobXPropTypes.observableArray,
+  MobXPropTypes.observableObject,
 ]);
 
 export const formShape = PropTypes.shape({

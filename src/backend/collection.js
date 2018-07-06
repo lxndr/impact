@@ -1,36 +1,5 @@
 import _ from 'lodash';
 import debug from 'debug';
-import invariant from 'invariant';
-
-/*
-
-Schemas:
-
-  files:
-    id
-    path
-    mtime
-
-  tracks
-    id
-    title
-    number
-    album
-    duration
-    file
-    ?offset
-
-  albums
-    id
-    title
-    artist
-    date
-    releaseDate
-    artwork
-      name
-      path
-
-*/
 
 const log = debug('impact:collection');
 
@@ -39,10 +8,13 @@ export class Collection {
     this.database = application.database;
   }
 
+  /**
+   * Removes all data from the database.
+   */
   async clear() {
-    await this.database.tracks.clear();
-    await this.database.albums.clear();
-    await this.database.files.clear();
+    await this.database.tracks.remove({}, { multi: true });
+    await this.database.albums.remove({}, { multi: true });
+    await this.database.files.remove({}, { multi: true });
   }
 
   /**
@@ -61,7 +33,7 @@ export class Collection {
   }
 
   async files() {
-    return this.database.files.toArray();
+    return this.database.files.find({});
   }
 
   async fileById(id) {
@@ -73,34 +45,40 @@ export class Collection {
   }
 
   async artists() {
-    return this.database.albums.orderBy('artist').uniqueKeys();
+    const list = await this.database.albums.find({});
+
+    return _(list)
+      .map('artist')
+      .uniq()
+      .sort()
+      .value();
   }
 
   async albumsByArtist(artist = '') {
-    return this.database.albums.where({ artist }).toArray();
+    return this.database.albums.find({ artist });
   }
 
   async allOfArtist(artist) {
     const albums = await this.albumsByArtist(artist);
-    const ids = _.map(albums, 'id');
-    const tracks = await this.database.tracks.where('album').anyOf(ids).toArray();
+    const ids = _.map(albums, '_id');
+    const tracks = await this.database.tracks.find({ album: { $in: ids } });
     return { albums, tracks };
   }
 
-  async albumById(id) {
-    return this.database.albums.get(id);
+  async albumById(_id) {
+    return this.database.albums.findOne({ _id });
   }
 
-  async trackById(id) {
-    return this.database.tracks.get(id);
+  async trackById(_id) {
+    return this.database.tracks.findOne({ _id });
   }
 
   async tracks() {
-    return this.database.tracks.toArray();
+    return this.database.tracks.find({});
   }
 
   async tracksByAlbum(album) {
-    return this.database.tracks.get({ album });
+    return this.database.tracks.findOne({ album });
   }
 
   async upsertTrack({ file, track, album }) {
@@ -108,61 +86,55 @@ export class Collection {
 
     const db = this.database;
 
-    return db.transaction('rw', db.files, db.albums, db.tracks, async () => {
-      /* file */
-      const fileId = await this.upsertFile(file);
+    /* file */
+    const fileId = await this.upsertFile(file);
 
-      /* album */
-      if (!album.title) {
-        _.assign(album, {
-          releaseDate: null,
-          releaseType: null,
-          discTitle: null,
-          discNumber: null,
-        });
-      }
-
-      const defaultAlbum = {
-        artist: '',
-        title: '',
-        releaseDate: '',
-        releaseType: null,
-        discTitle: '',
-        discNumber: 1,
-      };
-
-      _.assignWith(album, defaultAlbum, (objValue, srcValue) => (_.isNil(objValue) ? srcValue : objValue));
-
-      const q = _.pick(album, ['artist', 'title', 'releaseDate', 'discNumber', 'discTitle']);
-      const dbalbum = await db.albums.get(q);
-      const albumId = dbalbum ? dbalbum.id : await db.albums.add(album);
-
-      /* track */
-      _.defaults(track, {
-        title: null,
-        genre: null,
-        number: null,
-        offset: 0,
-      });
-
-      _.assign(track, {
-        file: fileId,
-        album: albumId,
-      });
-
-      const trackId = await this.database.tracks.put(track);
-
-      return { fileId, albumId, trackId };
+    /* album */
+    _.defaults(album, {
+      artist: null,
+      title: null,
+      releaseDate: null,
+      releaseType: null,
+      discTitle: null,
+      discNumber: 1,
     });
-  }
 
-  async removeFile({ file, dbfile }) {
-    invariant(file || dbfile, 'file or dbfile must be specified');
-
-    if (!dbfile) {
-      dbfile = await this.fileByPath(file);
+    if (!album.title) {
+      _.assign(album, {
+        releaseDate: null,
+        releaseType: null,
+        discTitle: null,
+        discNumber: null,
+      });
     }
 
-    await this.database.files.delete(dbfile.id);
+    const q = _.pick(album, ['artist', 'title', 'releaseDate', 'discNumber', 'discTitle']);
+    const dbalbum = await db.albums.find(q);
+    const albumId = dbalbum ? dbalbum.id : await db.albums.add(album);
+
+    /* track */
+    _.defaults(track, {
+      title: null,
+      genre: null,
+      number: null,
+      offset: 0,
+    });
+
+    _.assign(track, {
+      file: fileId,
+      album: albumId,
+    });
+
+    const trackId = await this.database.tracks.update(track);
+
+    return { fileId, albumId, trackId };
+  }
+
+  async removeFileById(_id) {
+    return this.database.files.remove({ _id });
+  }
+
+  async removeFileByPath(path) {
+    return this.database.files.remove({ path });
   }
 }

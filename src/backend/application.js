@@ -16,7 +16,7 @@ export class Application {
 
   async startup() {
     await this.configuration.load();
-    await this.database.open();
+    await this.database.init();
     this.scanner.update();
   }
 

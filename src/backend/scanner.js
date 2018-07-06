@@ -3,7 +3,7 @@ import path from 'path';
 import globby from 'globby';
 import invariant from 'invariant';
 import fs from 'fs-extra';
-import { extname } from './util';
+import { extname } from './utils';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
