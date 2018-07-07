@@ -1,8 +1,7 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router';
-import { Provider } from 'react-redux';
 import { store, setCurrentTrack, setCurrentState } from '../store';
-import { Controls } from '.';
+import Header from '../../../../backend/header';
 
 let cmp;
 

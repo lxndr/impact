@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { observer, Provider } from 'mobx-react';
 import { modelShape } from './util';
 
-export * from './field';
+export { default as Field } from './field';
 
 @observer
 export class Form extends React.Component {

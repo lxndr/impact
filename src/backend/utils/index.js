@@ -1,1 +1,1 @@
-export * from './extname';
+export { default as extname } from './extname';

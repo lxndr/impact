@@ -3,7 +3,7 @@ import debug from 'debug';
 
 const log = debug('impact:collection');
 
-export class Collection {
+export default class Collection {
   constructor(application) {
     this.database = application.database;
   }

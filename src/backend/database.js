@@ -25,7 +25,7 @@ const collections = {
   },
 };
 
-export class Database {
+export default class Database {
   async init() {
     const configDirectory = remote.app.getPath('userData');
     const dbDirectory = path.join(configDirectory, 'databases');

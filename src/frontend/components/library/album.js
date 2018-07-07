@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { trackShape, albumShape } from '../../utils';
-import { AlbumDisc } from './album-disc';
+import AlbumDisc from './album-disc';
 
-export const Album = ({ album, playingTrack, onSelect }) => (
+const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">
     <div className="header">
       <div className="title">{album.title || 'Unknown album'}</div>
@@ -35,3 +35,5 @@ Album.propTypes = {
 Album.defaultProps = {
   playingTrack: null,
 };
+
+export default Album;

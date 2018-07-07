@@ -12,14 +12,14 @@ import {
 } from 'react-router';
 
 import messages from '../l18n';
-import { store } from '../store';
-import { Header } from './header';
-import { Library } from './library';
-import { Preferences } from './preferences';
+import store from '../store';
+import Header from './header';
+import Library from './library';
+import Preferences from './preferences';
 
 addLocaleData([...en, ...ru]);
 
-export const App = observer(() => {
+const App = observer(() => {
   const { language } = store.config;
 
   return (
@@ -38,3 +38,5 @@ export const App = observer(() => {
     </IntlProvider>
   );
 });
+
+export default App;

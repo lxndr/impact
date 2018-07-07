@@ -1,4 +1,4 @@
-export const formatDuration = (secs) => {
+const formatDuration = (secs) => {
   if (!(secs && secs >= 0)) {
     secs = 0;
   }
@@ -20,3 +20,5 @@ export const formatDuration = (secs) => {
 
   return ret;
 };
+
+export default formatDuration;

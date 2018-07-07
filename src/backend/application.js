@@ -1,11 +1,11 @@
-import { Configuration } from './configuration';
-import { Database } from './database';
-import { Collection } from './collection';
-import { Scanner } from './scanner';
-import { Playback } from './playback';
-import { Playlist } from './playlist';
+import Configuration from './configuration';
+import Database from './database';
+import Collection from './collection';
+import Scanner from './scanner';
+import Playback from './playback';
+import Playlist from './playlist';
 
-export class Application {
+export default class Application {
   constructor() {
     this.configuration = new Configuration();
     this.database = new Database();

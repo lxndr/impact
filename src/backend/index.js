@@ -1,3 +1,4 @@
 import './utils/promisify-nedb';
+import Application from './application';
 
-export * from './application';
+export default Application;

@@ -2,9 +2,9 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { trackShape } from '../../utils';
-import { AlbumTrack } from './album-track';
+import AlbumTrack from './album-track';
 
-export const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
+const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
   <ul className="track-list">
     {tracks.map((track) => {
       const playing = playingTrack && playingTrack.id === track.id;
@@ -24,3 +24,5 @@ AlbumTrackList.defaultProps = {
   playingTrack: null,
   onSelect: _.noop,
 };
+
+export default AlbumTrackList;

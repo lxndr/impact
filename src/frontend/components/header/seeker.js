@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export class Seeker extends React.Component {
+export default class Seeker extends React.Component {
   static propTypes = {
     duration: PropTypes.number.isRequired,
     position: PropTypes.number.isRequired,

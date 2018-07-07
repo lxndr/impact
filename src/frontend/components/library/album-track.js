@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import cn from 'classnames';
 import { formatDuration, trackShape } from '../../utils';
 
-export const AlbumTrack = ({ track, playing, onClick }) => (
+const AlbumTrack = ({ track, playing, onClick }) => (
   <li
     className={cn({ playing })}
     onClick={() => onClick(track)}
@@ -22,3 +22,5 @@ AlbumTrack.propTypes = {
   playing: PropTypes.bool.isRequired,
   onClick: PropTypes.func.isRequired,
 };
+
+export default AlbumTrack;

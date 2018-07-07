@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { backend } from './backend';
+import { observable } from 'mobx';
+import backend from './backend';
 
 function formAlbumList({ albums, tracks }) {
   const retAlbums = [];
@@ -55,18 +56,22 @@ function formAlbumList({ albums, tracks }) {
     });
 }
 
-export const library = {
-  artists: [],
-  artist: '',
-  albums: [],
+class LibraryStore {
+  @observable artists = []
 
-  refreshArtists: async () => {
-    library.artists = await backend.collection.artists();
-  },
+  @observable artist = ''
 
-  changeArtist: async (artist) => {
+  @observable albums = []
+
+  refreshArtists = async () => {
+    this.artists = await backend.collection.artists();
+  }
+
+  changeArtist = async (artist) => {
     const result = await backend.collection.allOfArtist(artist);
-    library.albums = formAlbumList(result);
-    library.artist = artist;
-  },
-};
+    this.albums = formAlbumList(result);
+    this.artist = artist;
+  }
+}
+
+export default new LibraryStore();

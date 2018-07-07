@@ -1,31 +1,23 @@
-import { ipcRenderer } from 'electron';
-import { observable } from 'mobx';
-import { backend } from './backend';
-import { library } from './library';
-import { playback } from './playback';
+import backend from './backend';
+import libraryStore from './library';
+import playbackStore from './playback';
+import windowStore from './window';
 
-export const store = observable({
-  config: {
+class Store {
+  config = {
     language: 'en',
-  },
+  }
 
-  library,
-  playback,
+  library = libraryStore
 
-  init: async () => {
+  playback = playbackStore
+
+  window = windowStore
+
+  init = async () => {
     await backend.startup();
-    await library.refreshArtists();
-  },
+    await this.library.refreshArtists();
+  }
+}
 
-  minimize: () => {
-    ipcRenderer.send('window/minimize');
-  },
-
-  maximize: () => {
-    ipcRenderer.send('window/maximize');
-  },
-
-  close: () => {
-    ipcRenderer.send('window/close');
-  },
-});
+export default new Store();

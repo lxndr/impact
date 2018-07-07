@@ -1,19 +1,16 @@
 import _ from 'lodash';
 import path from 'path';
 import globby from 'globby';
-import invariant from 'invariant';
 import fs from 'fs-extra';
 import { extname } from './utils';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
 
-export class Scanner {
+export default class Scanner {
   types = {}
 
   formats = []
-
-  working = false
 
   constructor(application) {
     this.configuration = application.configuration;
@@ -39,8 +36,14 @@ export class Scanner {
     const fileDiff = await this.findChangedFiles();
 
     for (const file of fileDiff.changed) {
-      const oldData = await this.getExistingData(file);
-      // const newData = await this.;
+      const oldData = await this.getOldData(file);
+      const newData = await this.getNewData(oldData.files);
+      this.applyChanges(oldData, newData);
+    }
+
+    for (const file of fileDiff.removed) {
+      const oldData = await this.getOldData(file);
+      this.applyChanges(oldData, []);
     }
   }
 
@@ -71,25 +74,47 @@ export class Scanner {
     return { added: files, changed, removed };
   }
 
-  async getExistingData(dbfile) {
+  async getOldData(dbfile) {
     const files = [dbfile];
 
+    /* get all related files */
     for (const file of files) {
       if (file.rels) {
         for (const id of file.rels) {
           if (!_.find(files, { id })) {
-            const rel = await this.collection.fileById(id);
-            files.push(rel);
+            const nfile = await this.collection.fileById(id);
+            files.push(nfile);
           }
         }
       }
     }
 
-    const tracks = _.flatten(await Promise.all(files.map(await this.collection.tracksByFile(file.id))));
+    const tracks = _.flatten(
+      await Promise.all(
+        files.map(file => this.collection.tracksByFile(file.id)),
+      ),
+    );
 
-    const albums = await Promise.all(_.uniqBy(tracks, 'id').map(id => this.collection.albumById(id)));
+    const albums = await Promise.all(
+      _.uniqBy(tracks, 'id').map(track => this.collection.albumById(track.id)),
+    );
 
     return { files, albums, tracks };
+  }
+
+  async getNewData(file) {
+    const { type, data } = await this.inspect(file);
+    const st = await fs.stat(file);
+
+    const dbfile = {
+      path: file.path,
+      size: st.size,
+      mtime: st.mtime,
+      rels: [],
+    };
+
+    // const data = await this.types[type](dbfile, data);
+    return data;
   }
 
   async inspect(file) {
@@ -103,26 +128,7 @@ export class Scanner {
     return format.handler({ file, scanner: this });
   }
 
-  async upsertFile({ file, dbfile, st }) {
-    invariant(file || dbfile, 'file or dbfile must be specified');
-
-    if (!file) {
-      file = dbfile.path;
-    }
-
-    const { type, data } = await this.inspect(file);
-
-    if (!st) {
-      st = await fs.stat(file);
-    }
-
-    dbfile = {
-      path: file,
-      size: st.size,
-      mtime: st.mtime,
-    };
-
-    await Reflect.apply(this.types[type], this, [dbfile, data]);
+  async applyChanges(oldData, newData) {
   }
 
   async addMediaFile(file, { album, track }) {

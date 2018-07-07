@@ -6,7 +6,7 @@ import { VlcMedia, VlcMediaPlayer } from '@lxndr/vlc';
  *   1. VlcMediaPlayer.time can't be set when the player is not playing.
  */
 
-export class Player extends EventEmitter {
+export default class Player extends EventEmitter {
   _player = new VlcMediaPlayer()
 
   _uri = null

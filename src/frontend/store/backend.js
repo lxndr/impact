@@ -1,3 +1,3 @@
-import { Application } from '../../backend';
+import Application from '../../backend';
 
-export const backend = new Application();
+export default new Application();

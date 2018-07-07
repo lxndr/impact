@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { GstPlayer } from '@lxndr/gst';
 
-export class Player extends EventEmitter {
+export default class Player extends EventEmitter {
   _player = new GstPlayer()
 
   _uri = null

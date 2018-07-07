@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export class Playlist {
+export default class Playlist {
   queue = []
 
   constructor(collection) {

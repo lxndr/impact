@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { iconShape } from '../../utils';
 
-export const Button = ({
+const Button = ({
   className,
   onClick,
   icon,
@@ -25,3 +25,5 @@ Button.propTypes = {
   icon: iconShape.isRequired,
   title: PropTypes.string.isRequired,
 };
+
+export default Button;

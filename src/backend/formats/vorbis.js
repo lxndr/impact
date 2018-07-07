@@ -20,7 +20,7 @@ const tagArray = [
   'artists',
 ];
 
-export function readVorbisComment(fd, buf) {
+export default function readVorbisComment(fd, buf) {
   const vendorLength = buf.readUInt32LE(0);
   let offset = vendorLength + 4;
   const nTags = buf.readUInt32LE(offset);

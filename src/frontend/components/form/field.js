@@ -9,7 +9,7 @@ import { formShape } from './util';
 
 @inject('form')
 @observer
-export class Field extends React.Component {
+export default class Field extends React.Component {
   static propTypes = {
     form: formShape.isRequired,
     type: PropTypes.oneOfType([

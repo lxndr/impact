@@ -14,16 +14,16 @@ import {
   faCog,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { store } from '../../store';
-import { Button } from './button';
-import { Seeker } from './seeker';
 import { historyShape } from '../../utils';
+import store from '../../store';
 import defaultAlbumCover from '../../assets/album.svg';
+import Button from './button';
+import Seeker from './seeker';
 
 @withRouter
 @injectIntl
 @observer
-export class Header extends React.Component {
+export default class Header extends React.Component {
   static propTypes = {
     intl: intlShape.isRequired,
     history: historyShape.isRequired,
@@ -80,7 +80,7 @@ export class Header extends React.Component {
 
         <Button
           className="wmin"
-          onClick={store.minimize}
+          onClick={store.window.minimize}
           icon={faWindowMinimize}
           title={intl.formatMessage({
             id: 'window.minimize',
@@ -90,7 +90,7 @@ export class Header extends React.Component {
 
         <Button
           className="wmax"
-          onClick={store.maximize}
+          onClick={store.window.maximize}
           icon={faWindowMaximize}
           title={intl.formatMessage({
             id: 'window.maximize',
@@ -100,7 +100,7 @@ export class Header extends React.Component {
 
         <Button
           className="wcls"
-          onClick={store.close}
+          onClick={store.window.close}
           icon={faWindowClose}
           title={intl.formatMessage({
             id: 'window.close',

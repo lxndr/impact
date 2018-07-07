@@ -1,4 +1,4 @@
-import { formatDuration } from '../../src/frontend/utils/format-duration';
+import { formatDuration } from '../../utils/format-duration';
 
 test('no value', () => {
   const r = formatDuration();

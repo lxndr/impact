@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 
-export const Empty = () => {
+const Empty = () => {
   const link = (
     <Link to="/preferences">
       <FormattedMessage
@@ -27,3 +27,5 @@ export const Empty = () => {
     </div>
   );
 };
+
+export default Empty;

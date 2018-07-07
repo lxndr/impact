@@ -2,18 +2,22 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { discShape, trackShape } from '../../utils';
-import { AlbumTrackList } from './album-track-list';
+import AlbumTrackList from './album-track-list';
 
 const displayTitle = disc => (disc.title ? `Disc ${disc.number}: ${disc.title}` : `Disc ${disc.number}`);
 
-export const AlbumDisc = ({
+const AlbumDisc = ({
   disc,
   showTitle,
   playingTrack,
   onSelect,
 }) => (
   <div className="disc">
-    {showTitle && <div className="disc-title">{displayTitle(disc)}</div>}
+    {showTitle && (
+      <div className="disc-title">
+        {displayTitle(disc)}
+      </div>
+    )}
 
     <div className="cover-container">
       {disc.images.map(image => (
@@ -37,3 +41,5 @@ AlbumDisc.defaultProps = {
   playingTrack: null,
   onSelect: _.noop,
 };
+
+export default AlbumDisc;

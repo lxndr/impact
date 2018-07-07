@@ -3,13 +3,13 @@ import { withRouter } from 'react-router';
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
 import { observer } from 'mobx-react';
 import { Form, Field } from './form';
-import { store } from '../store';
 import { historyShape } from '../utils';
+import store from '../store';
 
 @withRouter
 @injectIntl
 @observer
-export class Preferences extends React.Component {
+export default class Preferences extends React.Component {
   static propTypes = {
     intl: intlShape.isRequired,
     history: historyShape.isRequired,

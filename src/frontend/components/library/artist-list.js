@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { observer } from 'mobx-react';
-import { store } from '../../store';
+import store from '../../store';
 
 const Artist = ({ name, selected, onClick }) => (
   <li className={cn({ selected, unknown: !name })}>
@@ -22,7 +22,7 @@ Artist.defaultProps = {
 };
 
 @observer
-export class ArtistList extends React.Component {
+export default class ArtistList extends React.Component {
   render() {
     const {
       library: {

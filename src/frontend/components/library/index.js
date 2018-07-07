@@ -1,11 +1,11 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { store } from '../../store';
-import { Empty } from './empty';
-import { ArtistList } from './artist-list';
-import { AlbumList } from './album-list';
+import store from '../../store';
+import Empty from './empty';
+import ArtistList from './artist-list';
+import AlbumList from './album-list';
 
-export const Library = observer(() => {
+const Library = observer(() => {
   const {
     library: { artists },
   } = store;
@@ -21,3 +21,5 @@ export const Library = observer(() => {
     </div>
   );
 });
+
+export default Library;

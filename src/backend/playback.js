@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
-import { Player } from './player.fake';
+import Player from './player.fake';
 
-export class Playback {
+export default class Playback {
   _playlist = null
 
   player = new Player()

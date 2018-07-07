@@ -4,6 +4,7 @@ Schemas:
   * id
   * path
   * mtime
+  * rels
 
 # tracks
   * id

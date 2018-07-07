@@ -1,2 +1,2 @@
-export * from './format-duration';
+export { default as formatDuration } from './format-duration';
 export * from './shapes';

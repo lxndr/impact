@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FLAC parser opens file with tags 1`] = `
+Object {
+  "album": Object {
+    "artist": "Artist",
+    "discNumber": 1,
+    "discTitle": "Disc Title",
+    "releaseDate": "2018-07-07",
+    "releaseType": "single",
+    "title": "Album Title",
+  },
+  "track": Object {
+    "duration": 5,
+    "genre": "Test Audio",
+    "number": 2,
+    "title": "Track Title",
+  },
+  "type": "media",
+}
+`;
+
+exports[`FLAC parser opens file without tags 1`] = `
+Object {
+  "album": Object {
+    "artist": undefined,
+    "discNumber": undefined,
+    "discTitle": undefined,
+    "releaseDate": undefined,
+    "releaseType": undefined,
+    "title": undefined,
+  },
+  "track": Object {
+    "duration": 5,
+    "genre": undefined,
+    "number": undefined,
+    "title": undefined,
+  },
+  "type": "media",
+}
+`;

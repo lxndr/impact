@@ -1,16 +1,41 @@
-import { readVorbisComment } from './vorbis';
 import fs from 'fs-extra';
+import readVorbisComment from './vorbis';
 
-async function readBlockHeader(fd, offset) {
-  const buf = Buffer.alloc(4);
+const STREAM_INFO_TYPE = 0;
+const VORBIS_COMMENT_TYPE = 4;
 
-  await fs.read(fd, buf, 0, 4, offset);
+const SIGNATURE_SIZE = 4;
+const BLOCK_HEADER_SIZE = 4;
 
-  return {
+async function readBlock(fd, offset) {
+  const buf = Buffer.alloc(BLOCK_HEADER_SIZE);
+  await fs.read(fd, buf, 0, BLOCK_HEADER_SIZE, offset);
+
+  const block = {
     last: buf.readUInt8(0) >> 7,
     type: buf.readUInt8(0) & 0x7f,
     length: buf.readUInt32BE(0) & 0xffffff,
   };
+
+  if (block.length <= 0) {
+    throw new Error('Block is empty');
+  }
+
+  block.buf = Buffer.alloc(block.length);
+  await fs.read(fd, block.buf, 0, block.length, offset + BLOCK_HEADER_SIZE);
+
+  return block;
+}
+
+async function readSignature(fd) {
+  const buf = Buffer.alloc(SIGNATURE_SIZE);
+  await fs.read(fd, buf, 0, SIGNATURE_SIZE, 0);
+
+  const signature = buf.toString('ascii');
+
+  if (signature !== 'fLaC') {
+    throw new Error('Not a FLAC file');
+  }
 }
 
 async function readStreamInfo(fd, buf) {
@@ -27,40 +52,31 @@ async function readStreamInfo(fd, buf) {
 }
 
 export async function read(fd) {
+  let offset = SIGNATURE_SIZE;
   let streamInfo;
   let tags;
-  let offset = 4;
 
-  const buf = Buffer.alloc(4);
-  await fs.read(fd, buf, 0, 4, 0);
-
-  const signature = buf.toString('ascii', 0, 4);
-  if (signature !== 'fLaC') {
-    throw new Error('Not a FLAC file');
-  }
+  await readSignature(fd);
 
   for (;;) {
-    const block = await readBlockHeader(fd, offset);
-    offset += 4;
+    const block = await readBlock(fd, offset);
 
-    const buf = Buffer.alloc(block.length);
-    await fs.read(fd, buf, 0, block.length, offset);
-
-    if (block.length <= 0) {
-      throw new Error('Block is empty');
-    }
-
-    if (block.type === 0) {
-      streamInfo = await readStreamInfo(fd, buf);
-    } else if (block.type === 4) {
-      tags = await readVorbisComment(fd, buf);
+    switch (block.type) {
+      case STREAM_INFO_TYPE:
+        streamInfo = await readStreamInfo(fd, block.buf);
+        break;
+      case VORBIS_COMMENT_TYPE:
+        tags = await readVorbisComment(fd, block.buf);
+        break;
+      default:
+        break;
     }
 
     if (block.last) {
       break;
     }
 
-    offset += block.length;
+    offset += block.length + BLOCK_HEADER_SIZE;
   }
 
   return {
@@ -78,7 +94,7 @@ export default async function ({ file }) {
   await fs.close(fd);
 
   const album = {
-    artist: info.albumArtist || null,
+    artist: info.albumArtist,
     title: info.album,
     releaseDate: info.releaseDate,
     releaseType: info.releaseType,
@@ -93,5 +109,5 @@ export default async function ({ file }) {
     duration: info.duration,
   };
 
-  return { type: 'media', data: { album, track } };
+  return { type: 'media', album, track };
 }

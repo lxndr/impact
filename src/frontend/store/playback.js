@@ -1,13 +1,15 @@
-import { backend } from './backend';
+import { observable, computed } from 'mobx';
+import backend from './backend';
 
-export const playback = {
-  track: null,
-  state: null,
+class PlaybackStore {
+  @observable track = null
+
+  @observable state = null
 
   /**
    * Computes track info for displaying.
    */
-  get displayedTrack() {
+  @computed get displayedTrack() {
     if (!this.track) {
       return {
         title: '',
@@ -24,24 +26,26 @@ export const playback = {
       album: `by ${artist} from ${album}`,
       duration: this.track.duration,
     };
-  },
+  }
 
-  play: async (track) => {
+  play = async (track) => {
     const playlist = backend.createPlaylist();
     await playlist.forArtist(this.library.artist);
     backend.playback.playlist = playlist;
     backend.playback.play(track.id);
-  },
+  }
 
-  seek: (position) => {
-  },
+  seek = (position) => {
+  }
 
-  next: () => {
-  },
+  next = () => {
+  }
 
-  prev: () => {
-  },
+  prev = () => {
+  }
 
-  toggle: () => {
-  },
-};
+  toggle = () => {
+  }
+}
+
+export default new PlaybackStore();

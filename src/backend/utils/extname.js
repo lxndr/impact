@@ -1,6 +1,6 @@
 import path from 'path';
 
-export function extname(fname) {
+export default function extname(fname) {
   const ext = path.extname(fname);
 
   if (ext.length > 1) {

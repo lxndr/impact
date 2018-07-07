@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-export class Player extends EventEmitter {
+export default class Player extends EventEmitter {
   _uri = null
 
   _position = 0
