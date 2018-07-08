@@ -3,21 +3,17 @@ import path from 'path';
 import globby from 'globby';
 import fs from 'fs-extra';
 import { extname } from './utils';
+import CollectionSnapshot from './collection-snapshot';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
 
 export default class Scanner {
-  types = {}
-
   formats = []
 
   constructor(application) {
     this.configuration = application.configuration;
     this.collection = application.collection;
-
-    this.registerType('index', this.addIndexFile);
-    this.registerType('media', this.addMediaFile);
 
     this.registerFormat('flac', handleFlac);
     this.registerFormat('ape', handleApe);
@@ -36,13 +32,13 @@ export default class Scanner {
     const fileDiff = await this.findChangedFiles();
 
     for (const file of fileDiff.changed) {
-      const oldData = await this.getOldData(file);
-      const newData = await this.getNewData(oldData.files);
+      const oldData = await CollectionSnapshot.forFile(this.collection, file);
+      const newData = this.inspectFiles(oldData.files);
       this.applyChanges(oldData, newData);
     }
 
     for (const file of fileDiff.removed) {
-      const oldData = await this.getOldData(file);
+      const oldData = await CollectionSnapshot.forFile(this.collection, file);
       this.applyChanges(oldData, []);
     }
   }
@@ -74,87 +70,42 @@ export default class Scanner {
     return { added: files, changed, removed };
   }
 
-  async getOldData(dbfile) {
-    const files = [dbfile];
-
-    /* get all related files */
-    for (const file of files) {
-      if (file.rels) {
-        for (const id of file.rels) {
-          if (!_.find(files, { id })) {
-            const nfile = await this.collection.fileById(id);
-            files.push(nfile);
-          }
-        }
-      }
-    }
-
-    const tracks = _.flatten(
-      await Promise.all(
-        files.map(file => this.collection.tracksByFile(file.id)),
-      ),
-    );
-
-    const albums = await Promise.all(
-      _.uniqBy(tracks, 'id').map(track => this.collection.albumById(track.id)),
-    );
-
-    return { files, albums, tracks };
-  }
-
-  async getNewData(file) {
-    const { type, data } = await this.inspect(file);
-    const st = await fs.stat(file);
-
-    const dbfile = {
-      path: file.path,
-      size: st.size,
-      mtime: st.mtime,
-      rels: [],
-    };
-
-    // const data = await this.types[type](dbfile, data);
-    return data;
-  }
-
-  async inspect(file) {
-    const ext = extname(file);
+  async inspect(filename) {
+    const ext = extname(filename);
+    const st = await fs.stat(filename);
     const format = _.find(this.formats, { ext });
 
     if (!format) {
       throw new Error(`Unknown format '${ext}'`);
     }
 
-    return format.handler({ file, scanner: this });
+    const file = {
+      path: filename,
+      size: st.size,
+      mtime: st.mtime,
+      rels: [],
+    };
+
+    return format.handler({
+      file,
+      scanner: {
+        inspect: this.inspect.bind(this),
+      },
+    });
   }
 
-  async applyChanges(oldData, newData) {
-  }
+  async inspectFiles(files) {
+    const snapshot = new CollectionSnapshot();
 
-  async addMediaFile(file, { album, track }) {
-    await this.collection.upsertTrack({ file, album, track });
-  }
-
-  async addIndexFile(indexFile, { album, files }) {
-    const indexFileId = await this.collection.upsertFile(indexFile);
-    const rels = [];
-
-    for (const file of files) {
-      const st = await fs.stat(file.path);
-
-      const dbfile = {
-        path: file.path,
-        size: st.size,
-        mtime: st.mtime,
-        rels: [indexFileId],
-      };
-
-      for (const track of file.tracks) {
-        const { fileId } = await this.collection.upsertTrack({ file: dbfile, album, track });
-        rels.push(fileId);
-      }
+    while (files.length) {
+      const data = this.inspect(files[0]);
+      snapshot.add(data);
+      _.pullAllBy(files, data.files, 'path');
     }
 
-    await this.collection.upsertFile({ ...indexFile, rels: _.uniq(rels) });
+    return snapshot;
+  }
+
+  async applyChanges(oldSnapshot, newSnapshot) {
   }
 }

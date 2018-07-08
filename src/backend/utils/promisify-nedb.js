@@ -16,4 +16,21 @@ _.each(datastoreMethods, (name) => {
   Datastore.prototype[name] = promisify(fn);
 });
 
-Cursor.prototype.then = promisify(Cursor.prototype.exec);
+// Cursor.prototype.then = promisify(Cursor.prototype.exec);
+
+Cursor.prototype.then = function (callback) {
+  return Promise.resove().then(callback);
+};
+
+Cursor.prototype.then = function then(() => {
+  return new Promise((resolve, reject) => {
+    this.exec((err, res) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      resolve(res);
+    });
+  });
+});

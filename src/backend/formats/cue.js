@@ -88,6 +88,7 @@ export function parse(str) {
 }
 
 export default async function ({ file, scanner }) {
+  const dir = path.dirname(file);
   const str = await fs.readFile(file, 'utf8');
   const info = parse(str);
 
@@ -95,20 +96,26 @@ export default async function ({ file, scanner }) {
   const genre = _.chain(info.remarks).find({ key: 'GENRE' }).get('value').value();
 
   const album = {
-    artist: info.performer || null,
+    artist: info.performer,
     title: info.title,
     date,
   };
 
-  const files = await Promise.all(info.files.map(async (f) => {
-    const mediaPath = path.resolve(path.dirname(file), f.name);
+  for (const f of info.files) {
+    const mediaPath = path.resolve(dir, f.name);
     const mediaInfo = await scanner.inspect(mediaPath);
-    let { duration: totalDuration } = mediaInfo.data.track;
 
-    return {
-      path: mediaPath,
-      tracks: f.tracks.slice().reverse().map((track) => {
-        const offset = _(track.indexes).sortBy('index').last().time;
+    if (mediaInfo.type !== 'media') {
+      throw new Error('Not a media file.');
+    }
+
+    let { duration: totalDuration } = mediaInfo.track;
+
+    album.tracks = f.tracks
+      .slice()
+      .reverse()
+      .map((track) => {
+        const offset = _(track.indexes).sortBy('index').first().time;
         const duration = totalDuration - offset;
         totalDuration = offset;
 
@@ -119,10 +126,11 @@ export default async function ({ file, scanner }) {
           genre,
           offset,
           duration,
+          file: mediaInfo.file,
         };
-      }).reverse(),
-    };
-  }));
+      })
+      .reverse();
+  }
 
-  return { type: 'index', data: { album, files } };
+  return { type: 'index', index: file, albums: [album] };
 }

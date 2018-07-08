@@ -33,6 +33,8 @@ export default class Collection {
   }
 
   async files() {
+    const cursor = this.database.files.find({});
+    const ff = await cursor;
     return this.database.files.find({});
   }
 
