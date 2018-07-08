@@ -46,12 +46,12 @@ app.on('ready', () => {
 
   /* ipc */
   ipcMain.on('window/minimize', (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.minimize();
+    BrowserWindow.fromWebContents(event.sender).minimize();
   });
 
   ipcMain.on('window/toggle', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
+
     if (win.isMaximized()) {
       win.unmaximize();
     } else {
@@ -60,7 +60,6 @@ app.on('ready', () => {
   });
 
   ipcMain.on('window/close', (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win.close();
+    BrowserWindow.fromWebContents(event.sender).close();
   });
 });

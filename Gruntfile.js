@@ -12,16 +12,8 @@ module.exports = (grunt) => {
       files: [
         'app',
         'dist',
+        'coverage',
       ],
-    },
-
-    copy: {
-      'app/frontend.html': 'src/frontend/index.html',
-      'app/backend.html': 'src/backend/index.html',
-    },
-
-    eslint: {
-      files: 'src/**/*.js',
     },
 
     stylus: {
@@ -97,6 +89,5 @@ module.exports = (grunt) => {
     },
   });
 
-  grunt.registerTask('default', ['clean', 'webpack:main', 'webpack:renderer', 'copy', 'stylus']);
-  grunt.registerTask('lint', ['eslint']);
+  grunt.registerTask('default', ['webpack:main', 'webpack:renderer', 'stylus']);
 };
