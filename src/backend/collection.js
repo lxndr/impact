@@ -33,17 +33,15 @@ export default class Collection {
   }
 
   async files() {
-    const cursor = this.database.files.find({});
-    const ff = await cursor;
     return this.database.files.find({});
   }
 
-  async fileById(id) {
-    return this.database.files.get(id);
+  async fileById(_id) {
+    return this.database.files.findOne({ _id });
   }
 
   async fileByPath(path) {
-    return this.database.files.get({ path });
+    return this.database.files.findOne({ path });
   }
 
   async artists() {

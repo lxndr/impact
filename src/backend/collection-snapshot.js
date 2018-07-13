@@ -6,14 +6,18 @@ export default class CollectionSnapshot {
 
   albums = []
 
-  static async forFile(collection, dbfile) {
+  static async forFile(collection, file) {
     const self = new CollectionSnapshot();
 
-    self.push(dbfile);
+    file = await collection.fileById(file.id);
+
+    if (file) {
+      self.files.push(file);
+    }
 
     /* get all related files */
-    for (const file of self.files) {
-      for (const id of file.rels) {
+    for (const { rels } of self.files) {
+      for (const id of rels) {
         if (_.find(self.files, { id })) continue;
         const nfile = await collection.fileById(id);
         self.files.push(nfile);
@@ -33,8 +37,8 @@ export default class CollectionSnapshot {
     return self;
   }
 
-  add({ type, ...data }) {
-    switch (type) {
+  add(data) {
+    switch (data.type) {
       case 'media': this.addMedia(data); break;
       case 'index': this.addIndex(data); break;
       default: break;
@@ -53,6 +57,7 @@ export default class CollectionSnapshot {
       releaseType: null,
       discTitle: null,
       discNumber: 1,
+      tracks: [],
     });
 
     if (!xalbum.title) {

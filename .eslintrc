@@ -3,11 +3,15 @@ parser: babel-eslint
 extends: airbnb
 
 rules:
+  no-param-reassign: off
   no-await-in-loop: off
-  no-multi-assign: off
-  no-plusplus: off
   no-continue: off
   no-bitwise: off
+  no-shadow: off
+
+  no-plusplus:
+    - error
+    - allowForLoopAfterthoughts: true
 
   no-restricted-syntax:
   - error

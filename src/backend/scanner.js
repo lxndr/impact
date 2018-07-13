@@ -20,26 +20,29 @@ export default class Scanner {
     this.registerFormat('cue', handleCue);
   }
 
-  registerType(name, handler) {
-    this.types[name] = handler;
-  }
-
   registerFormat(ext, handler) {
     this.formats.push({ ext, handler });
   }
 
   async update() {
-    const fileDiff = await this.findChangedFiles();
+    const { changed, removed } = await this.findChangedFiles();
 
-    for (const file of fileDiff.changed) {
+    while (changed.length) {
+      const file = changed[0];
       const oldData = await CollectionSnapshot.forFile(this.collection, file);
-      const newData = this.inspectFiles(oldData.files);
+      const newData = await this.inspectFiles(/* oldData.files */ [file]);
+
       this.applyChanges(oldData, newData);
+
+      _.pullAllBy(changed, oldData.files, 'path');
+      _.pullAllBy(changed, newData.files, 'path');
     }
 
-    for (const file of fileDiff.removed) {
+    while (removed.length) {
+      const file = removed[0];
       const oldData = await CollectionSnapshot.forFile(this.collection, file);
       this.applyChanges(oldData, []);
+      _.pullAllBy(changed, oldData.files, 'path');
     }
   }
 
@@ -67,7 +70,12 @@ export default class Scanner {
       }
     }
 
-    return { added: files, changed, removed };
+    const added = files.map(file => ({ path: file }));
+
+    return {
+      changed: [...changed, ...added],
+      removed,
+    };
   }
 
   async inspect(filename) {
@@ -86,26 +94,29 @@ export default class Scanner {
       rels: [],
     };
 
-    return format.handler({
-      file,
+    const info = await format.handler({
+      filename,
       scanner: {
         inspect: this.inspect.bind(this),
       },
     });
+
+    return { file, ...info };
   }
 
   async inspectFiles(files) {
     const snapshot = new CollectionSnapshot();
 
     while (files.length) {
-      const data = this.inspect(files[0]);
+      const data = await this.inspect(files[0].path);
       snapshot.add(data);
-      _.pullAllBy(files, data.files, 'path');
+      _.pullAllBy(files, snapshot.files, 'path');
     }
 
     return snapshot;
   }
 
   async applyChanges(oldSnapshot, newSnapshot) {
+    
   }
 }

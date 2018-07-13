@@ -88,8 +88,8 @@ export async function read(fd) {
   };
 }
 
-export default async function ({ file }) {
-  const fd = await fs.open(file, 'r');
+export default async function ({ filename }) {
+  const fd = await fs.open(filename, 'r');
   const info = await read(fd);
   await fs.close(fd);
 
