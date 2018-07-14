@@ -22,14 +22,13 @@ export default class Collection {
    * @return {Number}
    */
   async upsertFile(file) {
-    const dbfile = await this.database.files.get({ path: file.path });
+    const dbfile = await this.database.files.findOne({ path: file.path });
 
     if (dbfile) {
-      await this.database.files.update(dbfile.id, file);
-      return dbfile.id;
+      return this.database.files.update({ _id: file._id }, file);
     }
 
-    return this.database.files.add(file);
+    return this.database.files.insert(file);
   }
 
   async files() {

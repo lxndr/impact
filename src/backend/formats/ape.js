@@ -44,20 +44,19 @@ async function parse(file) {
   return { info };
 }
 
-export default async function ({ file }) {
-  const { info } = await parse(file);
+export default async function ({ filename }) {
+  const { info } = await parse(filename);
 
-  const totalBlocks = info.totalFrames === 0 ? 0 : ((info.totalFrames - 1) * info.blocksPerFrame) + info.finalFrameBlocks;
+  const totalBlocks = info.totalFrames === 0
+    ? 0 : ((info.totalFrames - 1) * info.blocksPerFrame) + info.finalFrameBlocks;
 
   return {
     type: 'media',
-    data: {
-      album: {},
-      track: {
-        duration: totalBlocks / info.sampleRate,
-        nChannels: info.nChannels,
-        sampleRate: info.sampleRate,
-      },
+    album: {},
+    track: {
+      duration: totalBlocks / info.sampleRate,
+      nChannels: info.nChannels,
+      sampleRate: info.sampleRate,
     },
   };
 }

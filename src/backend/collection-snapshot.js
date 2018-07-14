@@ -90,8 +90,8 @@ export default class CollectionSnapshot {
   /**
    *
    */
-  addIndex({ index, albums }) {
-    const xindex = this.addFile(index);
+  addIndex({ file, albums }) {
+    const xindex = this.addFile(file);
     const rels = [];
 
     for (const album of albums) {

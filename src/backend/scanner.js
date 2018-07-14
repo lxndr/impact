@@ -41,7 +41,8 @@ export default class Scanner {
     while (removed.length) {
       const file = removed[0];
       const oldData = await CollectionSnapshot.forFile(this.collection, file);
-      this.applyChanges(oldData, []);
+      const newData = new CollectionSnapshot();
+      this.applyChanges(oldData, newData);
       _.pullAllBy(changed, oldData.files, 'path');
     }
   }
@@ -117,6 +118,14 @@ export default class Scanner {
   }
 
   async applyChanges(oldSnapshot, newSnapshot) {
-    
+    for (const file of newSnapshot.files) {
+      await this.collection.upsertFile(file);
+    }
+
+    for (const { tracks, ...album } of newSnapshot.albums) {
+      for (const { file, ...track } of tracks) {
+        await this.collection.upsertTrack({ file, album, track });
+      }
+    }
   }
 }

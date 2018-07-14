@@ -87,9 +87,9 @@ export function parse(str) {
   return cue;
 }
 
-export default async function ({ file, scanner }) {
-  const dir = path.dirname(file);
-  const str = await fs.readFile(file, 'utf8');
+export default async function ({ filename, scanner }) {
+  const dir = path.dirname(filename);
+  const str = await fs.readFile(filename, 'utf8');
   const info = parse(str);
 
   const date = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
@@ -132,5 +132,5 @@ export default async function ({ file, scanner }) {
       .reverse();
   }
 
-  return { type: 'index', index: file, albums: [album] };
+  return { type: 'index', albums: [album] };
 }
