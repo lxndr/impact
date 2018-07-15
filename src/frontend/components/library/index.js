@@ -15,7 +15,7 @@ const Library = observer(() => {
   }
 
   return (
-    <div className="library">
+    <div id="app-library">
       <ArtistList />
       <AlbumList />
     </div>

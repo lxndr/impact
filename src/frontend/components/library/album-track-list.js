@@ -7,8 +7,8 @@ import AlbumTrack from './album-track';
 const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
   <ul className="track-list">
     {tracks.map((track) => {
-      const playing = playingTrack && playingTrack.id === track.id;
-      return <AlbumTrack key={track.id} track={track} playing={playing} onClick={onSelect} />;
+      const playing = playingTrack && playingTrack._id === track._id;
+      return <AlbumTrack key={track._id} track={track} playing={playing} onClick={onSelect} />;
     })}
   </ul>
 );

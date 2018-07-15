@@ -13,7 +13,7 @@ function formAlbumList({ albums, tracks }) {
 
     if (!retAlbum) {
       retAlbum = {
-        id: [album.title, album.releaseDate].join('/'),
+        _id: [album.title, album.releaseDate].join('/'),
         title: album.title,
         releaseDate: album.releaseDate,
         originalDate: album.originalDate,
@@ -28,9 +28,10 @@ function formAlbumList({ albums, tracks }) {
 
     if (!retDisc) {
       retDisc = {
-        id: album.id,
+        _id: album._id,
         number: album.discNumber,
         title: album.discTitle,
+        images: album.images,
         duration: 0,
         tracks: [],
       };
@@ -46,7 +47,7 @@ function formAlbumList({ albums, tracks }) {
         .sortBy('number')
         .each((disc) => {
           disc.tracks = _(tracks)
-            .filter({ album: disc.id })
+            .filter({ album: disc._id })
             .sortBy('number')
             .each((track) => {
               album.duration += track.duration;
@@ -71,6 +72,10 @@ class LibraryStore {
     const result = await backend.collection.allOfArtist(artist);
     this.albums = formAlbumList(result);
     this.artist = artist;
+  }
+
+  rescan = async () => {
+    await backend.scanner.update();
   }
 }
 

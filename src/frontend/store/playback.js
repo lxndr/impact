@@ -32,7 +32,7 @@ class PlaybackStore {
     const playlist = backend.createPlaylist();
     await playlist.forArtist(this.library.artist);
     backend.playback.playlist = playlist;
-    backend.playback.play(track.id);
+    backend.playback.play(track._id);
   }
 
   seek = (position) => {

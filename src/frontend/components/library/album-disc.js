@@ -21,7 +21,7 @@ const AlbumDisc = ({
 
     <div className="cover-container">
       {disc.images.map(image => (
-        <img alt="album cover" key={image.id} className="cover" src={image.path} />
+        <img alt="album cover" key={image._id} className="cover" src={image.path} />
       ))}
     </div>
 

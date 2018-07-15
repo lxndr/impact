@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 export const artistShape = PropTypes.string;
 
 export const albumShape = PropTypes.shape({
-  id: PropTypes.string.isRequired,
+  _id: PropTypes.string.isRequired,
 });
 
 export const trackShape = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  _id: PropTypes.string.isRequired,
 });
 
 export const coverShape = PropTypes.shape({
-  id: PropTypes.number.isRequired,
+  _id: PropTypes.string.isRequired,
   path: PropTypes.string.isRequired,
 });
 

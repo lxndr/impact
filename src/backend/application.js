@@ -17,7 +17,6 @@ export default class Application {
   async startup() {
     await this.configuration.load();
     await this.database.init();
-    this.scanner.update();
   }
 
   async shutdown() {

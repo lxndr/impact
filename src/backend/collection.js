@@ -25,7 +25,13 @@ export default class Collection {
     const dbfile = await this.database.files.findOne({ path: file.path });
 
     if (dbfile) {
-      return this.database.files.update({ _id: file._id }, file);
+      const [, document] = await this.database.files.update(
+        { _id: dbfile._id },
+        file,
+        { returnUpdatedDocs: true },
+      );
+
+      return document;
     }
 
     return this.database.files.insert(file);
@@ -80,22 +86,15 @@ export default class Collection {
     return this.database.tracks.findOne({ album });
   }
 
-  async upsertTrack({ file, track, album }) {
-    log(`upserting file ${file.path}`);
-
-    const db = this.database;
-
-    /* file */
-    const fileId = await this.upsertFile(file);
-
-    /* album */
-    _.defaults(album, {
+  async upsertAlbum(album) {
+    album = _.defaults({}, album, {
       artist: null,
       title: null,
       releaseDate: null,
       releaseType: null,
       discTitle: null,
       discNumber: 1,
+      images: [],
     });
 
     if (!album.title) {
@@ -108,8 +107,29 @@ export default class Collection {
     }
 
     const q = _.pick(album, ['artist', 'title', 'releaseDate', 'discNumber', 'discTitle']);
-    const dbalbum = await db.albums.find(q);
-    const albumId = dbalbum ? dbalbum.id : await db.albums.add(album);
+    const dbalbum = await this.database.albums.findOne(q);
+
+    if (dbalbum) {
+      const [, document] = await this.database.albums.update(
+        { _id: dbalbum._id },
+        dbalbum,
+        { returnUpdatedDocs: true },
+      );
+
+      return document;
+    }
+
+    return this.database.albums.insert(album);
+  }
+
+  async upsertTrack({ file, track, album }) {
+    log(`upserting file ${file.path}`);
+
+    /* file */
+    file = await this.upsertFile(file);
+
+    /* album */
+    album = await this.upsertAlbum(album);
 
     /* track */
     _.defaults(track, {
@@ -120,13 +140,12 @@ export default class Collection {
     });
 
     _.assign(track, {
-      file: fileId,
-      album: albumId,
+      file: file._id,
+      album: album._id,
     });
 
-    const trackId = await this.database.tracks.update(track);
-
-    return { fileId, albumId, trackId };
+    track = await this.database.tracks.insert(track);
+    return { file, album, track };
   }
 
   async removeFileById(_id) {

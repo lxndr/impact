@@ -47,7 +47,7 @@ export default class Header extends React.Component {
     }
 
     return (
-      <div className="header">
+      <div id="app-header">
         <Button
           className="prev"
           onClick={store.playback.prev}

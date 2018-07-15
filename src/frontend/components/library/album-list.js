@@ -20,7 +20,7 @@ export default class AlbumList extends React.Component {
       <div className="album-list">
         {albums.map(album => (
           <Album
-            key={album.id}
+            key={album._id}
             album={album}
             playingTrack={track}
             onSelect={play}

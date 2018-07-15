@@ -15,7 +15,7 @@ const Album = ({ album, playingTrack, onSelect }) => (
 
       return (
         <AlbumDisc
-          key={disc.id}
+          key={disc._id}
           disc={disc}
           showTitle={showTitle}
           playingTrack={playingTrack}
