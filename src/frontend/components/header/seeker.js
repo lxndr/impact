@@ -16,7 +16,20 @@ export default class Seeker extends React.Component {
     onSeek(duration * f);
   }
 
-  handleKeyPress = () => {
+  handleKeyDown = ({ key, shiftKey }) => {
+    const { position, onSeek } = this.props;
+    const delta = shiftKey ? 5 : 1;
+
+    switch (key) {
+      case 'ArrowLeft':
+        onSeek(position - delta);
+        break;
+      case 'ArrowRight':
+        onSeek(position + delta);
+        break;
+      default:
+        break;
+    }
   }
 
   render() {
@@ -41,7 +54,7 @@ export default class Seeker extends React.Component {
         aria-valuenow={position}
         tabIndex={0}
         onClick={this.handleClick}
-        onKeyPress={this.handleKeyPress}
+        onKeyDown={this.handleKeyDown}
       >
         <div className="poser" style={style} />
       </div>

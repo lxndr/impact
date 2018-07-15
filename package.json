@@ -34,6 +34,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.0",
     "@fortawesome/free-solid-svg-icons": "^5.1.0",
     "@fortawesome/react-fontawesome": "^0.1.0",
+    "@lxndr/vlc": "github:lxndr/node-vlc",
     "classnames": "^2.2.6",
     "core-decorators": "^0.20.0",
     "debug": "^3.1.0",

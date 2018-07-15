@@ -1,10 +1,21 @@
 import { observable, computed } from 'mobx';
 import backend from './backend';
+import library from './library';
 
 class PlaybackStore {
   @observable track = null
 
   @observable state = null
+
+  constructor() {
+    backend.playback.track$.subscribe((track) => {
+      this.track = track;
+    });
+
+    backend.playback.state$.subscribe((state) => {
+      this.state = state;
+    });
+  }
 
   /**
    * Computes track info for displaying.
@@ -30,21 +41,25 @@ class PlaybackStore {
 
   play = async (track) => {
     const playlist = backend.createPlaylist();
-    await playlist.forArtist(this.library.artist);
+    await playlist.forArtist(library.artist);
     backend.playback.playlist = playlist;
     backend.playback.play(track._id);
   }
 
   seek = (position) => {
+    backend.playback.seek(position);
   }
 
   next = () => {
+    backend.playback.next();
   }
 
   prev = () => {
+    backend.playback.prev();
   }
 
   toggle = () => {
+    backend.playback.toggle();
   }
 }
 
