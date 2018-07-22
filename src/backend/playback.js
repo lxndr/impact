@@ -1,5 +1,5 @@
 import { BehaviorSubject } from 'rxjs';
-import Player from './player.vlc';
+import Player from './player.mpv';
 
 export default class Playback {
   _playlist = null

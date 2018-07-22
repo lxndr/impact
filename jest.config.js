@@ -1,7 +1,7 @@
 module.exports = {
   timers: 'fake',
   setupFiles: [
-    '<rootDir>/jestsetup.js',
+    '<rootDir>/jest.setup.js',
   ],
   moduleNameMapper: {
     electron: '<rootDir>/__mocks__/electron.js',

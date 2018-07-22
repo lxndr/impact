@@ -20,21 +20,13 @@
   "build": {
     "appId": "org.lxndr.impact"
   },
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/jestsetup.js"
-    ],
-    "moduleNameMapper": {
-      "electron": "<rootDir>/__mock__/electron.js"
-    }
-  },
   "dependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/fontawesome-free-solid": "^5.0.13",
-    "@fortawesome/fontawesome-svg-core": "^1.2.0",
-    "@fortawesome/free-solid-svg-icons": "^5.1.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.1",
+    "@fortawesome/free-solid-svg-icons": "^5.1.1",
     "@fortawesome/react-fontawesome": "^0.1.0",
-    "@lxndr/vlc": "github:lxndr/node-vlc",
+    "@lxndr/mpv": "github:lxndr/node-mpv",
     "classnames": "^2.2.6",
     "core-decorators": "^0.20.0",
     "debug": "^3.1.0",
@@ -54,21 +46,21 @@
     "react-intl": "^2.4.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "rxjs": "^6.2.1"
+    "rxjs": "^6.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.53",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.53",
-    "@babel/plugin-proposal-decorators": "^7.0.0-beta.53",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.53",
-    "@babel/preset-env": "^7.0.0-beta.53",
-    "@babel/preset-react": "^7.0.0-beta.53",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-decorators": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/preset-react": "^7.0.0-beta.54",
     "ajv": "^6.5.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
     "babel-loader": "^8.0.0-beta.4",
     "devtron": "^1.4.0",
-    "electron-builder": "^20.20.4",
+    "electron-builder": "^20.24.4",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.19.1",
@@ -89,6 +81,6 @@
     "load-grunt-tasks": "^4.0.0",
     "stylus": "^0.54.5",
     "url-loader": "^1.0.1",
-    "webpack": "^4.16.0"
+    "webpack": "^4.16.1"
   }
 }
