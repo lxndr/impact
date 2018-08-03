@@ -21,7 +21,7 @@ export default class Field extends React.Component {
     label: PropTypes.string,
     labelClass: PropTypes.string,
     readOnly: PropTypes.bool,
-  };
+  }
 
   static defaultProps = {
     type: 'text',
@@ -29,7 +29,7 @@ export default class Field extends React.Component {
     label: null,
     labelClass: '',
     readOnly: false,
-  };
+  }
 
   handleChange = (event) => {
     const { form, name, ...props } = this.props;

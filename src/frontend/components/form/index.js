@@ -13,12 +13,12 @@ export class Form extends React.Component {
     readOnly: PropTypes.bool,
     onSubmit: PropTypes.func,
     children: PropTypes.node.isRequired,
-  };
+  }
 
   static defaultProps = {
     readOnly: false,
     onSubmit: _.noop,
-  };
+  }
 
   handleSubmit = () => {
     const { onSubmit } = this.props;

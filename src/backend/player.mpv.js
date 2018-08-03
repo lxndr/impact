@@ -1,8 +1,18 @@
+import os from 'os';
 import EventEmitter from 'events';
 import MPV from '@lxndr/mpv';
 
+function mpvExecutable() {
+  switch (os.platform()) {
+    case 'win32':
+      return 'node_modules/@lxndr/mpv/bin/win32/mpv.exe';
+    default:
+      return 'mpv';
+  }
+}
+
 export default class Player extends EventEmitter {
-  _mpv = new MPV()
+  _mpv = new MPV({ exec: mpvExecutable() })
 
   _uri = null
 
