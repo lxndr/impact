@@ -16,11 +16,15 @@ export default class Player extends EventEmitter {
 
   _uri = null
 
+  _loaded = false
+
   _state = 'idle'
 
   _duration = 0
 
   _position = 0
+
+  _positionSet = false
 
   _handleError = (error) => {
     this.emit('error', error);
@@ -29,7 +33,17 @@ export default class Player extends EventEmitter {
   constructor() {
     super();
 
+    this._mpv.on('start-file', () => {
+      this._loaded = true;
+
+      if (this._positionSet) {
+        this._positionSet = true;
+        this._seek(this._position);
+      }
+    });
+
     this._mpv.on('end-file', () => {
+      this._loaded = false;
       this.emit('end');
     });
 
@@ -48,10 +62,8 @@ export default class Player extends EventEmitter {
     });
   }
 
-  async _setUri(uri) {
-    await this._mpv.command('loadfile', uri);
-    await this._mpv.set('pause', true);
-    this._uri = uri;
+  _seek(seconds) {
+    this._mpv.command('seek', seconds, 'absolute').catch(this._handleError);
   }
 
   get uri() {
@@ -59,7 +71,9 @@ export default class Player extends EventEmitter {
   }
 
   set uri(file) {
-    this._setUri(file).catch(this._handleError);
+    if (file === this._uri) return;
+    this._uri = file;
+    this._loaded = false;
   }
 
   get duration() {
@@ -71,7 +85,13 @@ export default class Player extends EventEmitter {
   }
 
   set position(seconds) {
-    // this._mpv.command('seek', seconds).catch(this._handleError);
+    this._position = seconds;
+    this._positionSet = false;
+
+    if (this._loaded) {
+      this._positionSet = true;
+      this._seek(this._position);
+    }
   }
 
   get state() {
@@ -79,6 +99,10 @@ export default class Player extends EventEmitter {
   }
 
   play() {
+    if (!this._loaded) {
+      this._mpv.command('loadfile', this._uri).catch(this._handleError);
+    }
+
     this._mpv.set('pause', false).catch(this._handleError);
   }
 

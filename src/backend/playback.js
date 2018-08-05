@@ -4,7 +4,7 @@ import Player from './player.mpv';
 export default class Playback {
   _playlist = null
 
-  player = new Player()
+  _player = new Player()
 
   track$ = new BehaviorSubject(null)
 
@@ -13,7 +13,7 @@ export default class Playback {
   constructor(application) {
     this.collection = application.collection;
 
-    this.player.on('position', (time) => {
+    this._player.on('position', (time) => {
       const track = this.track$.getValue();
 
       if (!track) {
@@ -26,32 +26,32 @@ export default class Playback {
       }
 
       this.state$.next({
-        state: this.player.state,
+        state: this._player.state,
         duration: track.duration,
         position: time - track.offset,
       });
     });
 
-    this.player.on('state', () => {
+    this._player.on('state', () => {
       const track = this.track$.getValue();
       let state = null;
 
       if (track) {
         state = {
-          state: this.player.state,
+          state: this._player.state,
           duration: track.duration,
-          position: this.player.position - track.offset,
+          position: this._player.position - track.offset,
         };
       }
 
       this.state$.next(state);
     });
 
-    this.player.on('end', () => {
+    this._player.on('end', () => {
       this.next();
     });
 
-    this.player.on('error', (error) => {
+    this._player.on('error', (error) => {
       console.error(`Error: ${error.message}`);
     });
   }
@@ -70,19 +70,19 @@ export default class Playback {
   }
 
   stop() {
-    if (this.player) {
-      this.player.stop();
+    if (this._player) {
+      this._player.stop();
       this.track$.next(null);
       this.state$.next(null);
     }
   }
 
   _setup(track) {
-    if (this.player.uri !== track.file.path) {
-      this.player.uri = track.file.path;
+    if (this._player.uri !== track.file.path) {
+      this._player.uri = track.file.path;
     }
 
-    this.player.position = track.offset;
+    this._player.position = track.offset;
     this.track$.next(track);
   }
 
@@ -97,7 +97,7 @@ export default class Playback {
     track.file = await this.collection.fileById(track.file);
 
     this._setup(track);
-    this.player.play();
+    this._player.play();
   }
 
   play(trackId) {
@@ -105,12 +105,12 @@ export default class Playback {
   }
 
   toggle() {
-    if (this.player) {
+    if (this._player) {
       const state = this.state$.getValue();
       if (state && state.state === 'playing') {
-        this.player.pause();
+        this._player.pause();
       } else {
-        this.player.play();
+        this._player.play();
       }
     }
   }
@@ -131,11 +131,11 @@ export default class Playback {
     const track = this.track$.getValue();
 
     if (track) {
-      this.player.position = track.offset + time;
+      this._player.position = track.offset + time;
     }
   }
 
   close() {
-    this.player.close();
+    this._player.close();
   }
 }

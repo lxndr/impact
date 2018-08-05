@@ -30,7 +30,7 @@
     "classnames": "^2.2.6",
     "core-decorators": "^0.20.0",
     "debug": "^3.1.0",
-    "electron": "^2.0.5",
+    "electron": "^2.0.6",
     "electron-devtools-installer": "^2.2.4",
     "fs-extra": "^7.0.0",
     "globby": "^8.0.1",
@@ -41,20 +41,20 @@
     "mobx-react": "^5.2.3",
     "nedb": "^1.8.0",
     "prop-types": "^15.6.2",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
     "react-intl": "^2.4.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "rxjs": "^6.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.55",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.55",
-    "@babel/plugin-proposal-decorators": "^7.0.0-beta.55",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.55",
-    "@babel/preset-env": "^7.0.0-beta.55",
-    "@babel/preset-react": "^7.0.0-beta.55",
+    "@babel/core": "^7.0.0-beta.56",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.56",
+    "@babel/plugin-proposal-decorators": "^7.0.0-beta.56",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.56",
+    "@babel/preset-env": "^7.0.0-beta.56",
+    "@babel/preset-react": "^7.0.0-beta.56",
     "ajv": "^6.5.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
@@ -81,6 +81,6 @@
     "load-grunt-tasks": "^4.0.0",
     "stylus": "^0.54.5",
     "url-loader": "^1.0.1",
-    "webpack": "^4.16.3"
+    "webpack": "^4.16.4"
   }
 }

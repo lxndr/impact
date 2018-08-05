@@ -18,6 +18,10 @@ class Store {
     await backend.startup();
     await this.library.refreshArtists();
   }
+
+  deinit = async () => {
+    await backend.shutdown();
+  }
 }
 
 export default new Store();
