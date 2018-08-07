@@ -55,7 +55,7 @@ class PlaybackStore {
   }
 
   prev = () => {
-    backend.playback.prev();
+    backend.playback.previous();
   }
 
   toggle = () => {

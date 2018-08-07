@@ -3,6 +3,7 @@ import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from 'react-router';
 import store from '../../store';
 import Header from '../../components/header';
+import Seeker from '../../components/header/seeker';
 
 describe('Header component', () => {
   let cmp;
@@ -43,11 +44,13 @@ describe('Header component', () => {
     };
   });
 
-/*
   it('should handle button clicks', () => {
     ['prev', 'play', 'next', 'wmin', 'wmax', 'wcls', 'pref'].forEach(cls => (
       cmp.find(`.${cls}`).first().simulate('click')
     ));
   });
-*/
+
+  afterAll(async () => {
+    await store.deinit();
+  });
 });

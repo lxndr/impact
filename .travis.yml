@@ -7,6 +7,4 @@ addons:
   apt:
     update: true
     packages:
-    - libvlccore-dev
-    - libvlc-dev
-    - vlc-plugin-sdl
+    - mpv

@@ -1,4 +1,5 @@
 module.exports = {
+  testURL: 'http://localhost/',
   timers: 'fake',
   setupFiles: [
     '<rootDir>/jest.setup.js',
