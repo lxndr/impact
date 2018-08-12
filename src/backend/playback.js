@@ -119,14 +119,14 @@ export default class Playback {
     if (!this.playlist) return;
     const currentTrack = this.track$.getValue();
     const track = this.playlist.previous(currentTrack);
-    this.play(track.id);
+    this.play(track._id);
   }
 
   next() {
     if (!this.playlist) return;
     const currentTrack = this.track$.getValue();
     const track = this.playlist.next(currentTrack);
-    this.play(track.id);
+    this.play(track._id);
   }
 
   seek(time) {

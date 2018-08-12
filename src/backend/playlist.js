@@ -27,7 +27,7 @@ export default class Playlist {
     let nextIndex = count - 1;
 
     if (currentTrack) {
-      const index = _.findIndex(this.queue, { id: currentTrack.id });
+      const index = _.findIndex(this.queue, { _id: currentTrack._id });
 
       if (index > 0) {
         nextIndex = index - 1;
@@ -42,7 +42,7 @@ export default class Playlist {
     let nextIndex = 0;
 
     if (currentTrack) {
-      const index = _.findIndex(this.queue, { id: currentTrack.id });
+      const index = _.findIndex(this.queue, { _id: currentTrack._id });
 
       if (index > -1 && index < (count - 1)) {
         nextIndex = index + 1;

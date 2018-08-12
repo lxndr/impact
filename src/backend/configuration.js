@@ -1,5 +1,5 @@
 export default class Configuration {
-  libararyPath = ['/home/lxndr/_Music', './music']
+  libararyPath = ['/home/lxndr/Music', './music']
 
   async load() {}
 }

@@ -2,9 +2,9 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { FormattedMessage, injectIntl, intlShape } from 'react-intl';
 import { observer } from 'mobx-react';
-import { Form, Field } from './form';
-import { historyShape } from '../utils';
-import store from '../store';
+import { Form, Field } from '../form';
+import { historyShape } from '../../utils';
+import store from '../../store';
 
 @withRouter
 @injectIntl
@@ -38,18 +38,20 @@ export default class Preferences extends React.Component {
             })}
           />
 
-          <button type="submit" onSubmit={this.handleBack}>
-            <FormattedMessage id="prefernces.save" defaultMessage="Save" />
-          </button>
+          <div className="action-bar">
+            <button type="button" onClick={this.handleBack}>
+              <FormattedMessage id="prefernces.back" defaultMessage="Back" />
+            </button>
 
-          <button type="button" onClick={this.handleBack}>
-            <FormattedMessage id="prefernces.back" defaultMessage="Back" />
-          </button>
-
-          <button type="button" onClick={this.handleUpdateLibrary}>
-            <FormattedMessage id="prefernces.update-library" defaultMessage="Update library" />
-          </button>
+            <button type="submit" onSubmit={this.handleBack}>
+              <FormattedMessage id="prefernces.save" defaultMessage="Save" />
+            </button>
+          </div>
         </Form>
+
+        <button className="update-library" type="button" onClick={this.handleUpdateLibrary}>
+          <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Update library" />
+        </button>
       </div>
     );
   }

@@ -2,5 +2,10 @@
   "playback.prev": "Предыдущий трек",
   "playback.play": "Воспроизвести",
   "playback.pause": "Пауза",
-  "playback.next": "Следующий трек"
+  "playback.next": "Следующий трек",
+
+  "preferences.libraryPath": "Директории",
+  "prefernces.save": "Сохранить",
+  "prefernces.back": "Назад",
+  "prefernces.updateLibrary": "Обновить библиотеку"
 }
