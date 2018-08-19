@@ -79,6 +79,14 @@ export function parse(str) {
             time: parseTime(arg2),
           });
           break;
+        case 'ISRC':
+          if (currentTrack) {
+            currentTrack.isrc = arg1;
+          }
+          break;
+        case 'CATALOG':
+          cue.catalog = arg1;
+          break;
         default:
           console.warn(`Unknown CUE command '${line}'`);
       }

@@ -2,10 +2,13 @@ import _ from 'lodash';
 import path from 'path';
 import globby from 'globby';
 import fs from 'fs-extra';
+import debug from 'debug';
 import { extname } from './utils';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
+
+const log = debug('impact:scanner');
 
 export default class Scanner {
   formats = []
@@ -31,9 +34,16 @@ export default class Scanner {
     const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
     const files = await globby(patterns, { onlyFiles: true });
 
-    let list = await Promise.all(
-      files.map(file => this.inspect(file)),
-    );
+    let list = [];
+
+    for (const filename of files) {
+      try {
+        const file = await this.inspect(filename);
+        list.push(file);
+      } catch (err) {
+        console.error(err);
+      }
+    }
 
     const filesToRemove = _(list)
       .filter({ type: 'index' })
@@ -70,6 +80,8 @@ export default class Scanner {
   }
 
   async inspect(filename) {
+    log(`inspecting ${filename}`);
+
     const ext = extname(filename);
     const st = await fs.stat(filename);
     const format = _.find(this.formats, { ext });
