@@ -9,7 +9,7 @@ module.exports = {
     ['@babel/env', {
       modules: false,
       targets: {
-        electron: '2.0.7',
+        electron: '2.0.8',
       },
     }],
   ],

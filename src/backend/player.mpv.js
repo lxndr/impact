@@ -43,6 +43,7 @@ export default class Player extends EventEmitter {
     });
 
     this._mpv.on('end-file', () => {
+      if (!this._loaded) return; // NOTE: prevets emitting 'end' after 'loadfile'
       this._loaded = false;
       this.emit('end');
     });
