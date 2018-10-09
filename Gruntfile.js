@@ -66,7 +66,7 @@ module.exports = (grunt) => {
         },
         target: 'electron-renderer',
         externals: [(context, request, callback) => {
-          if (/^(@lxndr\/gst|@lxndr\/vlc|globby)/.test(request)) {
+          if (/^(globby|nedb)/.test(request)) {
             callback(null, `commonjs ${request}`);
             return;
           }
