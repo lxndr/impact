@@ -16,6 +16,7 @@ import {
 
 import { historyShape } from '../../utils';
 import store from '../../store';
+import style from '../../style';
 import defaultAlbumCover from '../../assets/album.svg';
 import Button from './button';
 import Seeker from './seeker';
@@ -47,7 +48,7 @@ export default class Header extends React.Component {
     }
 
     return (
-      <div id="app-header">
+      <div className={style('app-header')}>
         <Button
           className="prev"
           onClick={store.playback.prev}

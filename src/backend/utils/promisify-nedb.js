@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { promisify } from 'util';
-import Datastore from 'nedb/lib/datastore';
+import Datastore from 'nedb';
 import Cursor from 'nedb/lib/cursor';
 
 const datastoreMethods = [

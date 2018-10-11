@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import store from '.';
 
 class WindowStore {
   minimize = () => {
@@ -10,7 +11,9 @@ class WindowStore {
   }
 
   close = () => {
-    ipcRenderer.send('window/close');
+    store.deinit().then(() => {
+      ipcRenderer.send('window/close');
+    });
   }
 }
 

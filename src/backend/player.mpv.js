@@ -1,6 +1,7 @@
 import os from 'os';
 import EventEmitter from 'events';
 import MPV from '@lxndr/mpv';
+// import { remote } from 'electron';
 
 function mpvExecutable() {
   switch (os.platform()) {
@@ -32,6 +33,9 @@ export default class Player extends EventEmitter {
 
   constructor() {
     super();
+
+    ///const MPV = remote.require('@lxndr/mpv');
+    //this._mpv = new MPV({ exec: mpvExecutable() });
 
     this._mpv.on('start-file', () => {
       this._loaded = true;

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cn from 'classnames';
 import { observer } from 'mobx-react';
 import store from '../../store';
+import style from '../../style';
 
 const Artist = ({ name, selected, onClick }) => (
   <li className={cn({ selected, unknown: !name })}>
@@ -33,7 +34,7 @@ export default class ArtistList extends React.Component {
     } = store;
 
     return (
-      <div className="artist-list">
+      <div className={style('artist-list')}>
         <ul>
           {artists.map(artist => (
             <Artist

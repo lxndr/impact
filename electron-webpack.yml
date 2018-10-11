@@ -1,0 +1,9 @@
+title: true
+
+whiteListedModules:
+  - lodash
+
+externals:
+  - nedb/lib/cursor
+  - react-intl/locale-data/en
+  - react-intl/locale-data/ru

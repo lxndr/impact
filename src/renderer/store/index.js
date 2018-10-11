@@ -6,6 +6,7 @@ import windowStore from './window';
 class Store {
   config = {
     language: 'en',
+    theme: 'default',
   }
 
   library = libraryStore

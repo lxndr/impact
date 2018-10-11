@@ -12,6 +12,7 @@ import {
 } from 'react-router';
 
 import messages from '../l18n';
+import style from '../style';
 import store from '../store';
 import Header from './header';
 import Library from './library';
@@ -25,7 +26,7 @@ const App = observer(() => {
   return (
     <IntlProvider locale={language} messages={messages[language]}>
       <MemoryRouter>
-        <div className="app">
+        <div className={style('app')}>
           <Header />
 
           <Switch>

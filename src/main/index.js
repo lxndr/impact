@@ -15,14 +15,14 @@ app.on('ready', () => {
     frame: false,
   });
 
-  win.loadURL(`file://${__dirname}/frontend.html`);
+  win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
   win.setMenu(null);
 
   if (process.env.NODE_ENV === 'development') {
     Promise.all([
       installExtension(REACT_DEVELOPER_TOOLS),
       installExtension(MOBX_DEVTOOLS),
-    ]).catch(console.error);
+    ]).catch(/* console.error */);
 
     win.openDevTools();
   }
@@ -33,15 +33,15 @@ app.on('ready', () => {
 
   /* shortcuts */
   globalShortcut.register('MediaPreviousTrack', () => {
-    console.log('MediaPreviousTrack');
+    // console.log('MediaPreviousTrack');
   });
 
   globalShortcut.register('MediaPlayPause', () => {
-    console.log('MediaPlayPause');
+    // console.log('MediaPlayPause');
   });
 
   globalShortcut.register('MediaNextTrack', () => {
-    console.log('MediaNextTrack');
+    // console.log('MediaNextTrack');
   });
 
   /* ipc */

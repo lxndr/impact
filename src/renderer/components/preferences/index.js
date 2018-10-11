@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { Form, Field } from '../form';
 import { historyShape } from '../../utils';
 import store from '../../store';
+import style from '../../style';
 
 @withRouter
 @injectIntl
@@ -28,7 +29,7 @@ export default class Preferences extends React.Component {
     const { intl } = this.props;
 
     return (
-      <div className="preferences">
+      <div className={style('preferences')}>
         <Form model={store.config}>
           <Field
             name="libraryPath"

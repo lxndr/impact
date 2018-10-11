@@ -1,0 +1,130 @@
+.playback-button {
+  .button();
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 2px;
+  border: 1px solid #c4c4c4;
+  background: #e0e0e0;
+  color: rgba(30, 30, 30, 0.75);
+
+  &:hover {
+    box-shadow: #aaa 0px 0px 6px 0px;
+    transition: box-shadow 1s;
+  }
+}
+
+.window-button {
+  .button();
+  position: absolute;
+  border: none;
+  top: 0;
+  line-height: 2em;
+  width: 2.5em;
+  text-align: center;
+  vertical-align: middle;
+}
+
+:local(.app-header) {
+  display: block;
+  -webkit-app-region: drag;
+  border-bottom: 1px solid #ccc;
+  height: 8em;
+
+  .prev {
+    .playback-button();
+    position: absolute;
+    top: 1.5em;
+    left: 1.5em;
+    line-height: 4em;
+    width: 4em;
+  }
+
+  .play {
+    .playback-button();
+    position: absolute;
+    top: 1em;
+    left: 6em;
+    line-height: 5em;
+    width: 5em;
+  }
+
+  .next {
+    .playback-button();
+    position: absolute;
+    top: 1.5em;
+    left: 11.5em;
+    line-height: 4em;
+    width: 4em;
+  }
+
+  .cover {
+    position: absolute;
+    top: 0.1em;
+    left: 19em;
+    height: 7.8em;
+    background: #ccc;
+  }
+
+  .title {
+    position: absolute;
+    top: 1em;
+    left: 27.5em;
+    font-weight: bold;
+  }
+
+  .album {
+    position: absolute;
+    top: 3em;
+    left: 27.5em;
+  }
+
+  .seeker {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    top: 5em;
+    left: 27.5em;
+    right: 0.5em;
+    background: #ccc;
+    height: 0.5em;
+
+    .poser {
+      background: gray;
+    }
+  }
+
+  .pref {
+    .window-button();
+    right: 8em;
+    color: white;
+    background: forestgreen;
+  }
+
+  .wmin {
+    .window-button();
+    right: 5em;
+    color: white;
+    background: cornflowerblue;
+
+    &:hover {
+      background: blue;
+    }
+  }
+
+  .wmax {
+    .window-button();
+    right: 2.5em;
+    color: white;
+    background: cornflowerblue;
+
+    &:hover {
+      background: blue;
+    }
+  }
+
+  .wcls {
+    .window-button();
+    right: 0;
+    background: gray;
+    color: white;
+  }
+}

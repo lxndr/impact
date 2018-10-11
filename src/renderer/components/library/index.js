@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import store from '../../store';
+import style from '../../style';
 import Empty from './empty';
 import ArtistList from './artist-list';
 import AlbumList from './album-list';
@@ -15,7 +16,7 @@ const Library = observer(() => {
   }
 
   return (
-    <div id="app-library">
+    <div className={style('app-library')}>
       <ArtistList />
       <AlbumList />
     </div>

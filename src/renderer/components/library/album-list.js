@@ -1,6 +1,7 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import store from '../../store';
+import style from '../../style';
 import Album from './album';
 
 @observer
@@ -17,7 +18,7 @@ export default class AlbumList extends React.Component {
     } = store;
 
     return (
-      <div className="album-list">
+      <div className={style('album-list')}>
         {albums.map(album => (
           <Album
             key={album._id}
