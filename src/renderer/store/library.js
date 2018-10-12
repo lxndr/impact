@@ -60,12 +60,16 @@ function formAlbumList({ albums, tracks }) {
 class LibraryStore {
   @observable artists = []
 
-  @observable artist = ''
+  @observable artist = null
 
   @observable albums = []
 
   refreshArtists = async () => {
     this.artists = await backend.collection.artists();
+
+    if (!this.artist && this.artists.length) {
+      await this.changeArtist(this.artists[0]);
+    }
   }
 
   changeArtist = async (artist) => {

@@ -16,9 +16,9 @@ export default class Playlist {
       const ia = _.findIndex(_albums, { id: a.album });
       const ib = _.findIndex(_albums, { id: b.album });
 
-      return ia === ib ?
-        a.number - b.number :
-        ia - ib;
+      return ia === ib
+        ? a.number - b.number
+        : ia - ib;
     });
   }
 

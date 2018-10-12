@@ -8,6 +8,7 @@ const datastoreMethods = [
   'insert',
   'remove',
   'ensureIndex',
+  'count',
 ];
 
 _.each(datastoreMethods, (name) => {

@@ -17,6 +17,11 @@ export default class Collection {
     await this.database.files.remove({}, { multi: true });
   }
 
+  async isEmpty() {
+    const nTracks = await this.database.tracks.count({});
+    return nTracks === 0;
+  }
+
   /**
    * @param {Object} file
    * @return {Number}

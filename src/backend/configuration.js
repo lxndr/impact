@@ -1,5 +1,9 @@
+import { remote } from 'electron';
+
 export default class Configuration {
-  libararyPath = ['/home/lxndr/Music', './music']
+  libararyPath = [
+    remote.require('electron').app.getPath('music'),
+  ]
 
   async load() {}
 }

@@ -1,3 +1,5 @@
+/* eslint-disable no-bitwise */
+
 import fs from 'fs-extra';
 import readVorbisComment from './vorbis';
 

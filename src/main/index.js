@@ -6,6 +6,9 @@ import {
 } from 'electron';
 
 import installExtension, { REACT_DEVELOPER_TOOLS, MOBX_DEVTOOLS } from 'electron-devtools-installer';
+import mpv from './mpv';
+
+export { mpv };
 
 app.on('ready', () => {
   /* window */
@@ -28,6 +31,7 @@ app.on('ready', () => {
   }
 
   app.on('window-all-closed', () => {
+    mpv.close();
     app.quit();
   });
 

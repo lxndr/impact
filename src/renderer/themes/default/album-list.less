@@ -5,9 +5,22 @@
     margin: 4px;
 
     .header {
+      display: flex;
+      flex-direction: row;
+      font-size: 1.1em;
+
       > .title {
         font-weight: bold;
-        font-size: 1.1em;
+      }
+
+      > .spacer {
+        flex: 1;
+      }
+
+      > .release-date {
+        font-style: italic;
+        color: #999;
+        padding-left: 0.5em;
       }
     }
   }
@@ -35,6 +48,8 @@
 
   .track-list {
     list-style-type: none;
+    column-width: 30em;
+    column-span: all;
 
     li {
       display: flex;
@@ -45,6 +60,7 @@
       padding: 3px 4px;
       border-radius: 2px;
       cursor: pointer;
+      break-inside: avoid-column;
 
       &:hover {
         background: #ccc;

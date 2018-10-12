@@ -4,6 +4,6 @@ whiteListedModules:
   - lodash
 
 externals:
-  - nedb/lib/cursor
+  - nedb/lib/cursor # prevents loading the browser version of nedb
   - react-intl/locale-data/en
   - react-intl/locale-data/ru

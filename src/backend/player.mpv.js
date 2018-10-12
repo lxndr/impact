@@ -1,20 +1,9 @@
-import os from 'os';
 import EventEmitter from 'events';
-import MPV from '@lxndr/mpv';
-// import { remote } from 'electron';
+import { remote } from 'electron';
 
-function mpvExecutable() {
-  switch (os.platform()) {
-    case 'win32':
-      return 'node_modules/@lxndr/mpv/bin/win32/mpv.exe';
-    default:
-      return 'mpv';
-  }
-}
+const { mpv } = remote.require('./main');
 
 export default class Player extends EventEmitter {
-  _mpv = new MPV({ exec: mpvExecutable() })
-
   _uri = null
 
   _loaded = false
@@ -34,10 +23,7 @@ export default class Player extends EventEmitter {
   constructor() {
     super();
 
-    ///const MPV = remote.require('@lxndr/mpv');
-    //this._mpv = new MPV({ exec: mpvExecutable() });
-
-    this._mpv.on('start-file', () => {
+    mpv.on('start-file', () => {
       this._loaded = true;
 
       if (this._positionSet) {
@@ -46,29 +32,29 @@ export default class Player extends EventEmitter {
       }
     });
 
-    this._mpv.on('end-file', () => {
+    mpv.on('end-file', () => {
       if (!this._loaded) return; // NOTE: prevets emitting 'end' after 'loadfile'
       this._loaded = false;
       this.emit('end');
     });
 
-    this._mpv.observe('pause', (pause) => {
+    mpv.observe('pause', (pause) => {
       this._state = pause ? 'pause' : 'playing';
       this.emit('state', this._state);
     });
 
-    this._mpv.observe('duration', (secs) => {
+    mpv.observe('duration', (secs) => {
       this._duration = secs;
     });
 
-    this._mpv.observe('time-pos', (secs) => {
+    mpv.observe('time-pos', (secs) => {
       this._position = secs;
       this.emit('position', secs);
     });
   }
 
   _seek(seconds) {
-    this._mpv.command('seek', seconds, 'absolute').catch(this._handleError);
+    mpv.command('seek', seconds, 'absolute').catch(this._handleError);
   }
 
   get uri() {
@@ -105,14 +91,14 @@ export default class Player extends EventEmitter {
 
   play() {
     if (!this._loaded) {
-      this._mpv.command('loadfile', this._uri).catch(this._handleError);
+      mpv.command('loadfile', this._uri).catch(this._handleError);
     }
 
-    this._mpv.set('pause', false).catch(this._handleError);
+    mpv.set('pause', false).catch(this._handleError);
   }
 
   pause() {
-    this._mpv.set('pause', true).catch(this._handleError);
+    mpv.set('pause', true).catch(this._handleError);
   }
 
   stop() {
@@ -122,6 +108,5 @@ export default class Player extends EventEmitter {
   close() {
     this.removeAllListeners();
     this._uri = null;
-    this._mpv.close();
   }
 }

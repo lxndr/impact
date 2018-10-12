@@ -17,6 +17,12 @@ export default class Application {
   async startup() {
     await this.configuration.load();
     await this.database.init();
+
+    const collectionIsEmpty = await this.collection.isEmpty();
+
+    if (collectionIsEmpty) {
+      await this.scanner.update();
+    }
   }
 
   async shutdown() {

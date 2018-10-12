@@ -7,7 +7,16 @@ const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">
     <div className="header">
       <div className="title">{album.title || 'Unknown album'}</div>
-      <div className="release-date">{album.releaseDate}</div>
+
+      {album.variant && (
+        <div className="title">{album.variant}</div>
+      )}
+
+      <div className="spacer" />
+
+      {album.releaseDate && (
+        <div className="release-date">{album.releaseDate}</div>
+      )}
     </div>
 
     {album.discs.map((disc) => {
