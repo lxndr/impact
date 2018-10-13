@@ -10,6 +10,8 @@ import mpv from './mpv';
 
 export { mpv };
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 app.on('ready', () => {
   /* window */
   const win = new BrowserWindow({
@@ -18,15 +20,19 @@ app.on('ready', () => {
     frame: false,
   });
 
-  win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+  win.loadURL(
+    isDevelopment
+      ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+      : `file://${__dirname}/index.html`,
+  );
+
   win.setMenu(null);
 
-  if (process.env.NODE_ENV === 'development') {
+  if (isDevelopment) {
     Promise.all([
       installExtension(REACT_DEVELOPER_TOOLS),
       installExtension(MOBX_DEVTOOLS),
     ]).catch(/* console.error */);
-
     win.openDevTools();
   }
 

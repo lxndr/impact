@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { trackShape, albumShape } from '../../utils';
+import { trackShape, albumShape, formatDate } from '../../utils';
 import AlbumDisc from './album-disc';
 
 const Album = ({ album, playingTrack, onSelect }) => (
@@ -15,7 +15,7 @@ const Album = ({ album, playingTrack, onSelect }) => (
       <div className="spacer" />
 
       {album.releaseDate && (
-        <div className="release-date">{album.releaseDate}</div>
+        <div className="release-date">{formatDate(album.releaseDate)}</div>
       )}
     </div>
 
