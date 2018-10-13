@@ -7,6 +7,7 @@ import { extname } from './utils';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
+import handleWavPack from './formats/wavpack';
 
 const log = debug('impact:scanner');
 
@@ -19,6 +20,7 @@ export default class Scanner {
 
     this.registerFormat('flac', handleFlac);
     this.registerFormat('ape', handleApe);
+    this.registerFormat('wv', handleWavPack);
     this.registerFormat('cue', handleCue);
   }
 
