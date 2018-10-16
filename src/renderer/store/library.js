@@ -79,7 +79,12 @@ class LibraryStore {
   }
 
   rescan = async () => {
+    const sub = backend.collection.update$.subscribe(() => {
+      this.refreshArtists();
+    });
+
     await backend.scanner.update();
+    sub.unsubscribe();
   }
 }
 

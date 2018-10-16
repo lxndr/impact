@@ -1,9 +1,12 @@
 import _ from 'lodash';
 import debug from 'debug';
+import { Subject } from 'rxjs';
 
 const log = debug('impact:collection');
 
 export default class Collection {
+  update$ = new Subject(null)
+
   constructor(application) {
     this.database = application.database;
   }
@@ -15,6 +18,7 @@ export default class Collection {
     await this.database.tracks.remove({}, { multi: true });
     await this.database.albums.remove({}, { multi: true });
     await this.database.files.remove({}, { multi: true });
+    this.update$.next();
   }
 
   async isEmpty() {
@@ -150,6 +154,7 @@ export default class Collection {
     });
 
     track = await this.database.tracks.insert(track);
+    this.update$.next();
     return { file, album, track };
   }
 
