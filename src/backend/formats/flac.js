@@ -95,21 +95,21 @@ export default async function ({ filename }) {
   const info = await read(fd);
   await fs.close(fd);
 
-  const album = {
-    artist: info.albumArtist,
-    title: info.album,
-    releaseDate: info.releaseDate,
-    releaseType: info.releaseType,
-    discTitle: info.discTitle,
-    discNumber: info.discNumber,
+  return {
+    type: 'media',
+    albums: [{
+      artist: info.albumArtist,
+      title: info.album,
+      releaseDate: info.releaseDate,
+      releaseType: info.releaseType,
+      discTitle: info.discTitle,
+      discNumber: info.discNumber,
+      tracks: [{
+        title: info.title,
+        genre: info.genre,
+        number: info.number,
+        duration: info.duration,
+      }],
+    }],
   };
-
-  const track = {
-    title: info.title,
-    genre: info.genre,
-    number: info.number,
-    duration: info.duration,
-  };
-
-  return { type: 'media', album, track };
 }

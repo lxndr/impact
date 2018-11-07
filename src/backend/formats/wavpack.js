@@ -52,12 +52,12 @@ export default async function ({ filename }) {
   const info = await read(fd);
   await fs.close(fd);
 
-  const album = {
+  return {
+    type: 'media',
+    albums: [{
+      tracks: [{
+        duration: info.duration,
+      }],
+    }],
   };
-
-  const track = {
-    duration: info.duration,
-  };
-
-  return { type: 'media', album, track };
 }

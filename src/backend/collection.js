@@ -5,10 +5,10 @@ import { Subject } from 'rxjs';
 const log = debug('impact:collection');
 
 export default class Collection {
-  update$ = new Subject(null)
+  update$ = new Subject()
 
-  constructor(application) {
-    this.database = application.database;
+  constructor({ database }) {
+    this.database = database;
   }
 
   /**
@@ -158,11 +158,27 @@ export default class Collection {
     return { file, album, track };
   }
 
-  async removeFileById(_id) {
-    return this.database.files.remove({ _id });
-  }
+  async removeFile(dbfile) {
+    const tracks = await this.database.tracks.find({
+      $or: [
+        { media: dbfile._id },
+        { mediaIndex: dbfile._id },
+      ],
+    });
 
-  async removeFileByPath(path) {
-    return this.database.files.remove({ path });
+    const ids = _.map(tracks, '_id');
+    await this.database.tracks.remove({ _id: { $in: ids } });
+
+    const albums = _(tracks).map('album').uniq().value();
+
+    for (const album of albums) {
+      const nAlbumTracks = await this.database.tracks.count({ album: album._id });
+
+      if (nAlbumTracks === 0) {
+        await this.database.files.remove({ _id: album._id });
+      }
+    }
+
+    await this.database.files.remove({ _id: dbfile._id });
   }
 }

@@ -10,8 +10,8 @@ export default class Playback {
 
   state$ = new BehaviorSubject(null)
 
-  constructor(application) {
-    this.collection = application.collection;
+  constructor({ collection }) {
+    this.collection = collection;
 
     this._player.on('position', (time) => {
       const track = this.track$.getValue();

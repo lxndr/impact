@@ -17,10 +17,11 @@ class Store {
 
   init = async () => {
     await backend.startup();
-    await this.library.refreshArtists();
+    await this.library.init();
   }
 
   deinit = async () => {
+    await this.library.deinit();
     await backend.shutdown();
   }
 }

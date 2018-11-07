@@ -64,11 +64,24 @@ class LibraryStore {
 
   @observable albums = []
 
-  refreshArtists = async () => {
-    this.artists = await backend.collection.artists();
+  async init() {
+    this._collectionUpdateSub = backend.collection.update$.subscribe(this._collectionUpdated);
+    this._collectionUpdated();
+  }
 
-    if (!this.artist && this.artists.length) {
-      await this.changeArtist(this.artists[0]);
+  async deinit() {
+    this._collectionUpdateSub.unsubscribe();
+  }
+
+  _collectionUpdated = async () => {
+    try {
+      this.artists = await backend.collection.artists();
+
+      if (!this.artist && this.artists.length) {
+        await this.changeArtist(this.artists[0]);
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -78,13 +91,12 @@ class LibraryStore {
     this.artist = artist;
   }
 
-  rescan = async () => {
-    const sub = backend.collection.update$.subscribe(() => {
-      this.refreshArtists();
-    });
+  update = () => {
+    backend.scanner.update().catch(console.error);
+  }
 
-    await backend.scanner.update();
-    sub.unsubscribe();
+  clear = () => {
+    backend.collection.clear().catch(console.error);
   }
 }
 

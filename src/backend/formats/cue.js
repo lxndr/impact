@@ -117,7 +117,7 @@ export default async function ({ filename, scanner }) {
       throw new Error('Not a media file.');
     }
 
-    let { duration: totalDuration } = mediaInfo.track;
+    let { duration: totalDuration } = mediaInfo.albums[0].tracks[0];
 
     album.tracks = f.tracks
       .slice()

@@ -3,7 +3,7 @@ import _ from 'lodash';
 export default class Playlist {
   queue = []
 
-  constructor(collection) {
+  constructor({ collection }) {
     this.collection = collection;
   }
 

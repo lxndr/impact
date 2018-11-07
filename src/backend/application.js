@@ -8,10 +8,10 @@ import Playlist from './playlist';
 export default class Application {
   constructor() {
     this.configuration = new Configuration();
-    this.database = new Database();
-    this.collection = new Collection(this);
-    this.scanner = new Scanner(this);
-    this.playback = new Playback(this);
+    this.database = new Database({ dbDirectory: this.configuration.dbDirectory });
+    this.collection = new Collection({ database: this.database });
+    this.scanner = new Scanner({ configuration: this.configuration, collection: this.collection });
+    this.playback = new Playback({ collection: this.collection });
   }
 
   async startup() {
@@ -30,6 +30,6 @@ export default class Application {
   }
 
   createPlaylist() {
-    return new Playlist(this.collection);
+    return new Playlist({ collection: this.collection });
   }
 }

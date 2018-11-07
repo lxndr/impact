@@ -14,9 +14,9 @@ const log = debug('impact:scanner');
 export default class Scanner {
   formats = []
 
-  constructor(application) {
-    this.configuration = application.configuration;
-    this.collection = application.collection;
+  constructor({ configuration, collection }) {
+    this.configuration = configuration;
+    this.collection = collection;
 
     this.registerFormat('flac', handleFlac);
     this.registerFormat('ape', handleApe);
@@ -29,56 +29,68 @@ export default class Scanner {
   }
 
   async update() {
-    await this.collection.clear();
+    const { changed, removed } = await this.findChangedFiles();
+
+    while (changed.length > 0) {
+      const file = changed[0];
+
+      try {
+        const { files } = await this.processChangedFile(file.path);
+        _.pullAllBy(changed, files, 'path');
+      } catch (error) {
+        console.error(error.message);
+        _.pullAllBy(changed, [file], 'path');
+      }
+    }
+
+    while (removed.length > 0) {
+      const file = removed[0];
+      await this.collection.removeFile(file);
+      _.pullAllBy(removed, [file], 'path');
+    }
+  }
+
+  async findChangedFiles() {
+    const changed = [];
+    const removed = [];
 
     const directories = this.configuration.libararyPath;
     const exts = _(this.formats).map('ext').join('|');
     const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
     const files = await globby(patterns, { onlyFiles: true });
+    const dbfiles = await this.collection.files();
 
-    let list = [];
+    for (const dbfile of dbfiles) {
+      _.pull(files, dbfile.path);
 
-    for (const filename of files) {
       try {
-        const file = await this.inspect(filename);
-        list.push(file);
+        const st = await fs.stat(dbfile.path);
+
+        if (st.mtime > dbfile.mtime) {
+          changed.push(dbfile);
+        }
       } catch (err) {
-        console.error(err);
+        removed.push(dbfile);
       }
     }
 
-    const filesToRemove = _(list)
-      .filter({ type: 'index' })
-      .flatMap(info => (
-        _.flatMap(info.albums, album => (
-          _.map(album.tracks, 'file.path')
-        ))
-      ))
-      .uniq()
-      .value();
+    for (const path of files) {
+      changed.push({ path });
+    }
 
-    list = _.pullAllWith(list, filesToRemove, (arrVal, othVal) => arrVal.file.path === othVal);
+    return { changed, removed };
+  }
 
-    for (const { type, file, ...info } of list) {
-      switch (type) {
-        case 'media': {
-          const { album, track } = info;
-          await this.collection.upsertTrack({ file, album, track });
-          break;
-        }
-        case 'index': {
-          const { albums } = info;
-          for (const { tracks, ...album } of albums) {
-            for (const { file, ...track } of tracks) {
-              await this.collection.upsertTrack({ file, album, track });
-            }
-          }
-          break;
-        }
-        default:
-          break;
+  async processChangedFile(filename) {
+    const { file, albums } = await this.inspect(filename);
+
+    for (const { tracks, ...album } of albums) {
+      for (const track of tracks) {
+        await this.collection.upsertTrack({ file, album, track });
       }
     }
+
+    return { files: [file] };
   }
 
   async inspect(filename) {

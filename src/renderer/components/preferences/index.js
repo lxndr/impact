@@ -21,10 +21,6 @@ export default class Preferences extends React.Component {
     history.goBack();
   }
 
-  handleUpdateLibrary = () => {
-    store.library.rescan();
-  }
-
   render() {
     const { intl } = this.props;
 
@@ -50,8 +46,12 @@ export default class Preferences extends React.Component {
           </div>
         </Form>
 
-        <button className="update-library" type="button" onClick={this.handleUpdateLibrary}>
+        <button className="update-library" type="button" onClick={store.library.update}>
           <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Update library" />
+        </button>
+
+        <button className="clear-library" type="button" onClick={store.library.clear}>
+          <FormattedMessage id="prefernces.clearLibrary" defaultMessage="Clear libray" />
         </button>
       </div>
     );

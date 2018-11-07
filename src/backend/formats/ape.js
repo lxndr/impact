@@ -52,11 +52,12 @@ export default async function ({ filename }) {
 
   return {
     type: 'media',
-    album: {},
-    track: {
-      duration: totalBlocks / info.sampleRate,
-      nChannels: info.nChannels,
-      sampleRate: info.sampleRate,
-    },
+    albums: [{
+      tracks: [{
+        duration: totalBlocks / info.sampleRate,
+        nChannels: info.nChannels,
+        sampleRate: info.sampleRate,
+      }],
+    }],
   };
 }

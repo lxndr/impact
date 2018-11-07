@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import path from 'path';
 import { ensureDir } from 'fs-extra';
-import { remote } from 'electron';
 import Datastore from 'nedb';
 
 const collections = {
@@ -26,19 +25,21 @@ const collections = {
 };
 
 export default class Database {
-  async init() {
-    const configDirectory = remote.app.getPath('userData');
-    const dbDirectory = path.join(configDirectory, 'databases');
-    await ensureDir(dbDirectory);
+  constructor({ dbDirectory }) {
+    this.dbDirectory = dbDirectory;
+  }
 
-    return Promise.all(
+  async init() {
+    await ensureDir(this.dbDirectory);
+
+    await Promise.all(
       _.map(collections, async ({ indices }, name) => {
-        const filename = path.join(dbDirectory, `${name}.db`);
+        const filename = path.join(this.dbDirectory, `${name}.db`);
         const store = new Datastore({ filename });
 
-        await Promise.all(
-          _.map(indices, index => store.ensureIndex(index)),
-        );
+        for (const index of indices) {
+          await store.ensureIndex(index);
+        }
 
         await store.loadDatabase();
         this[name] = store;
