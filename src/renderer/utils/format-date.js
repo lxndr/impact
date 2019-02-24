@@ -1,12 +1,15 @@
 import moment from 'moment';
 
+/**
+ * @param {string} str
+ */
 const formatDate = (str) => {
   if (!str) {
     return null;
   }
 
   const [year, month, day] = str.split('-');
-  const date = moment([year, month - 1, day]);
+  const date = moment([year, Number(month) - 1, day]);
 
   if (!date.isValid()) {
     return null;

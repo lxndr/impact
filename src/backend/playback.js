@@ -1,19 +1,37 @@
 import { BehaviorSubject } from 'rxjs';
-import Player from './player.mpv';
+
+/**
+ * @typedef {import('common/types').Track} Track
+ * @typedef {import('./collection').default} Collection
+ * @typedef {import('./types').Player} Player
+ */
+
+/**
+ * @typedef {Object} PlaybackState
+ * @property {string} state
+ * @property {number} duration
+ * @property {number} position
+ */
 
 export default class Playback {
   _playlist = null
 
-  _player = new Player()
-
+  /** @type {BehaviorSubject<?Track>} */
   track$ = new BehaviorSubject(null)
 
+  /** @type {BehaviorSubject<?PlaybackState>} */
   state$ = new BehaviorSubject(null)
 
-  constructor({ collection }) {
+  /**
+   * @param {Object} options
+   * @param {Collection} options.collection
+   * @param {Player} options.player
+   */
+  constructor({ collection, player }) {
     this.collection = collection;
+    this.player = player;
 
-    this._player.on('position', (time) => {
+    this.player.on('position', (time) => {
       const track = this.track$.getValue();
 
       if (!track) {
@@ -26,32 +44,32 @@ export default class Playback {
       }
 
       this.state$.next({
-        state: this._player.state,
+        state: this.player.state,
         duration: track.duration,
         position: time - track.offset,
       });
     });
 
-    this._player.on('state', () => {
+    this.player.on('state', () => {
       const track = this.track$.getValue();
       let state = null;
 
       if (track) {
         state = {
-          state: this._player.state,
+          state: this.player.state,
           duration: track.duration,
-          position: this._player.position - track.offset,
+          position: this.player.position - track.offset,
         };
       }
 
       this.state$.next(state);
     });
 
-    this._player.on('end', () => {
+    this.player.on('end', () => {
       this.next();
     });
 
-    this._player.on('error', (error) => {
+    this.player.on('error', (error) => {
       console.error(`Error: ${error.message}`);
     });
   }
@@ -70,22 +88,25 @@ export default class Playback {
   }
 
   stop() {
-    if (this._player) {
-      this._player.stop();
+    if (this.player) {
+      this.player.stop();
       this.track$.next(null);
       this.state$.next(null);
     }
   }
 
   _setup(track) {
-    if (this._player.uri !== track.file.path) {
-      this._player.uri = track.file.path;
+    if (this.player.uri !== track.file.path) {
+      this.player.uri = track.file.path;
     }
 
-    this._player.position = track.offset;
+    this.player.position = track.offset;
     this.track$.next(track);
   }
 
+  /**
+   * @param {string} trackId
+   */
   async _play(trackId) {
     const track = await this.collection.trackById(trackId);
 
@@ -97,20 +118,23 @@ export default class Playback {
     track.file = await this.collection.fileById(track.file);
 
     this._setup(track);
-    this._player.play();
+    this.player.play();
   }
 
+  /**
+   * @param {string} trackId
+   */
   play(trackId) {
     this._play(trackId).catch(console.error);
   }
 
   toggle() {
-    if (this._player) {
+    if (this.player) {
       const state = this.state$.getValue();
       if (state && state.state === 'playing') {
-        this._player.pause();
+        this.player.pause();
       } else {
-        this._player.play();
+        this.player.play();
       }
     }
   }
@@ -129,15 +153,18 @@ export default class Playback {
     this.play(track._id);
   }
 
+  /**
+   * @param {number} time
+   */
   seek(time) {
     const track = this.track$.getValue();
 
     if (track) {
-      this._player.position = track.offset + time;
+      this.player.position = track.offset + time;
     }
   }
 
   close() {
-    this._player.close();
+    this.player.close();
   }
 }

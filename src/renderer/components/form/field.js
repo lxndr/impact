@@ -1,37 +1,31 @@
-/* eslint-disable jsx-a11y/label-has-for */
-
 import _ from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext } from 'react';
 import cn from 'classnames';
-import { observer, inject } from 'mobx-react';
-import { formShape } from './util';
+import FormContext from './context';
 
-@inject('form')
-@observer
-export default class Field extends React.Component {
-  static propTypes = {
-    form: formShape.isRequired,
-    type: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
-    className: PropTypes.string,
-    name: PropTypes.string.isRequired,
-    label: PropTypes.string,
-    labelClass: PropTypes.string,
-    readOnly: PropTypes.bool,
-  }
+/**
+ * @param {object} props
+ * @param {string | React.Component} [props.type]
+ * @param {string} [props.className]
+ * @param {string} props.name
+ * @param {string} [props.label]
+ * @param {string} [props.labelClass]
+ * @param {boolean} [props.readOnly]
+ * @param {...*} rest
+ */
+const Field = ({
+  type = 'text',
+  className = '',
+  name,
+  label = null,
+  labelClass = '',
+  readOnly = false,
+  ...rest
+}) => {
+  const form = useContext(FormContext);
 
-  static defaultProps = {
-    type: 'text',
-    className: '',
-    label: null,
-    labelClass: '',
-    readOnly: false,
-  }
-
-  handleChange = (event) => {
+  /** @type {React.ChangeEventHandler} */
+  const handleChange = (event) => {
     const { form, name, ...props } = this.props;
     let value = event;
 
@@ -60,66 +54,55 @@ export default class Field extends React.Component {
     }
 
     _.set(form.model, name, value);
+  };
+
+  const value = _.get(form.model, name);
+  let Component = type;
+
+  const props = {
+    id: name,
+    name,
+    readOnly: readOnly || form.readOnly,
+    value,
+    onChange: handleChange,
+  };
+
+  if (typeof type === 'string') {
+    if (type === 'textarea') {
+      Component = 'textarea';
+      delete props.type;
+    } else {
+      Component = 'input';
+      props.type = type;
+    }
   }
 
-  render() {
-    const {
-      form,
-      type,
-      className,
-      name,
-      label,
-      labelClass,
-      readOnly,
-      ...rest
-    } = this.props;
-
-    const value = _.get(form.model, name);
-    let Component = type;
-
-    const props = {
-      id: name,
-      name,
-      readOnly: readOnly || form.readOnly,
-      value,
-      onChange: this.handleChange,
-    };
-
-    if (typeof type === 'string') {
-      if (type === 'textarea') {
-        Component = 'textarea';
-        delete props.type;
+  if (Component === 'input' || Component === 'textarea') {
+    if (props.type === 'checkbox') {
+      if (rest.value) {
+        props.id += `_${rest.value}`;
+        props.checked = Array.isArray(value) && value.includes(rest.value);
       } else {
-        Component = 'input';
-        props.type = type;
+        props.checked = value || false;
       }
+    } else if (props.type === 'radio') {
+      props.checked = value === (rest.value || false);
+    } else {
+      props.value = value || '';
     }
-
-    if (Component === 'input' || Component === 'textarea') {
-      if (props.type === 'checkbox') {
-        if (rest.value) {
-          props.id += `_${rest.value}`;
-          props.checked = Array.isArray(value) && value.includes(rest.value);
-        } else {
-          props.checked = value || false;
-        }
-      } else if (props.type === 'radio') {
-        props.checked = value === (rest.value || false);
-      } else {
-        props.value = value || '';
-      }
-    }
-
-    return (
-      <div className={cn('form-field', `form-field_${name}`, className)}>
-        {label && (
-          <label className={labelClass} htmlFor={props.id}>
-            {label}
-          </label>
-        )}
-
-        <Component {...props} {...rest} />
-      </div>
-    );
   }
-}
+
+  return (
+    <div className={cn('form-field', `form-field_${name}`, className)}>
+      {label && (
+        <label className={labelClass} htmlFor={props.id}>
+          {label}
+        </label>
+      )}
+
+      <Component {...props} {...rest} />
+    </div>
+  );
+};
+
+export default Field;

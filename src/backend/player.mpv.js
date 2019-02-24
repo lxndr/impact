@@ -1,29 +1,46 @@
 import EventEmitter from 'events';
-import { remote } from 'electron';
 
-const { mpv } = remote.require('./main');
+/**
+ * @typedef {import('./types').Player} Player
+ */
 
-export default class Player extends EventEmitter {
+/**
+ * @implements {Player}
+ */
+export default class MpvPlayer extends EventEmitter {
+  /** @type {?string} */
   _uri = null
 
+  /** @type {boolean} */
   _loaded = false
 
+  /** @type {string} */
   _state = 'idle'
 
+  /** @type {number} */
   _duration = 0
 
+  /** @type {number} */
   _position = 0
 
+  /** @type {boolean} */
   _positionSet = false
 
+  /**
+   * @param {Error} error
+   */
   _handleError = (error) => {
     this.emit('error', error);
   }
 
-  constructor() {
+  /**
+   * @param {Mpv} options
+   */
+  constructor({ mpv }) {
     super();
+    this.mpv = mpv;
 
-    mpv.on('start-file', () => {
+    this.mpv.on('start-file', () => {
       this._loaded = true;
 
       if (this._positionSet) {
@@ -32,29 +49,32 @@ export default class Player extends EventEmitter {
       }
     });
 
-    mpv.on('end-file', () => {
+    this.mpv.on('end-file', () => {
       if (!this._loaded) return; // NOTE: prevets emitting 'end' after 'loadfile'
       this._loaded = false;
       this.emit('end');
     });
 
-    mpv.observe('pause', (pause) => {
+    this.mpv.observe('pause', (pause) => {
       this._state = pause ? 'pause' : 'playing';
       this.emit('state', this._state);
     });
 
-    mpv.observe('duration', (secs) => {
+    this.mpv.observe('duration', (secs) => {
       this._duration = secs;
     });
 
-    mpv.observe('time-pos', (secs) => {
+    this.mpv.observe('time-pos', (secs) => {
       this._position = secs;
       this.emit('position', secs);
     });
   }
 
+  /**
+   * @param {number} seconds
+   */
   _seek(seconds) {
-    mpv.command('seek', seconds, 'absolute').catch(this._handleError);
+    this.mpv.command('seek', seconds, 'absolute').catch(this._handleError);
   }
 
   get uri() {
@@ -91,14 +111,14 @@ export default class Player extends EventEmitter {
 
   play() {
     if (!this._loaded) {
-      mpv.command('loadfile', this._uri).catch(this._handleError);
+      this.mpv.command('loadfile', this._uri).catch(this._handleError);
     }
 
-    mpv.set('pause', false).catch(this._handleError);
+    this.mpv.set('pause', false).catch(this._handleError);
   }
 
   pause() {
-    mpv.set('pause', true).catch(this._handleError);
+    this.mpv.set('pause', true).catch(this._handleError);
   }
 
   stop() {

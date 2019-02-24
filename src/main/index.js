@@ -5,7 +5,7 @@ import {
   BrowserWindow,
 } from 'electron';
 
-import installExtension, { REACT_DEVELOPER_TOOLS, MOBX_DEVTOOLS } from 'electron-devtools-installer';
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import mpv from './mpv';
 
 export { mpv };
@@ -18,6 +18,9 @@ app.on('ready', () => {
     width: 1600,
     height: 700,
     frame: false,
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
   win.loadURL(
@@ -31,7 +34,6 @@ app.on('ready', () => {
   if (isDevelopment) {
     Promise.all([
       installExtension(REACT_DEVELOPER_TOOLS),
-      installExtension(MOBX_DEVTOOLS),
     ]).catch(/* console.error */);
     win.openDevTools();
   }

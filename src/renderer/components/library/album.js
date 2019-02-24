@@ -1,8 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { trackShape, albumShape, formatDate } from '../../utils';
+import { formatDate } from '../../utils';
 import AlbumDisc from './album-disc';
 
+/**
+ * @typedef {import('../../../common/types').Album} AlbumType
+ * @typedef {import('../../../common/types').Track} Track
+ */
+
+/**
+ * @param {object} props
+ * @param {AlbumType} props.album
+ * @param {?Track} props.playingTrack
+ * @param {(track: Track) => void} props.onSelect
+ */
 const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">
     <div className="header">
@@ -34,12 +44,6 @@ const Album = ({ album, playingTrack, onSelect }) => (
     })}
   </div>
 );
-
-Album.propTypes = {
-  album: albumShape.isRequired,
-  playingTrack: trackShape,
-  onSelect: PropTypes.func.isRequired,
-};
 
 Album.defaultProps = {
   playingTrack: null,

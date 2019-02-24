@@ -1,14 +1,28 @@
 /* eslint-disable no-bitwise */
-
 import fs from 'fs-extra';
 import readVorbisComment from './vorbis';
+import BufferReader from '../utils/buffer-reader';
 
-const STREAM_INFO_TYPE = 0;
-const VORBIS_COMMENT_TYPE = 4;
+/**
+ * @typedef {import('../types').FileHandler} FileHandler
+ * @typedef {import('../types').Image} Image
+ */
+
+/** @enum {number} */
+const BlockType = {
+  STREAM_INFO: 0,
+  VORBIS_COMMENT: 4,
+  PICTURE: 6,
+};
 
 const SIGNATURE_SIZE = 4;
 const BLOCK_HEADER_SIZE = 4;
 
+/**
+ * @param {number} fd
+ * @param {number} offset
+ * @returns {Promise<Object>}
+ */
 async function readBlock(fd, offset) {
   const buf = Buffer.alloc(BLOCK_HEADER_SIZE);
   await fs.read(fd, buf, 0, BLOCK_HEADER_SIZE, offset);
@@ -29,6 +43,9 @@ async function readBlock(fd, offset) {
   return block;
 }
 
+/**
+ * @param {number} fd
+ */
 async function readSignature(fd) {
   const buf = Buffer.alloc(SIGNATURE_SIZE);
   await fs.read(fd, buf, 0, SIGNATURE_SIZE, 0);
@@ -40,7 +57,10 @@ async function readSignature(fd) {
   }
 }
 
-async function readStreamInfo(fd, buf) {
+/**
+ * @param {Buffer} buf
+ */
+function readStreamInfo(buf) {
   if (buf.length < 34) {
     throw new Error('Not a FLAC file');
   }
@@ -53,10 +73,33 @@ async function readStreamInfo(fd, buf) {
   };
 }
 
+/**
+ * @param {Buffer} buf
+ * @returns {Image}
+ */
+function readImage(buf) {
+  const br = new BufferReader(buf);
+  const type = br.uint32();
+  const mimeType = br.lstring(br.uint32());
+  br.skip(br.uint32());
+  br.skip(4 * 4);
+  const blob = br.blob(br.uint32());
+
+  return {
+    type,
+    mimeType,
+    blob,
+  };
+}
+
+/**
+ * @param {number} fd
+ */
 export async function read(fd) {
   let offset = SIGNATURE_SIZE;
   let streamInfo;
-  let tags;
+  let tags = {};
+  const images = [];
 
   await readSignature(fd);
 
@@ -64,11 +107,14 @@ export async function read(fd) {
     const block = await readBlock(fd, offset);
 
     switch (block.type) {
-      case STREAM_INFO_TYPE:
-        streamInfo = await readStreamInfo(fd, block.buf);
+      case BlockType.STREAM_INFO:
+        streamInfo = readStreamInfo(block.buf);
         break;
-      case VORBIS_COMMENT_TYPE:
-        tags = await readVorbisComment(fd, block.buf);
+      case BlockType.VORBIS_COMMENT:
+        tags = readVorbisComment(block.buf);
+        break;
+      case BlockType.PICTURE:
+        images.push(readImage(block.buf));
         break;
       default:
         break;
@@ -81,35 +127,44 @@ export async function read(fd) {
     offset += block.length + BLOCK_HEADER_SIZE;
   }
 
+  if (!streamInfo) {
+    throw new Error('Could not find stream info block.');
+  }
+
   return {
     sampleRate: streamInfo.sampleRate,
     nChannels: streamInfo.nChannels,
-    bitsPerSample: streamInfo.bitsPerSample,
     duration: Math.ceil(streamInfo.totalSamples / streamInfo.sampleRate),
-    ...tags,
+    images,
+    tags,
   };
 }
 
-export default async function ({ filename }) {
-  const fd = await fs.open(filename, 'r');
+/** @type FileHandler */
+export default async function flacHandler({ file }) {
+  const fd = await fs.open(file.path, 'r');
   const info = await read(fd);
+  const { tags, images } = info;
   await fs.close(fd);
 
-  return {
-    type: 'media',
-    albums: [{
-      artist: info.albumArtist,
-      title: info.album,
-      releaseDate: info.releaseDate,
-      releaseType: info.releaseType,
-      discTitle: info.discTitle,
-      discNumber: info.discNumber,
-      tracks: [{
-        title: info.title,
-        genre: info.genre,
-        number: info.number,
-        duration: info.duration,
-      }],
+  return [{
+    artist: tags.albumArtist,
+    title: tags.album,
+    releaseDate: tags.releaseDate,
+    releaseType: tags.releaseType,
+    discTitle: tags.discTitle,
+    discNumber: tags.discNumber,
+    tracks: [{
+      title: tags.title,
+      artists: [tags.albumArtist],
+      genre: tags.genre,
+      number: tags.number,
+      images,
+      sampleRate: info.sampleRate,
+      nChannels: info.nChannels,
+      offset: 0,
+      duration: info.duration,
+      file,
     }],
-  };
+  }];
 }

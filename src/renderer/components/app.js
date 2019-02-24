@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IntlProvider, addLocaleData } from 'react-intl';
-import { observer } from 'mobx-react';
 import en from 'react-intl/locale-data/en';
 import ru from 'react-intl/locale-data/ru';
 
@@ -13,31 +12,33 @@ import {
 
 import messages from '../l18n';
 import style from '../style';
-import store from '../store';
 import Header from './header';
 import Library from './library';
-import Preferences from './preferences';
+import backend from '../services/backend';
+// import Preferences from './preferences';
 
 addLocaleData([...en, ...ru]);
 
-const App = observer(() => {
-  const { language } = store.config;
+const App = () => {
+  useEffect(() => {
+    backend.startup();
+  }, []);
 
   return (
-    <IntlProvider locale={language} messages={messages[language]}>
+    <IntlProvider locale={'en'} messages={messages['en']}>
       <MemoryRouter>
         <div className={style('app')}>
           <Header />
 
           <Switch>
-            <Route path="/preferences" component={Preferences} />
-            <Route path="/library" component={Library} />
-            <Redirect to="/library" />
+            {/*<Route path="/preferences" component={Preferences} />*/}
+            <Route path="/library/by-artist/:artist?" component={Library} />
+            <Redirect to="/library/by-artist" />
           </Switch>
         </div>
       </MemoryRouter>
     </IntlProvider>
   );
-});
+};
 
 export default App;

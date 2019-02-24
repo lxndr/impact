@@ -1,8 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { iconShape } from '../../utils';
 
+/** @typedef {import('@fortawesome/fontawesome-svg-core').IconProp} IconProp */
+
+/**
+ * @param {object} props
+ * @param {string} props.className
+ * @param {IconProp} props.icon
+ * @param {string} props.title
+ * @param {React.MouseEventHandler} props.onClick
+ */
 const Button = ({
   className,
   onClick,
@@ -19,11 +26,4 @@ const Button = ({
   </button>
 );
 
-Button.propTypes = {
-  className: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired,
-  icon: iconShape.isRequired,
-  title: PropTypes.string.isRequired,
-};
-
-export default Button;
+export default React.memo(Button);

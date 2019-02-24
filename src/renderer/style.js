@@ -1,10 +1,14 @@
-import store from './store';
 import defaultTheme from './themes/default/index.less';
 
 const styles = {
   default: defaultTheme,
 };
 
-const style = name => styles[store.config.theme][name];
+const currentTheme = 'default';
+
+/**
+ * @param {string} name
+ */
+const style = name => styles[currentTheme][name];
 
 export default style;

@@ -12,6 +12,8 @@ rules:
   no-await-in-loop: off
   no-continue: off
   no-shadow: off
+  react/jsx-filename-extension: off
+  react/prop-types: off
 
   no-plusplus:
     - error
@@ -26,7 +28,6 @@ rules:
   - selector: WithStatement
     message: "`with` is disallowed in strict mode because it makes code impossible to predict and optimize."
 
-  react/jsx-filename-extension:
-  - error
-  - extensions:
-    - .js
+settings:
+  import/resolver:
+    babel-module: {}

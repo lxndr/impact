@@ -1,14 +1,43 @@
-import path from 'path';
-import { remote } from 'electron';
-
-const { app } = remote.require('electron');
+import fs from 'fs-extra';
 
 export default class Configuration {
-  dbDirectory = path.join(app.getPath('userData'), 'databases')
+  /** @type {string} */
+  dbDirectory = ''
 
-  libararyPath = [
-    app.getPath('music'),
-  ]
+  /** @type {string} */
+  imageDirectory = ''
 
-  async load() {}
+  /** @type {string[]} */
+  libararyPath = []
+
+  /**
+   * @param {string} configFile
+   * @param {object} [defaultConfig]
+   */
+  constructor(configFile, defaultConfig = {}) {
+    this.configFile = configFile;
+    this.set(defaultConfig);
+  }
+
+  /**
+   * @param {object} config
+   */
+  set(config) {
+    Object.keys(this).forEach((key) => {
+      if (key in config) {
+        this[key] = config[key];
+      }
+    });
+  }
+
+  /**
+   */
+  async load() {
+    try {
+      const config = await fs.readJSON(this.configFile);
+      this.set(config);
+    } catch (err) {
+      console.warn(err);
+    }
+  }
 }

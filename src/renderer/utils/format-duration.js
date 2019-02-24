@@ -1,3 +1,6 @@
+/**
+ * @param {number} secs
+ */
 const formatDuration = (secs) => {
   if (!(secs && secs >= 0)) {
     secs = 0;
@@ -5,7 +8,7 @@ const formatDuration = (secs) => {
 
   const hours = Math.floor(secs / 3600);
   const minutes = Math.floor(secs / 60) % 60;
-  const seconds = Math.round(secs % 60, 0);
+  const seconds = Math.round(secs % 60);
 
   let ret = '';
 

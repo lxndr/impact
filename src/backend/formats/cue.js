@@ -2,6 +2,53 @@ import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
 
+/**
+ * @typedef {import('../types').FileInfo} FileInfo
+ * @typedef {import('../types').Album} Album
+ * @typedef {import('../types').FileHandler} FileHandler
+ */
+
+/**
+ * @typedef {Object} CueRemark
+ * @property {string} key
+ * @property {string} value
+ */
+
+/**
+ * @typedef {Object} CueIndex
+ * @property {number} index
+ * @property {number} time
+ */
+
+/**
+ * @typedef {Object} CueTrack
+ * @property {number} number
+ * @property {string} type
+ * @property {Array<CueIndex>} indexes
+ * @property {string} [title]
+ * @property {string} [performer]
+ */
+
+/**
+ * @typedef {Object} CueFile
+ * @property {string} name
+ * @property {string} type
+ * @property {Array<CueTrack>} tracks
+ */
+
+/**
+ * @typedef {Object} Cue
+ * @property {string} [performer]
+ * @property {string} [title]
+ * @property {string} [catalog]
+ * @property {Array<CueRemark>} remarks
+ * @property {Array<CueFile>} files
+ */
+
+/**
+ * @param {string} str
+ * @return {number}
+ */
 function parseTime(str) {
   const a = str.split(':');
 
@@ -12,7 +59,12 @@ function parseTime(str) {
   return (minutes * 60) + seconds + (frames / 75);
 }
 
+/**
+ * @param {string} str
+ * @return {Cue}
+ */
 export function parse(str) {
+  /** @type Cue */
   const cue = {
     remarks: [],
     files: [],
@@ -87,6 +139,8 @@ export function parse(str) {
         case 'CATALOG':
           cue.catalog = arg1;
           break;
+        case 'FLAGS':
+          break;
         default:
           console.warn(`Unknown CUE command '${line}'`);
       }
@@ -95,35 +149,40 @@ export function parse(str) {
   return cue;
 }
 
-export default async function ({ filename, scanner }) {
-  const dir = path.dirname(filename);
-  const str = await fs.readFile(filename, 'utf8');
+/** @type FileHandler */
+export default async function cueHandler({ file, scanner }) {
+  const dir = path.dirname(file.path);
+  const str = await fs.readFile(file.path, 'utf8');
   const info = parse(str);
 
-  const date = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
+  const releaseDate = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
   const genre = _.chain(info.remarks).find({ key: 'GENRE' }).get('value').value();
 
+  /** @type Album */
   const album = {
     artist: info.performer,
     title: info.title,
-    date,
+    releaseDate,
+    tracks: [],
   };
 
   for (const f of info.files) {
     const mediaPath = path.resolve(dir, f.name);
     const mediaInfo = await scanner.inspect(mediaPath);
+    const mediaTrack = _.get(mediaInfo, '[0].tracks[0]');
 
-    if (mediaInfo.type !== 'media') {
-      throw new Error('Not a media file.');
+    if (!mediaTrack) {
+      throw new Error(`Cue file "${file.path}" has FILE field "${mediaPath}" which is not a media file.`);
     }
 
-    let { duration: totalDuration } = mediaInfo.albums[0].tracks[0];
+    let totalDuration = mediaTrack.duration;
 
     album.tracks = f.tracks
       .slice()
       .reverse()
       .map((track) => {
-        const offset = _(track.indexes).sortBy('index').first().time;
+        const indexes = _.sortBy(track.indexes, 'index');
+        const offset = indexes.length ? indexes[0].time : 0;
         const duration = totalDuration - offset;
         totalDuration = offset;
 
@@ -134,11 +193,15 @@ export default async function ({ filename, scanner }) {
           genre,
           offset,
           duration,
-          file: mediaInfo.file,
+          index: file,
+          file: mediaTrack.file,
+          images: mediaTrack.images,
+          nChannels: mediaTrack.nChannels,
+          sampleRate: mediaTrack.sampleRate,
         };
       })
       .reverse();
   }
 
-  return { type: 'index', albums: [album] };
+  return [album];
 }

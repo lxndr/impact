@@ -1,14 +1,14 @@
+import { BufferReader } from '../utils';
+
 const tagMap = {
   title: 'title',
   date: 'releaseDate',
-  albumartistsort: 'albumArtistSort',
   originaldate: 'originalDate',
   albumartist: 'albumArtist',
   album: 'album',
   releasetype: 'releaseType',
   artist: 'artist',
   musicbrainz_releasegroupid: 'musicBrainz_releaseGroupId', // eslint-disable-line camelcase
-  artistsort: 'artistSort',
   artists: 'artists',
   genre: 'genre',
   tracknumber: 'number',
@@ -20,31 +20,28 @@ const tagArray = [
   'artists',
 ];
 
-export default function readVorbisComment(fd, buf) {
-  const vendorLength = buf.readUInt32LE(0);
-  let offset = vendorLength + 4;
-  const nTags = buf.readUInt32LE(offset);
-  offset += 4;
-
+/**
+ * @param {Buffer} buf
+ */
+export default function readVorbisComment(buf) {
+  const br = new BufferReader(buf, false);
+  br.skip(br.uint32());
+  const nTags = br.uint32();
   const tags = {};
 
   for (let i = 0; i < nTags; i++) {
-    const length = buf.readUInt32LE(offset);
-    offset += 4;
-
-    const comment = buf.toString('utf8', offset, offset + length);
-    offset += length;
-
+    const comment = br.lstring(br.uint32());
     const [_key, val] = comment.split('=', 2);
     let key = _key.toLowerCase();
 
-    if (key in tagMap) {
+    if (key in tagMap) { /* we only need the tags in the map */
       key = tagMap[key];
 
       if (tagArray.includes(key)) {
         let arr = tags[key];
         if (!arr) {
-          arr = tags[key] = [];
+          arr = [];
+          tags[key] = arr;
         }
         arr.push(val);
       } else {

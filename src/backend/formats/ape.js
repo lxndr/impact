@@ -1,5 +1,10 @@
 import fs from 'fs-extra';
 
+/** @typedef {import('../types').FileHandler} FileHandler */
+
+/**
+ * @param {number} fd
+ */
 async function readHeader(fd) {
   const info = {};
   const buf = Buffer.alloc(76);
@@ -37,6 +42,9 @@ async function readHeader(fd) {
   return info;
 }
 
+/**
+ * @param {string} file
+ */
 async function parse(file) {
   const fd = await fs.open(file, 'r');
   const info = await readHeader(fd);
@@ -44,20 +52,19 @@ async function parse(file) {
   return { info };
 }
 
-export default async function ({ filename }) {
-  const { info } = await parse(filename);
+/** @type FileHandler */
+export default async function ({ file }) {
+  const { info } = await parse(file.path);
 
   const totalBlocks = info.totalFrames === 0
     ? 0 : ((info.totalFrames - 1) * info.blocksPerFrame) + info.finalFrameBlocks;
 
-  return {
-    type: 'media',
-    albums: [{
-      tracks: [{
-        duration: totalBlocks / info.sampleRate,
-        nChannels: info.nChannels,
-        sampleRate: info.sampleRate,
-      }],
+  return [{
+    tracks: [{
+      duration: totalBlocks / info.sampleRate,
+      nChannels: info.nChannels,
+      sampleRate: info.sampleRate,
+      images: [],
     }],
-  };
+  }];
 }

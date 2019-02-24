@@ -9,11 +9,25 @@ import handleFlac from './formats/flac';
 import handleApe from './formats/ape';
 import handleWavPack from './formats/wavpack';
 
+/**
+ * @typedef {import('common/types').FileHandler} FileHandler
+ * @typedef {import('./configuration').default} Configuration
+ * @typedef {import('./collection').default} Collection
+ */
+
 const log = debug('impact:scanner');
 
 export default class Scanner {
+  /**
+   * @type {Array<{ ext: string, handler: FileHandler }>}
+   */
   formats = []
 
+  /**
+   * @param {Object} options
+   * @param {Configuration} options.configuration
+   * @param {Collection} options.collection
+   */
   constructor({ configuration, collection }) {
     this.configuration = configuration;
     this.collection = collection;
@@ -24,6 +38,10 @@ export default class Scanner {
     this.registerFormat('cue', handleCue);
   }
 
+  /**
+   * @param {string} ext
+   * @param {FileHandler} handler
+   */
   registerFormat(ext, handler) {
     this.formats.push({ ext, handler });
   }
@@ -35,7 +53,7 @@ export default class Scanner {
       const file = changed[0];
 
       try {
-        const { files } = await this.processChangedFile(file.path);
+        const files = await this.processChangedFile(file.path);
         _.pullAllBy(changed, files, 'path');
       } catch (error) {
         console.error(error.message);
@@ -81,18 +99,30 @@ export default class Scanner {
     return { changed, removed };
   }
 
+  /**
+   * @param {string} filename
+   */
   async processChangedFile(filename) {
-    const { file, albums } = await this.inspect(filename);
+    const albums = await this.inspect(filename);
+    const files = [];
 
     for (const { tracks, ...album } of albums) {
-      for (const track of tracks) {
+      for (const { file, ...track } of tracks) {
         await this.collection.upsertTrack({ file, album, track });
+        files.push(file);
+
+        if (track.index) {
+          files.push(track.index);
+        }
       }
     }
 
-    return { files: [file] };
+    return files;
   }
 
+  /**
+   * @param {string} filename
+   */
   async inspect(filename) {
     log(`inspecting ${filename}`);
 
@@ -111,12 +141,12 @@ export default class Scanner {
     };
 
     const info = await format.handler({
-      filename,
+      file,
       scanner: {
         inspect: this.inspect.bind(this),
       },
     });
 
-    return { file, ...info };
+    return info;
   }
 }
