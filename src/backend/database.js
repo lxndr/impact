@@ -6,6 +6,8 @@ import { promiseFromCallback } from './utils';
 
 /**
  * @typedef {import('nedb')} Nedb
+ * @typedef {import('common/types').DbFile} DbFile
+ * @typedef {import('common/types').DbImage} DbImage
  * @typedef {import('common/types').DbAlbum} DbAlbum
  * @typedef {import('common/types').DbTrack} DbTrack
  * @typedef {import('./configuration').default} Configuration
@@ -100,11 +102,13 @@ class Datastore {
 }
 
 export default class Database {
+  /** @type {Datastore<DbFile>} */
   files = new Datastore()
 
   /** @type {Datastore<DbAlbum>} */
   albums = new Datastore()
 
+  /** @type {Datastore<DbImage>} */
   images = new Datastore()
 
   /** @type {Datastore<DbTrack>} */

@@ -1,5 +1,22 @@
 import { BufferReader } from '../utils';
 
+/**
+ * @typedef {object} VorbisTags
+ * @property {?string} title
+ * @property {?string} releaseDate
+ * @property {?string} originalDate
+ * @property {?string} albumArtist
+ * @property {?string} album
+ * @property {?string} releaseType
+ * @property {?string} musicBrainzReleaseGroupId
+ * @property {?string[]} artist
+ * @property {?string[]} artists
+ * @property {?string} genre
+ * @property {?number} number
+ * @property {?number} discNumber
+ * @property {?string} discTitle
+ */
+
 const tagMap = {
   title: 'title',
   date: 'releaseDate',
@@ -17,16 +34,20 @@ const tagMap = {
 };
 
 const tagArray = [
+  'artist',
   'artists',
 ];
 
 /**
  * @param {Buffer} buf
+ * @returns {VorbisTags}
  */
 export default function readVorbisComment(buf) {
   const br = new BufferReader(buf, false);
   br.skip(br.uint32());
   const nTags = br.uint32();
+
+  /** @type {VorbisTags} */
   const tags = {};
 
   for (let i = 0; i < nTags; i++) {
@@ -51,11 +72,11 @@ export default function readVorbisComment(buf) {
   }
 
   if (tags.number) {
-    tags.number = parseInt(tags.number, 10);
+    tags.number = Number(tags.number);
   }
 
   if (tags.discNumber) {
-    tags.discNumber = parseInt(tags.discNumber, 10);
+    tags.discNumber = Number(tags.discNumber);
   }
 
   return tags;

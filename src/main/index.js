@@ -1,3 +1,4 @@
+/* eslint-disable-next-line import/no-extraneous-dependencies */
 import {
   app,
   ipcMain,
@@ -20,6 +21,7 @@ app.on('ready', () => {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
     },
   });
 
@@ -35,7 +37,7 @@ app.on('ready', () => {
     Promise.all([
       installExtension(REACT_DEVELOPER_TOOLS),
     ]).catch(/* console.error */);
-    win.openDevTools();
+    win.webContents.openDevTools();
   }
 
   app.on('window-all-closed', () => {

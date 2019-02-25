@@ -28,6 +28,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.7.2",
     "@fortawesome/react-fontawesome": "^0.1.4",
     "@lxndr/mpv": "github:lxndr/node-mpv",
+    "@types/electron-devtools-installer": "^2.2.0",
     "@types/p-map": "^1.1.0",
     "classnames": "^2.2.6",
     "debug": "^4.1.1",

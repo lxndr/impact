@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import AlbumTrackList from './album-track-list';
 
@@ -8,6 +9,15 @@ import AlbumTrackList from './album-track-list';
 
 /** @param {Disc} disc */
 const displayTitle = disc => (disc.title ? `Disc ${disc.number}: ${disc.title}` : `Disc ${disc.number}`);
+
+/** @param {Disc} disc */
+const getImages = (disc) => {
+  const images = disc.images.concat(
+    _.flatMap(disc.tracks, 'images'),
+  );
+
+  return _.uniqBy(images, '_id');
+};
 
 /**
  * @param {object} props
@@ -30,7 +40,7 @@ const AlbumDisc = ({
     )}
 
     <div className="cover-container">
-      {disc.images.map(image => (
+      {getImages(disc).map(image => (
         <img alt="album cover" key={image._id} className="cover" src={image.path} />
       ))}
     </div>
@@ -39,4 +49,4 @@ const AlbumDisc = ({
   </div>
 );
 
-export default AlbumDisc;
+export default React.memo(AlbumDisc);

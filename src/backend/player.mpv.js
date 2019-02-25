@@ -1,7 +1,8 @@
 import EventEmitter from 'events';
 
 /**
- * @typedef {import('./types').Player} Player
+ * @typedef {import('@lxndr/mpv')} Mpv
+ * @typedef {import('common/types').Player} Player
  */
 
 /**
@@ -55,7 +56,7 @@ export default class MpvPlayer extends EventEmitter {
       this.emit('end');
     });
 
-    this.mpv.observe('pause', (pause) => {
+    this.mpv.observe('pause', (/** @type {boolean} */pause) => {
       this._state = pause ? 'pause' : 'playing';
       this.emit('state', this._state);
     });

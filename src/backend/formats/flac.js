@@ -1,11 +1,13 @@
 /* eslint-disable no-bitwise */
+import _ from 'lodash';
 import fs from 'fs-extra';
 import readVorbisComment from './vorbis';
 import BufferReader from '../utils/buffer-reader';
 
 /**
- * @typedef {import('../types').FileHandler} FileHandler
- * @typedef {import('../types').Image} Image
+ * @typedef {import('common/types').FileHandler} FileHandler
+ * @typedef {import('common/types').InspectImage} InspectImage
+ * @typedef {import('./vorbis').VorbisTags} VorbisTags
  */
 
 /** @enum {number} */
@@ -75,7 +77,7 @@ function readStreamInfo(buf) {
 
 /**
  * @param {Buffer} buf
- * @returns {Image}
+ * @returns {InspectImage}
  */
 function readImage(buf) {
   const br = new BufferReader(buf);
@@ -98,7 +100,11 @@ function readImage(buf) {
 export async function read(fd) {
   let offset = SIGNATURE_SIZE;
   let streamInfo;
+
+  /** @type {VorbisTags} */
   let tags = {};
+
+  /** @type {InspectImage[]} */
   const images = [];
 
   await readSignature(fd);
@@ -147,8 +153,13 @@ export default async function flacHandler({ file }) {
   const { tags, images } = info;
   await fs.close(fd);
 
+  /** @type {string[]} */
+  const artists = _.uniq([]
+    .concat(tags.albumArtist, tags.artists, tags.artist)
+    .filter(artist => Boolean(artist)));
+
   return [{
-    artist: tags.albumArtist,
+    artist: artists[0],
     title: tags.album,
     releaseDate: tags.releaseDate,
     releaseType: tags.releaseType,
@@ -156,7 +167,7 @@ export default async function flacHandler({ file }) {
     discNumber: tags.discNumber,
     tracks: [{
       title: tags.title,
-      artists: [tags.albumArtist],
+      artists,
       genre: tags.genre,
       number: tags.number,
       images,

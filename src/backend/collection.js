@@ -7,7 +7,10 @@ import { Subject } from 'rxjs';
 import promiseAll from 'p-map';
 
 /**
- * @typedef {import('common/types').Image} Image
+ * @typedef {import('common/types').InspectImage} InspectImage
+ * @typedef {import('common/types').InspectAlbum} InspectAlbum
+ * @typedef {import('common/types').DbFile} DbFile
+ * @typedef {import('common/types').DbAlbum} DbAlbum
  * @typedef {import('./configuration').default} Configuration
  * @typedef {import('./database').default} Database
  */
@@ -72,13 +75,16 @@ export default class Collection {
     return this.database.files.insert(file);
   }
 
+  /**
+   * @returns {Promise<DbFile[]>}
+   */
   async files() {
     return this.database.files.find({});
   }
 
   /**
    * @param {string} _id
-   * @returns {Promise}
+   * @returns {Promise<DbFile>}
    */
   async fileById(_id) {
     return this.database.files.findOne({ _id });
@@ -86,6 +92,7 @@ export default class Collection {
 
   /**
    * @param {string} path
+   * @returns {Promise<DbFile>}
    */
   async fileByPath(path) {
     return this.database.files.findOne({ path });
@@ -116,9 +123,14 @@ export default class Collection {
    */
   async allOfArtist(artist) {
     const albums = await this.albumsByArtist(artist);
-    const ids = _.map(albums, '_id');
-    const tracks = await this.database.tracks.find({ album: { $in: ids } });
-    return { albums, tracks };
+
+    const albumIds = _.map(albums, '_id');
+    const tracks = await this.database.tracks.find({ album: { $in: albumIds } });
+
+    const imageIds = _.flatMap(tracks, 'images');
+    const images = await this.database.images.find({ _id: { $in: imageIds } });
+
+    return { albums, tracks, images };
   }
 
   /**
@@ -135,14 +147,22 @@ export default class Collection {
     return this.database.tracks.findOne({ _id });
   }
 
+  /**
+   */
   async tracks() {
     return this.database.tracks.find({});
   }
 
+  /**
+   * @param {number} album
+   */
   async tracksByAlbum(album) {
     return this.database.tracks.findOne({ album });
   }
 
+  /**
+   * @param {InspectAlbum} album
+   */
   async upsertAlbum(album) {
     album = _.defaults({}, album, {
       artist: null,
@@ -180,7 +200,7 @@ export default class Collection {
   }
 
   /**
-   * @param {Image[]} images
+   * @param {InspectImage[]} images
    */
   async upsertImage(images) {
     return promiseAll(images, async (image) => {
@@ -215,7 +235,7 @@ export default class Collection {
     album = await this.upsertAlbum(album);
 
     /* images */
-    const images = this.upsertImage(track.images);
+    const images = await this.upsertImage(track.images);
 
     /* track */
     track = {
@@ -224,7 +244,7 @@ export default class Collection {
       number: null,
       offset: 0,
       ...track,
-      images: _.map(images, 'hash'),
+      images: _.map(images, '_id'),
       file: file._id,
       album: album._id,
     };
@@ -235,8 +255,7 @@ export default class Collection {
   }
 
   /**
-   * @param {Object} dbfile
-   * @param {string} dbfile._id
+   * @param {DbFile} dbfile
    */
   async removeFile(dbfile) {
     const tracks = await this.database.tracks.find({

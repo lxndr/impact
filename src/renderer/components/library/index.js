@@ -37,7 +37,7 @@ const useArtists = () => {
 };
 
 /**
- * @param {string} artist
+ * @param {?string} artist
  */
 const useAlbums = (artist) => {
   /** @type {Album[]} */
@@ -70,8 +70,10 @@ const useAlbums = (artist) => {
  */
 const Library = ({ match }) => {
   const { artist } = match.params;
+  const selectedArtist = artist ? decodeURIComponent(artist) : null;
+
   const artists = useArtists();
-  const albums = useAlbums(artist);
+  const albums = useAlbums(selectedArtist);
   const playingTrack = usePlayingTrack();
 
   /** @param {Track} track */

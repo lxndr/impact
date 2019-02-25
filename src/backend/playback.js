@@ -2,8 +2,8 @@ import { BehaviorSubject } from 'rxjs';
 
 /**
  * @typedef {import('common/types').Track} Track
+ * @typedef {import('common/types').Player} Player
  * @typedef {import('./collection').default} Collection
- * @typedef {import('./types').Player} Player
  */
 
 /**

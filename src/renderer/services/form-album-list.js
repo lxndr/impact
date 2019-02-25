@@ -1,8 +1,10 @@
 import _ from 'lodash';
+import backend from './backend';
 
 /**
  * @typedef {import('common/types').DbAlbum} DbAlbum
  * @typedef {import('common/types').DbTrack} DbTrack
+ * @typedef {import('common/types').DbImage} DbImage
  * @typedef {import('common/types').Album} Album
  */
 
@@ -10,8 +12,18 @@ import _ from 'lodash';
  * @param {object} options
  * @param {DbAlbum[]} options.albums
  * @param {DbTrack[]} options.tracks
+ * @param {DbImage[]} options.images
  */
-const formAlbumList = ({ albums, tracks }) => {
+const formAlbumList = ({ albums, tracks, images }) => {
+  const fetchImage = (_id) => {
+    const image = _.find(images, { _id });
+
+    return {
+      ...image,
+      path: `file://${backend.configuration.imageDirectory}/${image.hash}`,
+    };
+  };
+
   /** @type {Album[]} */
   const result = [];
 
@@ -58,6 +70,7 @@ const formAlbumList = ({ albums, tracks }) => {
       _(album.discs)
         .sortBy('number')
         .each((disc) => {
+          disc.images = _.map(disc.images, _id => fetchImage(_id));
           disc.tracks = _(tracks)
             .filter({ album: disc._id })
             .sortBy('number')
@@ -67,6 +80,7 @@ const formAlbumList = ({ albums, tracks }) => {
 
               return {
                 ...track,
+                images: _.map(track.images, _id => fetchImage(_id)),
                 album,
               };
             })

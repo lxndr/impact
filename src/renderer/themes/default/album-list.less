@@ -1,7 +1,12 @@
 :local(.album-list) {
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 
   .album {
+    display: flex;
+    flex-flow: column;
+    flex-shrink: 0;
     margin: 4px;
 
     .header {
@@ -32,6 +37,7 @@
     .cover {
       width: 200px;
       float: left;
+      box-shadow: 1px 1px 4px 0 grey;
     }
   }
 
