@@ -10,17 +10,22 @@ import handleApe from './formats/ape';
 import handleWavPack from './formats/wavpack';
 
 /**
+ * @typedef {import('common/types').InspectFile} InspectFile
  * @typedef {import('common/types').FileHandler} FileHandler
  * @typedef {import('./configuration').default} Configuration
  * @typedef {import('./collection').default} Collection
  */
 
+/**
+ * @typedef {object} Format
+ * @prop {string} ext
+ * @prop {FileHandler} handler
+ */
+
 const log = debug('impact:scanner');
 
 export default class Scanner {
-  /**
-   * @type {Array<{ ext: string, handler: FileHandler }>}
-   */
+  /** @type {Format[]} */
   formats = []
 
   /**
@@ -128,25 +133,28 @@ export default class Scanner {
 
     const ext = extname(filename);
     const st = await fs.stat(filename);
-    const format = _.find(this.formats, { ext });
+    const format = this.formats.find(format => format.ext === ext);
 
     if (!format) {
       throw new Error(`Unknown format '${ext}'`);
     }
 
+    /** @type {InspectFile} */
     const file = {
+      type: 'media',
       path: filename,
       size: st.size,
       mtime: st.mtime,
+      hash: null,
     };
 
-    const info = await format.handler({
+    const albums = await format.handler({
       file,
       scanner: {
         inspect: this.inspect.bind(this),
       },
     });
 
-    return info;
+    return albums;
   }
 }

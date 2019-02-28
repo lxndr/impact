@@ -12,6 +12,7 @@
     "dist": "npm run compile && electron-builder",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",
+    "tsc": "tsc",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },

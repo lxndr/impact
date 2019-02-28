@@ -1,9 +1,7 @@
 import React from 'react';
 import { IntlProvider } from 'react-intl';
 import { MemoryRouter } from 'react-router';
-import store from '../../store';
 import Header from '../../components/header';
-import Seeker from '../../components/header/seeker';
 
 describe('Header component', () => {
   let cmp;

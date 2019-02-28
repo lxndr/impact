@@ -15,6 +15,15 @@ class BufferReader {
    */
   skip(len) {
     this.off += len;
+    return this;
+  }
+
+  /**
+   * @param {number} pos
+   */
+  seek(pos) {
+    this.off = pos;
+    return this;
   }
 
   uint8() {

@@ -2,7 +2,7 @@
  * @param {number} secs
  */
 const formatDuration = (secs) => {
-  if (!(secs && secs >= 0)) {
+  if (secs < 0) {
     secs = 0;
   }
 

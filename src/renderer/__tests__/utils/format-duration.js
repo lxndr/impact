@@ -1,10 +1,5 @@
 import formatDuration from '../../utils/format-duration';
 
-test('no value', () => {
-  const r = formatDuration();
-  expect(r).toBe('0:00');
-});
-
 test('0 seconds', () => {
   const r = formatDuration(0);
   expect(r).toBe('0:00');

@@ -1,41 +1,67 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`FLAC parser opens file with tags 1`] = `
-Object {
-  "album": Object {
+Array [
+  Object {
     "artist": "Artist",
     "discNumber": 1,
     "discTitle": "Disc Title",
     "releaseDate": "2018-07-07",
-    "releaseType": "single",
+    "releaseType": "album",
     "title": "Album Title",
+    "tracks": Array [
+      Object {
+        "artists": Array [
+          "Artist",
+        ],
+        "duration": 5,
+        "file": Object {
+          "hash": "2d82a056c96d8998a7e1b29dc81a450d",
+          "mtime": 2019-02-28T19:37:36.599Z,
+          "path": "/home/lxndr/devel/research/impact/src/backend/__tests__/fixtures/audio-02.flac",
+          "size": 0,
+          "type": "media",
+        },
+        "genre": "Test Audio",
+        "images": Array [],
+        "nChannels": 1,
+        "number": 2,
+        "sampleRate": 8000,
+        "title": "Track Title",
+      },
+    ],
   },
-  "track": Object {
-    "duration": 5,
-    "genre": "Test Audio",
-    "number": 2,
-    "title": "Track Title",
-  },
-  "type": "media",
-}
+]
 `;
 
 exports[`FLAC parser opens file without tags 1`] = `
-Object {
-  "album": Object {
+Array [
+  Object {
     "artist": undefined,
     "discNumber": undefined,
     "discTitle": undefined,
     "releaseDate": undefined,
-    "releaseType": undefined,
+    "releaseType": "album",
     "title": undefined,
+    "tracks": Array [
+      Object {
+        "artists": Array [],
+        "duration": 5,
+        "file": Object {
+          "hash": "2d82a056c96d8998a7e1b29dc81a450d",
+          "mtime": 2019-02-28T19:37:36.579Z,
+          "path": "/home/lxndr/devel/research/impact/src/backend/__tests__/fixtures/audio-01.flac",
+          "size": 0,
+          "type": "media",
+        },
+        "genre": undefined,
+        "images": Array [],
+        "nChannels": 1,
+        "number": undefined,
+        "sampleRate": 8000,
+        "title": undefined,
+      },
+    ],
   },
-  "track": Object {
-    "duration": 5,
-    "genre": undefined,
-    "number": undefined,
-    "title": undefined,
-  },
-  "type": "media",
-}
+]
 `;

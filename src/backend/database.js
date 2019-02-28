@@ -33,16 +33,16 @@ class Datastore {
   }
 
   /**
-   * @param {any} query
+   * @param {object} [query]
    * @param {Nedb.RemoveOptions} [options]
    * @return {Promise<number>}
    */
-  remove(query, options = {}) {
+  remove(query = {}, options = {}) {
     return promiseFromCallback(cb => this.nedb.remove(query, options, cb));
   }
 
   /**
-   * @param {any} query
+   * @param {object} [query]
    * @return {Promise<number>}
    */
   count(query = {}) {
@@ -50,23 +50,23 @@ class Datastore {
   }
 
   /**
-   * @param {any} query
+   * @param {object} [query]
    * @returns {Promise<T[]>}
    */
-  find(query) {
+  find(query = {}) {
     return promiseFromCallback(cb => this.nedb.find(query, cb));
   }
 
   /**
-   * @param {any} query
-   * @returns {Promise<T>}
+   * @param {object} query
+   * @returns {Promise<?T>}
    */
   findOne(query) {
     return promiseFromCallback(cb => this.nedb.findOne(query, cb));
   }
 
   /**
-   * @param {any} doc
+   * @param {object} doc
    * @returns {Promise<T>}
    */
   insert(doc) {
@@ -74,8 +74,8 @@ class Datastore {
   }
 
   /**
-   * @param {any} query
-   * @param {any} updateQuery
+   * @param {object} query
+   * @param {object} updateQuery
    * @param {Nedb.UpdateOptions} [options]
    * @returns {Promise<{ count: number, doc?: T, docs?: T[], upsert: boolean }>}
    */

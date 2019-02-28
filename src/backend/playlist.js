@@ -7,6 +7,9 @@ export default class Playlist {
     this.collection = collection;
   }
 
+  /**
+   * @param {?string} artist
+   */
   async forArtist(artist) {
     const { albums, tracks } = await this.collection.allOfArtist(artist);
 

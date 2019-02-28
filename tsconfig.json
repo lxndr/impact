@@ -6,6 +6,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "strictNullChecks": true,
     "jsx": "react",
     "experimentalDecorators": true,
@@ -17,5 +18,10 @@
   "include": [
     "src/**/*.js",
     "src/common/externals.d.ts"
+  ],
+  "exclude": [
+    "src/renderer/__tests__/frontend/**/*.js",
+    "src/renderer/components/form/**/*.js",
+    "src/renderer/components/preferences/**/*.js"
   ]
 }

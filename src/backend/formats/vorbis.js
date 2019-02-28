@@ -2,19 +2,19 @@ import { BufferReader } from '../utils';
 
 /**
  * @typedef {object} VorbisTags
- * @property {?string} title
- * @property {?string} releaseDate
- * @property {?string} originalDate
- * @property {?string} albumArtist
- * @property {?string} album
- * @property {?string} releaseType
- * @property {?string} musicBrainzReleaseGroupId
- * @property {?string[]} artist
- * @property {?string[]} artists
- * @property {?string} genre
- * @property {?number} number
- * @property {?number} discNumber
- * @property {?string} discTitle
+ * @property {string} [title]
+ * @property {string} [releaseDate]
+ * @property {string} [originalDate]
+ * @property {string} [albumArtist]
+ * @property {string} [album]
+ * @property {string} [releaseType]
+ * @property {string} [musicBrainzReleaseGroupId]
+ * @property {string[]} [artist]
+ * @property {string[]} [artists]
+ * @property {string} [genre]
+ * @property {number} [number]
+ * @property {number} [discNumber]
+ * @property {string} [discTitle]
  */
 
 const tagMap = {

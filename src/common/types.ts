@@ -1,22 +1,13 @@
-import { Logger } from 'winston';
+import EventEmitter from 'events';
 
 export type Id = string;
 
-export enum FileType {
-  media = 'media',
-  index = 'index',
-}
-
-export enum ReleaseType {
-  album = 'album',
-  single = 'single',
-}
-
 interface BaseFile {
-  type: FileType;
+  type: string;
   path: string;
   mtime: Date;
   size: number;
+  hash: string | null;
 }
 
 export interface InspectFile extends BaseFile {
@@ -29,13 +20,13 @@ export interface File extends BaseFile {
 
 export type DbFile = File;
 
-export interface BaseImage {
-  type: number;
+interface BaseImage {
   mimeType: string;
 }
 
 export interface InspectImage extends BaseImage {
-  blob: Buffer;
+  blob?: Buffer;
+  path?: string;
 }
 
 export interface Image extends BaseImage {
@@ -45,28 +36,39 @@ export interface Image extends BaseImage {
 
 export type DbImage = Image;
 
-export interface BaseTrack<ImageType, FileType> {
+interface BaseTrack {
   number?: number;
   title?: string;
-  artists: string[];
   genre?: string;
-  images: ImageType[];
-  offset: number;
   duration: number;
   nChannels: number;
   sampleRate: number;
 };
 
-export interface InspectTrack extends BaseTrack<InspectImage, InspectFile> {
-  file: InspectTrack;
+export interface InspectTrack extends BaseTrack {
+  artists?: string[];
+  images?: InspectImage[];
+  offset?: number;
+  file: InspectFile;
+  index?: InspectFile;
 }
 
-export interface Track extends BaseTrack<Image, File> {
+interface GenericTrack<ALBUM, IMAGE, FILE> extends BaseTrack {
   _id: Id;
-  file: Id;
+  artists: string[];
+  album: ALBUM;
+  offset: number;
+  images: IMAGE[];
+  file: FILE;
 }
 
-export type DbTrack = Track;
+export type Track = GenericTrack<Album, Image, Id>;
+
+export interface DbTrack extends GenericTrack<Id, Id, Id> {
+  index?: Id;
+}
+
+export type PlaybackTrack = GenericTrack<DbAlbum, DbImage, DbFile>;
 
 export interface Disc {
   _id: Id;
@@ -77,36 +79,49 @@ export interface Disc {
   tracks: Track[];
 }
 
-export interface BaseAlbum {
-  artist?: string;
+interface BaseAlbum {
   title?: string;
   originalDate?: string;
   releaseDate?: string;
-  releaseType: ReleaseType;
-  variant?: string;
+  releaseType?: string;
+  edition?: string;
+  label?: string;
+  catalogId?: string;
 }
 
 export interface InspectAlbum extends BaseAlbum {
-  discNumber: number;
+  artist?: string;
+  discNumber?: number;
   discTitle?: string;
   tracks: InspectTrack[];
 }
 
 export interface DbAlbum extends BaseAlbum {
   _id: Id;
+  artist: string | null;
   discNumber: number;
   discTitle?: string;
-  images: Image[];
+  images: Id[];
 }
 
 export interface Album extends BaseAlbum {
   _id: Id;
+  artist: string | null;
   duration: number;
   discs: Disc[];
 }
 
-export interface Player {
-  play(): void;
+export abstract class Player extends EventEmitter {
+  public abstract get uri(): string | null;
+  public abstract set uri(file: string | null);
+  public abstract get duration(): number;
+  public abstract get position(): number;
+  public abstract set position(seconds: number);
+  public abstract get state(): string;
+  public abstract play(): void;
+  public abstract pause(): void;
+  public abstract stop(): void;
+  public abstract close(): void;
 }
 
 export type FileHandlerResult = InspectAlbum[];
@@ -116,7 +131,6 @@ export type FileHandlerOptions = {
   scanner: {
     inspect: (filename: string) => Promise<FileHandlerResult>,
   },
-  logger: Logger,
 };
 
 export type FileHandler = (options: FileHandlerOptions) => Promise<FileHandlerResult>;

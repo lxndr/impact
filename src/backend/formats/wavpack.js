@@ -3,7 +3,7 @@
 import fs from 'fs-extra';
 import { BufferReader } from '../utils';
 
-/** @typedef {import('../types').FileHandler} FileHandler */
+/** @typedef {import('common/types').FileHandler} FileHandler */
 
 const HEADER_SIZE = 32;
 
@@ -42,7 +42,7 @@ async function readHeader(fd) {
 /**
  * @param {number} fd
  */
-export async function read(fd) {
+async function read(fd) {
   const header = await readHeader(fd);
   const sampleRate = RATES[(header.flags >> 23) & 0xf];
   const nChannels = header.flags & 0x4;
@@ -57,6 +57,7 @@ export async function read(fd) {
     duration,
     nChannels,
     sampleRate,
+    hash: header.crc.toString(16),
   };
 }
 
@@ -68,12 +69,13 @@ export default async function wavpackHandler({ file }) {
 
   return [{
     tracks: [{
-      offset: 0,
       duration: info.duration,
       nChannels: info.nChannels,
       sampleRate: info.sampleRate,
-      images: [],
-      file,
+      file: {
+        ...file,
+        hash: info.hash,
+      },
     }],
   }];
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Form, Field } from '../form';
-import store from '../../store';
 import style from '../../style';
 
 const Preferences = ({

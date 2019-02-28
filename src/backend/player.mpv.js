@@ -56,16 +56,16 @@ export default class MpvPlayer extends EventEmitter {
       this.emit('end');
     });
 
-    this.mpv.observe('pause', (/** @type {boolean} */pause) => {
+    this.mpv.observe('pause', (/** @type {boolean} */ pause) => {
       this._state = pause ? 'pause' : 'playing';
       this.emit('state', this._state);
     });
 
-    this.mpv.observe('duration', (secs) => {
+    this.mpv.observe('duration', (/** @type {number} */ secs) => {
       this._duration = secs;
     });
 
-    this.mpv.observe('time-pos', (secs) => {
+    this.mpv.observe('time-pos', (/** @type {number} */ secs) => {
       this._position = secs;
       this.emit('position', secs);
     });

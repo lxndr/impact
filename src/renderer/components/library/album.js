@@ -18,8 +18,8 @@ const Album = ({ album, playingTrack, onSelect }) => (
     <div className="header">
       <div className="title">{album.title || 'Unknown album'}</div>
 
-      {album.variant && (
-        <div className="title">{album.variant}</div>
+      {album.edition && (
+        <div className="edition">{album.edition}</div>
       )}
 
       <div className="spacer" />

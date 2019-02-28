@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 
 /**
- * @typedef {import('common/types').Track} Track
+ * @typedef {import('common/types').PlaybackTrack} PlaybackTrack
  * @typedef {import('common/types').Player} Player
  * @typedef {import('./collection').default} Collection
  */
@@ -16,7 +16,7 @@ import { BehaviorSubject } from 'rxjs';
 export default class Playback {
   _playlist = null
 
-  /** @type {BehaviorSubject<?Track>} */
+  /** @type {BehaviorSubject<?PlaybackTrack>} */
   track$ = new BehaviorSubject(null)
 
   /** @type {BehaviorSubject<?PlaybackState>} */
@@ -31,7 +31,7 @@ export default class Playback {
     this.collection = collection;
     this.player = player;
 
-    this.player.on('position', (time) => {
+    this.player.on('position', (/** @type {number} */ time) => {
       const track = this.track$.getValue();
 
       if (!track) {
@@ -69,7 +69,7 @@ export default class Playback {
       this.next();
     });
 
-    this.player.on('error', (error) => {
+    this.player.on('error', (/** @type {Error} */ error) => {
       console.error(`Error: ${error.message}`);
     });
   }
@@ -95,6 +95,9 @@ export default class Playback {
     }
   }
 
+  /**
+   * @param {PlaybackTrack} track
+   */
   _setup(track) {
     if (this.player.uri !== track.file.path) {
       this.player.uri = track.file.path;
@@ -114,10 +117,24 @@ export default class Playback {
       return;
     }
 
-    track.album = await this.collection.albumById(track.album);
-    track.file = await this.collection.fileById(track.file);
+    const album = await this.collection.albumById(track.album);
 
-    this._setup(track);
+    if (!album) {
+      throw new Error(`Could not find album ${track.album}`);
+    }
+
+    const file = await this.collection.fileById(track.file);
+
+    if (!file) {
+      throw new Error(`Could not find file ${track.file}`);
+    }
+
+    this._setup({
+      ...track,
+      album,
+      file,
+    });
+
     this.player.play();
   }
 

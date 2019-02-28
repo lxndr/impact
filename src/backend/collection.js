@@ -7,10 +7,14 @@ import { Subject } from 'rxjs';
 import promiseAll from 'p-map';
 
 /**
+ * @typedef {import('common/types').InspectFile} InspectFile
  * @typedef {import('common/types').InspectImage} InspectImage
  * @typedef {import('common/types').InspectAlbum} InspectAlbum
+ * @typedef {import('common/types').InspectTrack} InspectTrack
  * @typedef {import('common/types').DbFile} DbFile
+ * @typedef {import('common/types').DbTrack} DbTrack
  * @typedef {import('common/types').DbAlbum} DbAlbum
+ * @typedef {import('common/types').Track} Track
  * @typedef {import('./configuration').default} Configuration
  * @typedef {import('./database').default} Database
  */
@@ -22,7 +26,7 @@ export default class Collection {
   update$ = new Subject()
 
   /**
-   * @param {Object} options
+   * @param {object} options
    * @param {Configuration} options.configuration
    * @param {Database} options.database
    */
@@ -56,8 +60,8 @@ export default class Collection {
   }
 
   /**
-   * @param {object} file
-   * @returns {Promise<number>}
+   * @param {InspectFile} file
+   * @returns {Promise<DbFile>}
    */
   async upsertFile(file) {
     const dbfile = await this.database.files.findOne({ path: file.path });
@@ -68,6 +72,10 @@ export default class Collection {
         file,
         { returnUpdatedDocs: true },
       );
+
+      if (!doc) {
+        throw new Error();
+      }
 
       return doc;
     }
@@ -84,7 +92,7 @@ export default class Collection {
 
   /**
    * @param {string} _id
-   * @returns {Promise<DbFile>}
+   * @returns {Promise<?DbFile>}
    */
   async fileById(_id) {
     return this.database.files.findOne({ _id });
@@ -92,19 +100,19 @@ export default class Collection {
 
   /**
    * @param {string} path
-   * @returns {Promise<DbFile>}
+   * @returns {Promise<?DbFile>}
    */
   async fileByPath(path) {
     return this.database.files.findOne({ path });
   }
 
   /**
-   * @returns {Promise<string[]>}
+   * @returns {Promise<(string | null)[]>}
    */
   async artists() {
-    const list = await this.database.albums.find({});
+    const albums = await this.database.albums.find({});
 
-    return _(list)
+    return _(albums)
       .map('artist')
       .uniq()
       .sort()
@@ -112,7 +120,8 @@ export default class Collection {
   }
 
   /**
-   * @param {?string} [artist]
+   * @param {?string} artist
+   * @returns {Promise<DbAlbum[]>}
    */
   async albumsByArtist(artist = null) {
     return this.database.albums.find({ artist });
@@ -142,15 +151,10 @@ export default class Collection {
 
   /**
    * @param {string} _id
+   * @returns {Promise<?DbTrack>}
    */
   async trackById(_id) {
     return this.database.tracks.findOne({ _id });
-  }
-
-  /**
-   */
-  async tracks() {
-    return this.database.tracks.find({});
   }
 
   /**
@@ -162,6 +166,7 @@ export default class Collection {
 
   /**
    * @param {InspectAlbum} album
+   * @returns {Promise<DbAlbum>}
    */
   async upsertAlbum(album) {
     album = _.defaults({}, album, {
@@ -193,6 +198,10 @@ export default class Collection {
         { returnUpdatedDocs: true },
       );
 
+      if (!doc) {
+        throw new Error();
+      }
+
       return doc;
     }
 
@@ -200,10 +209,10 @@ export default class Collection {
   }
 
   /**
-   * @param {InspectImage[]} images
+   * @param {InspectImage} image
    */
-  async upsertImage(images) {
-    return promiseAll(images, async (image) => {
+  async upsertImage(image) {
+    if (image.blob) {
       const hash = crypto.createHash('sha1').update(image.blob).digest('hex');
       const dbimage = await this.database.images.findOne({ hash });
 
@@ -211,47 +220,61 @@ export default class Collection {
         return dbimage;
       }
 
-      const { mimeType } = image;
       const file = path.join(this.configuration.imageDirectory, hash);
       await fs.writeFile(file, image.blob);
 
-      return this.database.images.insert({ hash, mimeType });
-    });
+      return this.database.images.insert({
+        path: file,
+        hash,
+        mimeType: image.mimeType,
+      });
+    }
+
+    if (image.path) {
+      return this.database.images.insert({
+        path: image.path,
+        hash: null,
+        mimeType: image.mimeType,
+      });
+    }
+
+    throw new Error();
   }
 
   /**
-   * @param {Object} options
-   * @param {Object} options.file
-   * @param {Object} options.track
-   * @param {Object} options.album
+   * @param {object} options
+   * @param {InspectFile} options.file
+   * @param {InspectTrack} options.track
+   * @param {InspectAlbum} options.album
    */
   async upsertTrack({ file, track, album }) {
     log(`upserting file ${file.path}`);
 
     /* file */
-    file = await this.upsertFile(file);
+    const dbfile = await this.upsertFile(file);
 
     /* album */
-    album = await this.upsertAlbum(album);
+    const dbalbum = await this.upsertAlbum(album);
 
     /* images */
-    const images = await this.upsertImage(track.images);
+    const images = track.images
+      ? await promiseAll(track.images, image => this.upsertImage(image))
+      : [];
 
-    /* track */
-    track = {
+    /** @type {DbTrack} */
+    const dbtrack = {
       title: null,
       genre: null,
       number: null,
       offset: 0,
       ...track,
       images: _.map(images, '_id'),
-      file: file._id,
-      album: album._id,
+      file: dbfile._id,
+      album: dbalbum._id,
     };
 
-    track = await this.database.tracks.insert(track);
+    await this.database.tracks.insert(dbtrack);
     this.update$.next();
-    return { file, album, track };
   }
 
   /**
@@ -271,10 +294,10 @@ export default class Collection {
     const albums = _(tracks).map('album').uniq().value();
 
     for (const album of albums) {
-      const nAlbumTracks = await this.database.tracks.count({ album: album._id });
+      const nAlbumTracks = await this.database.tracks.count({ album });
 
       if (nAlbumTracks === 0) {
-        await this.database.files.remove({ _id: album._id });
+        await this.database.files.remove({ _id: album });
       }
     }
 

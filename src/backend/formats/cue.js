@@ -3,9 +3,8 @@ import fs from 'fs-extra';
 import path from 'path';
 
 /**
- * @typedef {import('../types').FileInfo} FileInfo
- * @typedef {import('../types').Album} Album
- * @typedef {import('../types').FileHandler} FileHandler
+ * @typedef {import('common/types').InspectAlbum} InspectAlbum
+ * @typedef {import('common/types').FileHandler} FileHandler
  */
 
 /**
@@ -158,7 +157,7 @@ export default async function cueHandler({ file, scanner }) {
   const releaseDate = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
   const genre = _.chain(info.remarks).find({ key: 'GENRE' }).get('value').value();
 
-  /** @type Album */
+  /** @type InspectAlbum */
   const album = {
     artist: info.performer,
     title: info.title,
@@ -177,7 +176,7 @@ export default async function cueHandler({ file, scanner }) {
 
     let totalDuration = mediaTrack.duration;
 
-    album.tracks = f.tracks
+    const tracks = f.tracks
       .slice()
       .reverse()
       .map((track) => {
@@ -193,7 +192,10 @@ export default async function cueHandler({ file, scanner }) {
           genre,
           offset,
           duration,
-          index: file,
+          index: {
+            ...file,
+            type: 'index',
+          },
           file: mediaTrack.file,
           images: mediaTrack.images,
           nChannels: mediaTrack.nChannels,
@@ -201,6 +203,8 @@ export default async function cueHandler({ file, scanner }) {
         };
       })
       .reverse();
+
+    album.tracks.push(...tracks);
   }
 
   return [album];
