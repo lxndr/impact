@@ -1,4 +1,5 @@
 import React from 'react';
+import { FormattedMessage } from 'react-intl';
 import { formatDate } from '../../utils';
 import AlbumDisc from './album-disc';
 
@@ -6,6 +7,35 @@ import AlbumDisc from './album-disc';
  * @typedef {import('../../../common/types').Album} AlbumType
  * @typedef {import('../../../common/types').Track} Track
  */
+
+/**
+ * @param {AlbumType} album
+ */
+const formatLabel = ({ label, catalogId }) => {
+  let str = `by ${label}`;
+
+  if (catalogId) {
+    str += ` (${catalogId})`;
+  }
+
+  return str;
+};
+
+/**
+ * @param {object} props
+ * @param {?string} props.title
+ */
+const Title = ({ title }) => {
+  if (title) {
+    return <span className="title">{title}</span>;
+  }
+
+  return (
+    <span className="title unknown">
+      <FormattedMessage id="library.unknownAlbum" defaultMessage="Unknown album" />
+    </span>
+  );
+};
 
 /**
  * @param {object} props
@@ -16,17 +46,23 @@ import AlbumDisc from './album-disc';
 const Album = ({ album, playingTrack, onSelect }) => (
   <div className="album">
     <div className="header">
-      <div className="title">{album.title || 'Unknown album'}</div>
+      <div>
+        <div className="title-edition">
+          <Title title={album.title} />
 
-      {album.edition && (
-        <div className="edition">{album.edition}</div>
-      )}
+          {album.edition
+            && <span className="edition">{` (${album.edition})`}</span>}
+        </div>
+      </div>
 
-      <div className="spacer" />
-
-      {album.releaseDate && (
-        <div className="release-date">{formatDate(album.releaseDate)}</div>
-      )}
+      <div>
+        {album.releaseDate && (
+          <div className="release-date">{formatDate(album.releaseDate)}</div>
+        )}
+        {album.label && (
+          <div className="label">{formatLabel(album)}</div>
+        )}
+      </div>
     </div>
 
     {album.discs.map((disc) => {

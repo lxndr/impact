@@ -21,7 +21,7 @@ export interface File extends BaseFile {
 export type DbFile = File;
 
 interface BaseImage {
-  mimeType: string;
+  mimeType?: string;
 }
 
 export interface InspectImage extends BaseImage {
@@ -65,48 +65,54 @@ interface GenericTrack<ALBUM, IMAGE, FILE> extends BaseTrack {
 export type Track = GenericTrack<Album, Image, Id>;
 
 export interface DbTrack extends GenericTrack<Id, Id, Id> {
-  index?: Id;
+  index: Id | null;
 }
 
 export type PlaybackTrack = GenericTrack<DbAlbum, DbImage, DbFile>;
 
 export interface Disc {
   _id: Id;
-  number?: number;
-  title?: string;
+  number: number;
+  title: string | null;
   duration: number;
   images: Image[];
   tracks: Track[];
 }
 
-interface BaseAlbum {
+export interface InspectAlbum {
   title?: string;
+  artist?: string;
   originalDate?: string;
   releaseDate?: string;
   releaseType?: string;
   edition?: string;
   label?: string;
   catalogId?: string;
-}
-
-export interface InspectAlbum extends BaseAlbum {
-  artist?: string;
   discNumber?: number;
   discTitle?: string;
+  images?: InspectImage[];
   tracks: InspectTrack[];
 }
 
-export interface DbAlbum extends BaseAlbum {
+interface BaseAlbum {
   _id: Id;
+  title: string | null;
   artist: string | null;
+  originalDate: string | null;
+  releaseDate: string | null;
+  releaseType: string | null;
+  edition: string | null;
+  label: string | null;
+  catalogId: string | null;
+}
+
+export interface DbAlbum extends BaseAlbum {
   discNumber: number;
-  discTitle?: string;
+  discTitle: string | null;
   images: Id[];
 }
 
 export interface Album extends BaseAlbum {
-  _id: Id;
-  artist: string | null;
   duration: number;
   discs: Disc[];
 }

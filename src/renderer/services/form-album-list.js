@@ -9,6 +9,15 @@ import _ from 'lodash';
  * @typedef {import('common/types').Track} Track
  */
 
+/** @param {DbAlbum} album */
+const createAlbumSelector = album => ({
+  title: album.title,
+  releaseDate: album.releaseDate,
+  edition: album.edition,
+  label: album.label,
+  catalogId: album.catalogId,
+});
+
 /**
  * @param {object} options
  * @param {DbAlbum[]} options.albums
@@ -56,20 +65,22 @@ const formAlbumList = ({ albums, tracks, images }) => {
   albums = _.orderBy(albums, ['releaseDate', 'number']);
 
   _.each(albums, (album) => {
-    let retAlbum = _.find(retAlbums, {
-      title: album.title,
-      releaseDate: album.releaseDate,
-    });
+    const albumSelector = createAlbumSelector(album);
+    let retAlbum = _.find(retAlbums, albumSelector);
 
     if (!retAlbum) {
+      const _id = Object.values(albumSelector).join(' | ');
+
       retAlbum = {
-        _id: [album.title, album.releaseDate].join('/'),
+        _id,
         title: album.title,
         artist: album.artist,
         originalDate: album.originalDate,
         releaseDate: album.releaseDate,
         releaseType: album.releaseType,
         edition: album.edition,
+        label: album.label,
+        catalogId: album.catalogId,
         duration: 0,
         discs: [],
       };

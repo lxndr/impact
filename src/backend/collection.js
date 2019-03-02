@@ -136,7 +136,9 @@ export default class Collection {
     const albumIds = _.map(albums, '_id');
     const tracks = await this.database.tracks.find({ album: { $in: albumIds } });
 
-    const imageIds = _.flatMap(tracks, 'images');
+    const albumImageIds = _.flatMap(albums, 'images');
+    const trackImageIds = _.flatMap(tracks, 'images');
+    const imageIds = _.uniq([...albumImageIds, ...trackImageIds]);
     const images = await this.database.images.find({ _id: { $in: imageIds } });
 
     return { albums, tracks, images };
@@ -169,14 +171,25 @@ export default class Collection {
    * @returns {Promise<DbAlbum>}
    */
   async upsertAlbum(album) {
-    album = _.defaults({}, album, {
+    const images = album.images
+      ? await promiseAll(album.images, image => this.upsertImage(image))
+      : [];
+
+    /** @type {DbAlbum} */
+    const newAlbum = _.defaults({
+      ...album,
+      images: _.map(images, '_id'),
+    }, {
       artist: null,
       title: null,
+      originalDate: null,
       releaseDate: null,
-      releaseType: null,
+      releaseType: 'album',
+      edition: null,
+      label: null,
+      catalogId: null,
       discTitle: null,
       discNumber: 1,
-      images: [],
     });
 
     if (!album.title) {
@@ -188,13 +201,23 @@ export default class Collection {
       });
     }
 
-    const q = _.pick(album, ['artist', 'title', 'releaseDate', 'discNumber', 'discTitle']);
-    const dbalbum = await this.database.albums.findOne(q);
+    const query = _.pick(newAlbum, [
+      'artist',
+      'title',
+      'releaseDate',
+      'edition',
+      'discNumber',
+      'discTitle',
+      'label',
+      'categoryId',
+    ]);
 
-    if (dbalbum) {
+    const existingAlbum = await this.database.albums.findOne(query);
+
+    if (existingAlbum) {
       const { doc } = await this.database.albums.update(
-        { _id: dbalbum._id },
-        dbalbum,
+        { _id: existingAlbum._id },
+        newAlbum,
         { returnUpdatedDocs: true },
       );
 
@@ -205,7 +228,7 @@ export default class Collection {
       return doc;
     }
 
-    return this.database.albums.insert(album);
+    return this.database.albums.insert(newAlbum);
   }
 
   /**
@@ -231,6 +254,12 @@ export default class Collection {
     }
 
     if (image.path) {
+      const dbimage = await this.database.images.findOne({ path: image.path });
+
+      if (dbimage) {
+        return dbimage;
+      }
+
       return this.database.images.insert({
         path: image.path,
         hash: null,
@@ -262,16 +291,18 @@ export default class Collection {
       : [];
 
     /** @type {DbTrack} */
-    const dbtrack = {
+    const dbtrack = _.defaults({
+      ...track,
+      images: _.map(images, '_id'),
+      file: dbfile._id,
+      index: null,
+      album: dbalbum._id,
+    }, {
       title: null,
       genre: null,
       number: null,
       offset: 0,
-      ...track,
-      images: _.map(images, '_id'),
-      file: dbfile._id,
-      album: dbalbum._id,
-    };
+    });
 
     await this.database.tracks.insert(dbtrack);
     this.update$.next();

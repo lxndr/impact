@@ -80,7 +80,7 @@ const Header = ({ intl, history }) => {
     <div className={style('app-header')}>
       <Button
         className="prev"
-        onClick={backend.playback.previous}
+        onClick={() => backend.playback.previous()}
         icon={faBackward}
         title={intl.formatMessage({
           id: 'playback.prev',
@@ -90,7 +90,7 @@ const Header = ({ intl, history }) => {
 
       <Button
         className="play"
-        onClick={backend.playback.toggle}
+        onClick={() => backend.playback.toggle()}
         icon={playing ? faPause : faPlay}
         title={intl.formatMessage({
           id: playing ? 'playback.pause' : 'playback.play',
@@ -100,7 +100,7 @@ const Header = ({ intl, history }) => {
 
       <Button
         className="next"
-        onClick={backend.playback.next}
+        onClick={() => backend.playback.next()}
         icon={faForward}
         title={intl.formatMessage({
           id: 'playback.next',

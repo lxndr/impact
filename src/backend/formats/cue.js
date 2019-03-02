@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs-extra';
 import path from 'path';
+import globby from 'globby';
 
 /**
  * @typedef {import('common/types').InspectAlbum} InspectAlbum
@@ -156,14 +157,38 @@ export default async function cueHandler({ file, scanner }) {
 
   const releaseDate = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
   const genre = _.chain(info.remarks).find({ key: 'GENRE' }).get('value').value();
+  const edition = _.chain(info.remarks).find({ key: 'EDITION' }).get('value').value();
+  const label = _.chain(info.remarks).find({ key: 'LABEL' }).get('value').value();
 
-  /** @type InspectAlbum */
+  /** @type {InspectAlbum} */
   const album = {
     artist: info.performer,
     title: info.title,
     releaseDate,
+    edition,
+    label,
+    catalogId: info.catalog,
     tracks: [],
   };
+
+  try {
+    const images = await globby([
+      'cover.{jpg,jpeg,png}',
+      'artwork/cover.{jpg,jpeg,png}',
+    ], {
+      cwd: dir,
+      nocase: true,
+      onlyFiles: true,
+    });
+
+    if (images.length) {
+      album.images = [{
+        path: path.join(dir, images[0]),
+      }];
+    }
+  } catch (err) {
+    console.warn(err);
+  }
 
   for (const f of info.files) {
     const mediaPath = path.resolve(dir, f.name);

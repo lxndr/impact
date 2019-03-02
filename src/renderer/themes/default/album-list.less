@@ -14,16 +14,23 @@
       flex-direction: row;
       font-size: 1.1em;
 
-      > .title {
+      > :first-child {
+        flex: 1;
+        margin-right: 1em;
+      }
+
+      .title {
         font-weight: bold;
       }
 
-      > .spacer {
-        flex: 1;
+      .edition {
+        font-style: italic;
       }
 
-      > .release-date {
+      .release-date,
+      .label {
         font-style: italic;
+        text-align: right;
         color: #999;
         padding-left: 0.5em;
       }
