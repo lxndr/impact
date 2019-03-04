@@ -4,9 +4,11 @@ import fs from 'fs-extra';
 import crypto from 'crypto';
 import debug from 'debug';
 import { Subject } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 import promiseAll from 'p-map';
 
 /**
+ * @typedef {import('rxjs').Observable} Observable
  * @typedef {import('common/types').InspectFile} InspectFile
  * @typedef {import('common/types').InspectImage} InspectImage
  * @typedef {import('common/types').InspectAlbum} InspectAlbum
@@ -22,8 +24,8 @@ import promiseAll from 'p-map';
 const log = debug('impact:collection');
 
 export default class Collection {
-  /** @type Subject<void> */
-  update$ = new Subject()
+  /** @type {Subject<void>} */
+  update$ = new Subject().pipe(throttleTime(5000))
 
   /**
    * @param {object} options
@@ -49,6 +51,61 @@ export default class Collection {
     await this.database.images.remove({}, { multi: true });
     await this.database.files.remove({}, { multi: true });
     this.update$.next();
+  }
+
+  /**
+   *
+   */
+  async correct() {
+    await this.correctIndexedTracks();
+    await this.correctTracks();
+    await this.correctEmtpyAlbums();
+    this.update$.next();
+  }
+
+  async correctIndexedTracks() {
+    const tracksWithIndex = await this.database.tracks.find({ index: { $ne: null } });
+    const fileIds = _(tracksWithIndex).map('file').uniq().value();
+
+    const nRemoved = await this.database.tracks.remove({
+      file: { $in: fileIds },
+      index: null,
+    }, { multi: true });
+
+    log(`${nRemoved} tracks removed.`);
+  }
+
+  async correctTracks() {
+    const files = await this.database.files.find({});
+    const fileIds = _.map(files, '_id');
+
+    const nRemoved = await this.database.tracks.remove({
+      $or: [
+        { file: null },
+        { file: { $nin: fileIds } },
+        {
+          $and: [
+            { index: { $ne: null } },
+            { index: { $nin: fileIds } },
+          ],
+        },
+      ],
+    }, { multi: true });
+
+    log(`${nRemoved} tracks removed.`);
+  }
+
+  async correctEmtpyAlbums() {
+    const albums = await this.database.albums.find();
+
+    for (const album of albums) {
+      const nTracks = await this.database.tracks.count({ album: album._id });
+
+      if (nTracks === 0) {
+        await this.database.albums.remove({ _id: album._id });
+        log(`Album '${album.title}' has been removed becasue it was empty`);
+      }
+    }
   }
 
   /**
@@ -209,7 +266,7 @@ export default class Collection {
       'discNumber',
       'discTitle',
       'label',
-      'categoryId',
+      'catalogId',
     ]);
 
     const existingAlbum = await this.database.albums.findOne(query);
@@ -273,14 +330,23 @@ export default class Collection {
   /**
    * @param {object} options
    * @param {InspectFile} options.file
+   * @param {InspectFile} options.index
    * @param {InspectTrack} options.track
    * @param {InspectAlbum} options.album
    */
-  async upsertTrack({ file, track, album }) {
+  async upsertTrack({
+    file,
+    index,
+    track,
+    album,
+  }) {
     log(`upserting file ${file.path}`);
 
     /* file */
     const dbfile = await this.upsertFile(file);
+
+    /* index */
+    const dbindex = index ? await this.upsertFile(index) : null;
 
     /* album */
     const dbalbum = await this.upsertAlbum(album);
@@ -295,7 +361,7 @@ export default class Collection {
       ...track,
       images: _.map(images, '_id'),
       file: dbfile._id,
-      index: null,
+      index: dbindex ? dbindex._id : null,
       album: dbalbum._id,
     }, {
       title: null,
@@ -312,26 +378,6 @@ export default class Collection {
    * @param {DbFile} dbfile
    */
   async removeFile(dbfile) {
-    const tracks = await this.database.tracks.find({
-      $or: [
-        { media: dbfile._id },
-        { mediaIndex: dbfile._id },
-      ],
-    });
-
-    const ids = _.map(tracks, '_id');
-    await this.database.tracks.remove({ _id: { $in: ids } });
-
-    const albums = _(tracks).map('album').uniq().value();
-
-    for (const album of albums) {
-      const nAlbumTracks = await this.database.tracks.count({ album });
-
-      if (nAlbumTracks === 0) {
-        await this.database.files.remove({ _id: album });
-      }
-    }
-
     await this.database.files.remove({ _id: dbfile._id });
   }
 }

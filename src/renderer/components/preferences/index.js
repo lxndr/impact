@@ -1,17 +1,21 @@
 import React from 'react';
 import { withRouter } from 'react-router';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import { Form, Field } from '../form';
+// import { Form, Field } from '../form';
 import style from '../../style';
+import { backend } from '../../services';
 
 const Preferences = ({
   history,
   intl,
 }) => {
   const handleBack = () => history.goBack();
+  const handleUpdateLibrary = () => backend.scanner.update();
+  const handleClearLibrary = () => backend.collection.clear();
 
   return (
     <div className={style('preferences')}>
+      {/**
       <Form model={store.config}>
         <Field
           name="libraryPath"
@@ -31,12 +35,17 @@ const Preferences = ({
           </button>
         </div>
       </Form>
+      */}
 
-      <button className="update-library" type="button" onClick={store.library.update}>
+      <button className="back" type="button" onClick={handleBack}>
+        <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Back" />
+      </button>
+
+      <button className="update-library" type="button" onClick={handleUpdateLibrary}>
         <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Update library" />
       </button>
 
-      <button className="clear-library" type="button" onClick={store.library.clear}>
+      <button className="clear-library" type="button" onClick={handleClearLibrary}>
         <FormattedMessage id="prefernces.clearLibrary" defaultMessage="Clear libray" />
       </button>
     </div>

@@ -71,6 +71,8 @@ export default class Scanner {
       await this.collection.removeFile(file);
       _.pullAllBy(removed, [file], 'path');
     }
+
+    await this.collection.correct();
   }
 
   async findChangedFiles() {
@@ -112,12 +114,12 @@ export default class Scanner {
     const files = [];
 
     for (const { tracks, ...album } of albums) {
-      for (const { file, ...track } of tracks) {
-        await this.collection.upsertTrack({ file, album, track });
+      for (const { file, index, ...track } of tracks) {
+        await this.collection.upsertTrack({ file, index, album, track });
         files.push(file);
 
-        if (track.index) {
-          files.push(track.index);
+        if (index) {
+          files.push(index);
         }
       }
     }

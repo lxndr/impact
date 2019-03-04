@@ -41,8 +41,8 @@ import globby from 'globby';
  * @property {string} [performer]
  * @property {string} [title]
  * @property {string} [catalog]
- * @property {Array<CueRemark>} remarks
- * @property {Array<CueFile>} files
+ * @property {CueRemark[]} remarks
+ * @property {CueFile[]} files
  */
 
 /**
@@ -57,6 +57,15 @@ function parseTime(str) {
   const frames = parseInt(a[2], 10);
 
   return (minutes * 60) + seconds + (frames / 75);
+}
+
+/**
+ * @param {CueRemark[]} remarks
+ * @param {string} key
+ */
+function fetchRemarkValue(remarks, key) {
+  const remark = remarks.find(remark => remark.key === key);
+  return remark ? remark.value : undefined;
 }
 
 /**
@@ -155,26 +164,38 @@ export default async function cueHandler({ file, scanner }) {
   const str = await fs.readFile(file.path, 'utf8');
   const info = parse(str);
 
-  const releaseDate = _.chain(info.remarks).find({ key: 'DATE' }).get('value').value();
-  const genre = _.chain(info.remarks).find({ key: 'GENRE' }).get('value').value();
-  const edition = _.chain(info.remarks).find({ key: 'EDITION' }).get('value').value();
-  const label = _.chain(info.remarks).find({ key: 'LABEL' }).get('value').value();
+  const releaseDate = fetchRemarkValue(info.remarks, 'DATE');
+  const originalDate = fetchRemarkValue(info.remarks, 'ORIGINALDATE');
+  const genre = fetchRemarkValue(info.remarks, 'GENRE');
+  const edition = fetchRemarkValue(info.remarks, 'EDITION');
+  const label = fetchRemarkValue(info.remarks, 'LABEL');
+  const publisher = fetchRemarkValue(info.remarks, 'PUBLISHER');
+  const catalogId = fetchRemarkValue(info.remarks, 'CATALOGID');
+  const discNumber = fetchRemarkValue(info.remarks, 'DISCNUMBER');
+  const discTitle = fetchRemarkValue(info.remarks, 'DISCTITLE');
 
   /** @type {InspectAlbum} */
   const album = {
     artist: info.performer,
     title: info.title,
+    discNumber: Number(discNumber) || undefined,
+    discTitle,
+    originalDate,
     releaseDate,
     edition,
-    label,
-    catalogId: info.catalog,
+    label: label || publisher,
+    catalogId,
     tracks: [],
   };
 
   try {
+    const matchNames = '{cover,front,folder}.{jpg,jpeg,png}';
+
     const images = await globby([
-      'cover.{jpg,jpeg,png}',
-      'artwork/cover.{jpg,jpeg,png}',
+      matchNames,
+      `artwork/${matchNames}`,
+      `../${matchNames}`,
+      `../artwork/${matchNames}`,
     ], {
       cwd: dir,
       nocase: true,

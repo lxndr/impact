@@ -24,8 +24,8 @@ export default class MpvPlayer extends EventEmitter {
   /** @type {number} */
   _position = 0
 
-  /** @type {boolean} */
-  _positionSet = false
+  /** @type {?number} */
+  _pendingPosition = null
 
   /**
    * @param {Error} error
@@ -44,9 +44,10 @@ export default class MpvPlayer extends EventEmitter {
     this.mpv.on('start-file', () => {
       this._loaded = true;
 
-      if (this._positionSet) {
-        this._positionSet = true;
-        this._seek(this._position);
+      if (this._pendingPosition !== null) {
+        this._seek(this._pendingPosition);
+        this._position = this._pendingPosition;
+        this._pendingPosition = null;
       }
     });
 
@@ -97,12 +98,12 @@ export default class MpvPlayer extends EventEmitter {
   }
 
   set position(seconds) {
-    this._position = seconds;
-    this._positionSet = false;
-
     if (this._loaded) {
-      this._positionSet = true;
-      this._seek(this._position);
+      this._pendingPosition = null;
+      this._position = seconds;
+      this._seek(seconds);
+    } else {
+      this._pendingPosition = seconds;
     }
   }
 

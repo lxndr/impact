@@ -15,7 +15,7 @@ import style from '../style';
 import Header from './header';
 import Library from './library';
 import backend from '../services/backend';
-// import Preferences from './preferences';
+import Preferences from './preferences';
 
 addLocaleData([...en, ...ru]);
 
@@ -31,7 +31,7 @@ const App = () => {
           <Header />
 
           <Switch>
-            {/*<Route path="/preferences" component={Preferences} />*/}
+            <Route path="/preferences" component={Preferences} />
             <Route path="/library/by-artist/:artist?" component={Library} />
             <Redirect to="/library/by-artist" />
           </Switch>

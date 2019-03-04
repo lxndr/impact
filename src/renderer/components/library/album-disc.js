@@ -16,7 +16,8 @@ const getImages = (disc) => {
     _.flatMap(disc.tracks, 'images'),
   );
 
-  return _.uniqBy(images, '_id');
+  // return _.uniqBy(images, '_id');
+  return images.length ? [images[0]] : [];
 };
 
 /**
