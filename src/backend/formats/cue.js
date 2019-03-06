@@ -164,11 +164,10 @@ export default async function cueHandler({ file, scanner }) {
   const str = await fs.readFile(file.path, 'utf8');
   const info = parse(str);
 
-  const releaseDate = fetchRemarkValue(info.remarks, 'DATE');
-  const originalDate = fetchRemarkValue(info.remarks, 'ORIGINALDATE');
+  const originalDate = fetchRemarkValue(info.remarks, 'DATE');
+  const releaseDate = fetchRemarkValue(info.remarks, 'RELEASEDATE');
   const genre = fetchRemarkValue(info.remarks, 'GENRE');
   const edition = fetchRemarkValue(info.remarks, 'EDITION');
-  const label = fetchRemarkValue(info.remarks, 'LABEL');
   const publisher = fetchRemarkValue(info.remarks, 'PUBLISHER');
   const catalogId = fetchRemarkValue(info.remarks, 'CATALOGID');
   const discNumber = fetchRemarkValue(info.remarks, 'DISCNUMBER');
@@ -183,13 +182,13 @@ export default async function cueHandler({ file, scanner }) {
     originalDate,
     releaseDate,
     edition,
-    label: label || publisher,
+    publisher,
     catalogId,
     tracks: [],
   };
 
   try {
-    const matchNames = '{cover,front,folder}.{jpg,jpeg,png}';
+    const matchNames = '{cover,front,folder}.{jpg,jpeg,png,gif}';
 
     const images = await globby([
       matchNames,

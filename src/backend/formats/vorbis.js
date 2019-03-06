@@ -8,13 +8,14 @@ import { BufferReader } from '../utils';
  * @property {string} [albumArtist]
  * @property {string} [album]
  * @property {string} [releaseType]
- * @property {string} [musicBrainzReleaseGroupId]
  * @property {string[]} [artist]
  * @property {string[]} [artists]
  * @property {string} [genre]
  * @property {number} [number]
  * @property {number} [discNumber]
  * @property {string} [discTitle]
+ * @property {string} [label]
+ * @property {string} [catalogNumber]
  */
 
 const tagMap = {
@@ -25,12 +26,13 @@ const tagMap = {
   album: 'album',
   releasetype: 'releaseType',
   artist: 'artist',
-  musicbrainz_releasegroupid: 'musicBrainz_releaseGroupId', // eslint-disable-line camelcase
   artists: 'artists',
   genre: 'genre',
   tracknumber: 'number',
   discnumber: 'discNumber',
   discsubtitle: 'discTitle',
+  label: 'label',
+  catalognumber: 'catalogNumber',
 };
 
 const tagArray = [

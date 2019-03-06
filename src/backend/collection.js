@@ -24,7 +24,6 @@ import promiseAll from 'p-map';
 const log = debug('impact:collection');
 
 export default class Collection {
-  /** @type {Subject<void>} */
   update$ = new Subject().pipe(throttleTime(5000))
 
   /**
@@ -243,19 +242,14 @@ export default class Collection {
       releaseDate: null,
       releaseType: 'album',
       edition: null,
-      label: null,
+      publisher: null,
       catalogId: null,
       discTitle: null,
       discNumber: 1,
     });
 
-    if (!album.title) {
-      _.assign(album, {
-        releaseDate: null,
-        releaseType: null,
-        discTitle: null,
-        discNumber: null,
-      });
+    if (newAlbum.originalDate) {
+      newAlbum.releaseDate = newAlbum.originalDate;
     }
 
     const query = _.pick(newAlbum, [
@@ -265,7 +259,7 @@ export default class Collection {
       'edition',
       'discNumber',
       'discTitle',
-      'label',
+      'publisher',
       'catalogId',
     ]);
 

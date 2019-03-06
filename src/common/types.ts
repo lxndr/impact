@@ -86,7 +86,7 @@ export interface InspectAlbum {
   releaseDate?: string;
   releaseType?: string;
   edition?: string;
-  label?: string;
+  publisher?: string;
   catalogId?: string;
   discNumber?: number;
   discTitle?: string;
@@ -102,7 +102,7 @@ interface BaseAlbum {
   releaseDate: string | null;
   releaseType: string | null;
   edition: string | null;
-  label: string | null;
+  publisher: string | null;
   catalogId: string | null;
 }
 

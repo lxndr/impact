@@ -14,7 +14,7 @@ const createAlbumSelector = album => ({
   title: album.title,
   releaseDate: album.releaseDate,
   edition: album.edition,
-  label: album.label,
+  publisher: album.publisher,
   catalogId: album.catalogId,
 });
 
@@ -62,7 +62,7 @@ const formAlbumList = ({ albums, tracks, images }) => {
   /** @type {Album[]} */
   const retAlbums = [];
 
-  albums = _.orderBy(albums, ['releaseDate', 'number']);
+  albums = _.orderBy(albums, ['originalDate', 'number']);
 
   _.each(albums, (album) => {
     const albumSelector = createAlbumSelector(album);
@@ -79,7 +79,7 @@ const formAlbumList = ({ albums, tracks, images }) => {
         releaseDate: album.releaseDate,
         releaseType: album.releaseType,
         edition: album.edition,
-        label: album.label,
+        publisher: album.publisher,
         catalogId: album.catalogId,
         duration: 0,
         discs: [],

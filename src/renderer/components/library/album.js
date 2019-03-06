@@ -11,8 +11,8 @@ import AlbumDisc from './album-disc';
 /**
  * @param {AlbumType} album
  */
-const formatLabel = ({ label, catalogId }) => {
-  let str = `by ${label}`;
+const formatPublisher = ({ publisher, catalogId }) => {
+  let str = `by ${publisher}`;
 
   if (catalogId) {
     str += ` (${catalogId})`;
@@ -59,8 +59,8 @@ const Album = ({ album, playingTrack, onSelect }) => (
         {album.releaseDate && (
           <div className="release-date">{formatDate(album.releaseDate)}</div>
         )}
-        {album.label && (
-          <div className="label">{formatLabel(album)}</div>
+        {album.publisher && (
+          <div className="publisher">{formatPublisher(album)}</div>
         )}
       </div>
     </div>

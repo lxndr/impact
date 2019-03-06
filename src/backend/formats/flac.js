@@ -211,6 +211,8 @@ export default async function flacHandler({ file }) {
     releaseType: normalizeReleaseType(tags.releaseType),
     discTitle: tags.discTitle,
     discNumber: tags.discNumber,
+    publisher: tags.label,
+    catalogId: tags.catalogNumber,
     tracks: [{
       title: tags.title,
       artists,
