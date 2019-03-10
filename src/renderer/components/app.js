@@ -4,11 +4,11 @@ import en from 'react-intl/locale-data/en';
 import ru from 'react-intl/locale-data/ru';
 
 import {
-  MemoryRouter,
+  BrowserRouter,
   Switch,
   Route,
   Redirect,
-} from 'react-router';
+} from 'react-router-dom';
 
 import messages from '../l18n';
 import style from '../style';
@@ -25,8 +25,8 @@ const App = () => {
   }, []);
 
   return (
-    <IntlProvider locale={'en'} messages={messages['en']}>
-      <MemoryRouter>
+    <IntlProvider locale="en" messages={messages.en}>
+      <BrowserRouter>
         <div className={style('app')}>
           <Header />
 
@@ -36,7 +36,7 @@ const App = () => {
             <Redirect to="/library/by-artist" />
           </Switch>
         </div>
-      </MemoryRouter>
+      </BrowserRouter>
     </IntlProvider>
   );
 };

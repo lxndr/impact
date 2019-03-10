@@ -18,4 +18,4 @@ const Artist = ({ name }) => (
   </li>
 );
 
-export default React.memo(Artist);
+export default Artist;

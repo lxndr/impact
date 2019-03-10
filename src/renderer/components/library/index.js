@@ -3,8 +3,13 @@ import style from '../../style';
 import Empty from './empty';
 import ArtistList from './artist-list';
 import AlbumList from './album-list';
-import backend from '../../services/backend';
-import { formAlbumList, usePlayingTrack } from '../../services';
+
+import {
+  backend,
+  formAlbumList,
+  usePlayingTrack,
+  getTracksFromAlbums,
+} from '../../services';
 
 /**
  * @typedef {import('react-router').match} Match
@@ -13,7 +18,7 @@ import { formAlbumList, usePlayingTrack } from '../../services';
  */
 
 const useArtists = () => {
-  /** @type {string[]} */
+  /** @type {string?[]} */
   const defaultArtists = [];
   const [artists, setArtists] = useState(defaultArtists);
 
@@ -77,7 +82,11 @@ const Library = ({ match }) => {
   const playingTrack = usePlayingTrack();
 
   /** @param {Track} track */
-  const handlePlay = (track) => {
+  const handlePlay = async (track) => {
+    const playlist = backend.createPlaylist();
+    const tracks = getTracksFromAlbums(albums);
+    playlist.forTracks(tracks);
+    backend.playback.playlist = playlist;
     backend.playback.play(track._id);
   };
 

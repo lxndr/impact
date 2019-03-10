@@ -1,6 +1,11 @@
 import _ from 'lodash';
 
+/**
+ * @typedef {import('common/types').Track} Track
+ */
+
 export default class Playlist {
+  /** @type {Track[]} */
   queue = []
 
   constructor({ collection }) {
@@ -8,23 +13,15 @@ export default class Playlist {
   }
 
   /**
-   * @param {?string} artist
+   * @param {Track[]} tracks
    */
-  async forArtist(artist) {
-    const { albums, tracks } = await this.collection.allOfArtist(artist);
-
-    const _albums = _.sortBy(albums, 'releaseDate');
-
-    this.queue = tracks.sort((a, b) => {
-      const ia = _.findIndex(_albums, { id: a.album });
-      const ib = _.findIndex(_albums, { id: b.album });
-
-      return ia === ib
-        ? a.number - b.number
-        : ia - ib;
-    });
+  forTracks(tracks) {
+    this.queue = tracks;
   }
 
+  /**
+   * @param {Track} currentTrack
+   */
   previous(currentTrack) {
     const count = this.queue.length;
     let nextIndex = count - 1;
@@ -40,6 +37,9 @@ export default class Playlist {
     return this.queue[nextIndex] || null;
   }
 
+  /**
+   * @param {Track} currentTrack
+   */
   next(currentTrack) {
     const count = this.queue.length;
     let nextIndex = 0;
