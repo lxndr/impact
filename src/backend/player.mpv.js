@@ -45,8 +45,11 @@ export default class MpvPlayer extends EventEmitter {
       this._loaded = true;
 
       if (this._pendingPosition !== null) {
-        this._seek(this._pendingPosition);
-        this._position = this._pendingPosition;
+        if (this._pendingPosition > 0) {
+          this._seek(this._pendingPosition);
+          this._position = this._pendingPosition;
+        }
+
         this._pendingPosition = null;
       }
     });
@@ -54,6 +57,7 @@ export default class MpvPlayer extends EventEmitter {
     this.mpv.on('end-file', () => {
       if (!this._loaded) return; // NOTE: prevets emitting 'end' after 'loadfile'
       this._loaded = false;
+      this._position = 0;
       this.emit('end');
     });
 

@@ -1,5 +1,4 @@
 import { BehaviorSubject } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
 
 /**
  * @typedef {import('common/types').PlaybackTrack} PlaybackTrack
@@ -21,7 +20,7 @@ export default class Playback {
   track$ = new BehaviorSubject(null)
 
   /** @type {BehaviorSubject<?PlaybackState>} */
-  state$ = new BehaviorSubject(null).pipe(throttleTime(250))
+  state$ = new BehaviorSubject(null)
 
   /**
    * @param {Object} options
