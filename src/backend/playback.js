@@ -1,29 +1,33 @@
-import { BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 /**
- * @typedef {import('common/types').PlaybackTrack} PlaybackTrack
+ * @typedef {import('common/types').Track} Track
  * @typedef {import('common/types').Player} Player
  * @typedef {import('./collection').default} Collection
- */
-
-/**
- * @typedef {Object} PlaybackState
- * @property {string} state
- * @property {number} duration
- * @property {number} position
+ * @typedef {import('./playlist').default} Playlist
  */
 
 export default class Playback {
+  /**
+   * @type {Playlist?}
+   * @private
+   */
   _playlist = null
 
-  /** @type {BehaviorSubject<?PlaybackTrack>} */
+  /** @type {BehaviorSubject<Track?>} */
   track$ = new BehaviorSubject(null)
 
-  /** @type {BehaviorSubject<?PlaybackState>} */
-  state$ = new BehaviorSubject(null)
+  /** @type {BehaviorSubject<string>} */
+  state$ = new BehaviorSubject('stopped')
+
+  /** @type {BehaviorSubject<number>} */
+  position$ = new BehaviorSubject(0)
+
+  /** @type {Subject<Error>} */
+  error$ = new Subject()
 
   /**
-   * @param {Object} options
+   * @param {object} options
    * @param {Collection} options.collection
    * @param {Player} options.player
    */
@@ -32,7 +36,7 @@ export default class Playback {
     this.player = player;
 
     this.player.on('position', (/** @type {number} */ time) => {
-      const track = this.track$.getValue();
+      const track = this.track$.value;
 
       if (!track) {
         return;
@@ -43,25 +47,11 @@ export default class Playback {
         return;
       }
 
-      this.state$.next({
-        state: this.player.state,
-        duration: track.duration,
-        position: time - track.offset,
-      });
+      const trackPosition = time - track.offset;
+      this.position$.next(trackPosition);
     });
 
-    this.player.on('state', () => {
-      const track = this.track$.getValue();
-      let state = null;
-
-      if (track) {
-        state = {
-          state: this.player.state,
-          duration: track.duration,
-          position: this.player.position - track.offset,
-        };
-      }
-
+    this.player.on('state', (/** @type {string} */ state) => {
       this.state$.next(state);
     });
 
@@ -70,7 +60,7 @@ export default class Playback {
     });
 
     this.player.on('error', (/** @type {Error} */ error) => {
-      console.error(`Error: ${error.message}`);
+      this.error$.next(error);
     });
   }
 
@@ -91,12 +81,13 @@ export default class Playback {
     if (this.player) {
       this.player.stop();
       this.track$.next(null);
-      this.state$.next(null);
+      this.state$.next('stopped');
+      this.position$.next(0);
     }
   }
 
   /**
-   * @param {PlaybackTrack} track
+   * @param {Track} track
    */
   _setup(track) {
     if (this.player.uri !== track.file.path) {
@@ -108,47 +99,25 @@ export default class Playback {
   }
 
   /**
-   * @param {string} trackId
+   * @param {Track} track
    */
-  async _play(trackId) {
-    const track = await this.collection.trackById(trackId);
-
-    if (!track) {
-      return;
-    }
-
-    const album = await this.collection.albumById(track.album);
-
-    if (!album) {
-      throw new Error(`Could not find album ${track.album}`);
-    }
-
-    const file = await this.collection.fileById(track.file);
-
-    if (!file) {
-      throw new Error(`Could not find file ${track.file}`);
-    }
-
-    this._setup({
-      ...track,
-      album,
-      file,
-    });
-
+  async _play(track) {
+    this._setup(track);
     this.player.play();
   }
 
   /**
-   * @param {string} trackId
+   * @param {Track} track
    */
-  play(trackId) {
-    this._play(trackId).catch(console.error);
+  play(track) {
+    this._play(track).catch((error) => {
+      this.error$.next(error);
+    });
   }
 
   toggle() {
     if (this.player) {
-      const state = this.state$.getValue();
-      if (state && state.state === 'playing') {
+      if (this.state$.value === 'playing') {
         this.player.pause();
       } else {
         this.player.play();
@@ -158,23 +127,29 @@ export default class Playback {
 
   previous() {
     if (!this.playlist) return;
-    const currentTrack = this.track$.getValue();
-    const track = this.playlist.previous(currentTrack);
-    this.play(track._id);
+    const currentTrack = this.track$.value;
+
+    if (currentTrack) {
+      const track = this.playlist.previous(currentTrack);
+      this.play(track);
+    }
   }
 
   next() {
     if (!this.playlist) return;
-    const currentTrack = this.track$.getValue();
-    const track = this.playlist.next(currentTrack);
-    this.play(track._id);
+    const currentTrack = this.track$.value;
+
+    if (currentTrack) {
+      const track = this.playlist.next(currentTrack);
+      this.play(track);
+    }
   }
 
   /**
    * @param {number} time
    */
   seek(time) {
-    const track = this.track$.getValue();
+    const track = this.track$.value;
 
     if (track) {
       this.player.position = track.offset + time;

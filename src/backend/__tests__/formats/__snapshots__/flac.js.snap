@@ -4,8 +4,10 @@ exports[`FLAC parser opens file with tags 1`] = `
 Array [
   Object {
     "artist": "Artist",
+    "catalogId": undefined,
     "discNumber": 1,
     "discTitle": "Disc Title",
+    "publisher": undefined,
     "releaseDate": "2018-07-07",
     "releaseType": "album",
     "title": "Album Title",
@@ -17,7 +19,7 @@ Array [
         "duration": 5,
         "file": Object {
           "hash": "2d82a056c96d8998a7e1b29dc81a450d",
-          "mtime": 2019-02-28T19:37:36.599Z,
+          "mtime": 2019-03-15T10:15:23.487Z,
           "path": "/home/lxndr/devel/research/impact/src/backend/__tests__/fixtures/audio-02.flac",
           "size": 0,
           "type": "media",
@@ -38,8 +40,10 @@ exports[`FLAC parser opens file without tags 1`] = `
 Array [
   Object {
     "artist": undefined,
+    "catalogId": undefined,
     "discNumber": undefined,
     "discTitle": undefined,
+    "publisher": undefined,
     "releaseDate": undefined,
     "releaseType": "album",
     "title": undefined,
@@ -49,7 +53,7 @@ Array [
         "duration": 5,
         "file": Object {
           "hash": "2d82a056c96d8998a7e1b29dc81a450d",
-          "mtime": 2019-02-28T19:37:36.579Z,
+          "mtime": 2019-03-15T10:15:23.457Z,
           "path": "/home/lxndr/devel/research/impact/src/backend/__tests__/fixtures/audio-01.flac",
           "size": 0,
           "type": "media",

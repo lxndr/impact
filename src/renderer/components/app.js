@@ -14,7 +14,7 @@ import messages from '../l18n';
 import style from '../style';
 import Header from './header';
 import Library from './library';
-import backend from '../services/backend';
+import { backend, RouterProvider } from '../services';
 import Preferences from './preferences';
 
 addLocaleData([...en, ...ru]);
@@ -27,15 +27,17 @@ const App = () => {
   return (
     <IntlProvider locale="en" messages={messages.en}>
       <MemoryRouter>
-        <div className={style('app')}>
-          <Header />
+        <RouterProvider>
+          <div className={style('app')}>
+            <Header />
 
-          <Switch>
-            <Route path="/preferences" component={Preferences} />
-            <Route path="/library/by-artist/:artist?" component={Library} />
-            <Redirect to="/library/by-artist/" />
-          </Switch>
-        </div>
+            <Switch>
+              <Route path="/preferences" component={Preferences} />
+              <Route path="/library/by-artist/:artist?" component={Library} />
+              <Redirect to="/library/by-artist/" />
+            </Switch>
+          </div>
+        </RouterProvider>
       </MemoryRouter>
     </IntlProvider>
   );

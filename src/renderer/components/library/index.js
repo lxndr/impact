@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { throttleTime } from 'rxjs/operators';
 import style from '../../style';
 import Empty from './empty';
 import ArtistList from './artist-list';
@@ -6,9 +7,8 @@ import AlbumList from './album-list';
 
 import {
   backend,
-  formAlbumList,
-  usePlayingTrack,
   getTracksFromAlbums,
+  useBehaviorSubject,
 } from '../../services';
 
 /**
@@ -31,9 +31,11 @@ const useArtists = () => {
   useEffect(() => {
     fetchArtists();
 
-    const sub = backend.collection.update$.subscribe(
-      () => fetchArtists(),
-    );
+    const sub = backend.collection.update$
+      .pipe(throttleTime(5000))
+      .subscribe(
+        () => fetchArtists(),
+      );
 
     return () => sub.unsubscribe();
   }, []);
@@ -50,8 +52,7 @@ const useAlbums = (artist) => {
   const [albums, setAlbums] = useState(defaultAlbums);
 
   const fetchAlbums = () => {
-    backend.collection.allOfArtist(artist).then((result) => {
-      const albums = formAlbumList(result);
+    backend.collection.albumsByArtist(artist).then((albums) => {
       setAlbums(albums);
     });
   };
@@ -59,9 +60,11 @@ const useAlbums = (artist) => {
   useEffect(() => {
     fetchAlbums();
 
-    const sub = backend.collection.update$.subscribe(
-      () => fetchAlbums(),
-    );
+    const sub = backend.collection.update$
+      .pipe(throttleTime(5000))
+      .subscribe(
+        () => fetchAlbums(),
+      );
 
     return () => sub.unsubscribe();
   }, [artist]);
@@ -79,7 +82,7 @@ const Library = ({ match }) => {
 
   const artists = useArtists();
   const albums = useAlbums(selectedArtist);
-  const playingTrack = usePlayingTrack();
+  const playingTrack = useBehaviorSubject(backend.playback.track$);
 
   /** @param {Track} track */
   const handlePlay = async (track) => {
@@ -87,7 +90,7 @@ const Library = ({ match }) => {
     const tracks = getTracksFromAlbums(albums);
     playlist.forTracks(tracks);
     backend.playback.playlist = playlist;
-    backend.playback.play(track._id);
+    backend.playback.play(track);
   };
 
   if (!artists.length) {
@@ -98,6 +101,7 @@ const Library = ({ match }) => {
     <div className={style('app-library')}>
       <ArtistList
         artists={artists}
+        selectedArtist={selectedArtist}
       />
 
       <AlbumList

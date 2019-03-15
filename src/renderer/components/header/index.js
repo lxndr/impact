@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { injectIntl } from 'react-intl';
 
 import {
@@ -14,8 +13,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  usePlayingTrack,
-  usePlaybackState,
+  useBehaviorSubject,
+  useRouter,
   backend,
   window,
 } from '../../services';
@@ -26,7 +25,6 @@ import Button from './button';
 import Seeker from './seeker';
 
 /**
- * @typedef {import('history').History} History
  * @typedef {import('react-intl').InjectedIntl} InjectedIntl
  * @typedef {import('common/types').Track} Track
  */
@@ -34,11 +32,7 @@ import Seeker from './seeker';
 /** @param {?Track} track */
 const getDisplayedTrack = (track) => {
   if (!track) {
-    return {
-      title: '',
-      album: '',
-      duration: 0,
-    };
+    return null;
   }
 
   const artist = track.album.artist || 'Unknown artist';
@@ -54,27 +48,16 @@ const getDisplayedTrack = (track) => {
 /**
  * @param {object} props
  * @param {InjectedIntl} props.intl
- * @param {History} props.history
  */
-const Header = ({ intl, history }) => {
-  const state = usePlaybackState();
-  const playingTrack = usePlayingTrack();
+const Header = ({ intl }) => {
+  const { history } = useRouter();
+  const playingTrack = useBehaviorSubject(backend.playback.track$);
   const displayedTrack = getDisplayedTrack(playingTrack);
+  const state = useBehaviorSubject(backend.playback.state$);
 
   const showPreferences = () => history.push('/preferences');
 
-  /** @param {number} pos */
-  const handleSeek = (pos) => {
-    backend.playback.seek(pos);
-  };
-
-  let playing = false;
-  let position = 0;
-
-  if (state) {
-    playing = state.state === 'playing';
-    position = state.position; // eslint-disable-line prefer-destructuring
-  }
+  const playing = state === 'playing';
 
   return (
     <div className={style('app-header')}>
@@ -148,23 +131,23 @@ const Header = ({ intl, history }) => {
         })}
       />
 
-      <img className="cover" alt="Album cover" src={defaultAlbumCover} />
+      {displayedTrack && (
+        <>
+          <img className="cover" alt="Album cover" src={defaultAlbumCover} />
 
-      <div className="title">
-        {displayedTrack.title}
-      </div>
+          <div className="title">
+            {displayedTrack.title}
+          </div>
 
-      <div className="album">
-        {displayedTrack.album}
-      </div>
+          <div className="album">
+            {displayedTrack.album}
+          </div>
 
-      <Seeker
-        duration={displayedTrack.duration}
-        position={position}
-        onSeek={handleSeek}
-      />
+          <Seeker duration={displayedTrack.duration} />
+        </>
+      )}
     </div>
   );
 };
 
-export default injectIntl(withRouter(Header));
+export default injectIntl(Header);

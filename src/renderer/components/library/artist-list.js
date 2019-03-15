@@ -1,5 +1,4 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import Artist from './artist';
 import style from '../../style';
 
@@ -10,13 +9,11 @@ import style from '../../style';
 /**
  * @param {object} props
  * @param {string?[]} props.artists
- * @param {Match} props.match
+ * @param {string?} props.selectedArtist
  */
 const ArtistList = ({
   artists,
-  match: {
-    params: { artist: activeArtist = null },
-  },
+  selectedArtist,
 }) => (
   <div className={style('artist-list')}>
     <ul>
@@ -24,11 +21,11 @@ const ArtistList = ({
         <Artist
           key={artist || ''}
           name={artist}
-          active={activeArtist === artist}
+          active={selectedArtist === artist}
         />
       ))}
     </ul>
   </div>
 );
 
-export default withRouter(ArtistList);
+export default ArtistList;

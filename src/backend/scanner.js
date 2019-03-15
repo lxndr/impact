@@ -113,14 +113,10 @@ export default class Scanner {
     const albums = await this.inspect(filename);
     const files = [];
 
-    for (const { tracks, ...album } of albums) {
-      for (const { file, index, ...track } of tracks) {
-        await this.collection.upsertTrack({ file, index, album, track });
-        files.push(file);
-
-        if (index) {
-          files.push(index);
-        }
+    for (const album of albums) {
+      for (const track of album.tracks) {
+        await this.collection.upsertTrack(track, album);
+        files.push(track.file, track.index);
       }
     }
 

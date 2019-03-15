@@ -22,4 +22,4 @@ const Artist = ({ name, active }) => (
   </li>
 );
 
-export default Artist;
+export default React.memo(Artist);

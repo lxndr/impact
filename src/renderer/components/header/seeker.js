@@ -1,4 +1,5 @@
 import React from 'react';
+import { backend, useBehaviorSubject } from '../../services';
 
 /**
  * @callback SeekCallback
@@ -9,16 +10,21 @@ import React from 'react';
 /**
  * @param {object} props
  * @param {number} props.duration
- * @param {number} props.position
- * @param {SeekCallback} props.onSeek
  */
-const Seeker = ({ duration, position, onSeek }) => {
+const Seeker = ({ duration }) => {
+  const position = useBehaviorSubject(backend.playback.position$);
+
+  /** @param {number} pos */
+  const handleSeek = (pos) => {
+    backend.playback.seek(pos);
+  };
+
   /** @type {React.MouseEventHandler<HTMLDivElement>} */
   const handleClick = ({ currentTarget, clientX }) => {
     const width = currentTarget.clientWidth;
     const pos = clientX - currentTarget.offsetLeft;
     const f = pos / width;
-    onSeek(duration * f);
+    handleSeek(duration * f);
   };
 
   /** @type {React.KeyboardEventHandler<HTMLDivElement>} */
@@ -27,10 +33,10 @@ const Seeker = ({ duration, position, onSeek }) => {
 
     switch (key) {
       case 'ArrowLeft':
-        onSeek(position - delta);
+        handleSeek(position - delta);
         break;
       case 'ArrowRight':
-        onSeek(position + delta);
+        handleSeek(position + delta);
         break;
       default:
         break;

@@ -1,13 +1,14 @@
 import React from 'react';
 
-export default class LibraryPath extends React.PureComponent {
-  handleChange = ({ target: { value } }) => {
-    const paths = value.split('\n').filter(path => !!path);
-    this.props.onChange(paths);
-  }
+const LibraryPath = ({ value, onChange }) => {
+  const handleChange = ({ target: { value } }) => {
+    const paths = value.split('\n').filter(Boolean);
+    onChange(paths);
+  };
 
-  render() {
-    const value = this.props.value.join('\n');
-    return <textarea value={value} onChange={this.onChange} />;
-  }
-}
+  const joinedValue = `${value.join('\n')}\n`;
+
+  return <textarea value={joinedValue} onChange={handleChange} />;
+};
+
+export default LibraryPath;

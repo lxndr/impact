@@ -54,21 +54,24 @@ export interface InspectTrack extends BaseTrack {
 }
 
 interface GenericTrack<ALBUM, IMAGE, FILE> extends BaseTrack {
-  _id: Id;
+  _id?: Id;
   artists: string[];
   album: ALBUM;
   offset: number;
   images: IMAGE[];
   file: FILE;
+  index: FILE | null;
 }
 
-export type Track = GenericTrack<Album, Image, Id>;
+export interface Track extends GenericTrack<Album, Image, File> {
+  _id: Id;
+}
 
 export interface DbTrack extends GenericTrack<Id, Id, Id> {
-  index: Id | null;
+  _id: Id;
 }
 
-export type PlaybackTrack = GenericTrack<DbAlbum, DbImage, DbFile>;
+export type NewDbTrack = GenericTrack<Id, Id, Id>;
 
 export interface Disc {
   _id: Id;
@@ -95,7 +98,7 @@ export interface InspectAlbum {
 }
 
 interface BaseAlbum {
-  _id: Id;
+  _id?: Id;
   title: string | null;
   artist: string | null;
   originalDate: string | null;
@@ -106,13 +109,20 @@ interface BaseAlbum {
   catalogId: string | null;
 }
 
-export interface DbAlbum extends BaseAlbum {
+export interface GenericDbAlbum extends BaseAlbum {
   discNumber: number;
   discTitle: string | null;
   images: Id[];
 }
 
+export interface DbAlbum extends GenericDbAlbum {
+  _id: Id;
+}
+
+export type NewDbAlbum = GenericDbAlbum;
+
 export interface Album extends BaseAlbum {
+  _id: Id;
   duration: number;
   discs: Disc[];
 }

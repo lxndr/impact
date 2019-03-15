@@ -11,7 +11,7 @@ import FormContext from './context';
  * @param {string} [props.label]
  * @param {string} [props.labelClass]
  * @param {boolean} [props.readOnly]
- * @param {...*} rest
+ * @param {...*} props.rest
  */
 const Field = ({
   type = 'text',
@@ -24,9 +24,8 @@ const Field = ({
 }) => {
   const form = useContext(FormContext);
 
-  /** @type {React.ChangeEventHandler} */
+  /** @type {React.ChangeEventHandler<HTMLInputElement>} */
   const handleChange = (event) => {
-    const { form, name, ...props } = this.props;
     let value = event;
 
     if (event && typeof event === 'object' && event.target) {

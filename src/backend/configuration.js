@@ -30,14 +30,8 @@ export default class Configuration {
     });
   }
 
-  /**
-   */
   async load() {
-    try {
-      const config = await fs.readJSON(this.configFile);
-      this.set(config);
-    } catch (err) {
-      console.warn(err);
-    }
+    const config = await fs.readJSON(this.configFile);
+    this.set(config);
   }
 }

@@ -1,14 +1,11 @@
 import React from 'react';
-import { withRouter } from 'react-router';
 import { FormattedMessage, injectIntl } from 'react-intl';
 // import { Form, Field } from '../form';
 import style from '../../style';
-import { backend } from '../../services';
+import { backend, useRouter } from '../../services';
 
-const Preferences = ({
-  history,
-  intl,
-}) => {
+const Preferences = () => {
+  const { history } = useRouter();
   const handleBack = () => history.goBack();
   const handleUpdateLibrary = () => backend.scanner.update();
   const handleClearLibrary = () => backend.collection.clear();
@@ -52,4 +49,4 @@ const Preferences = ({
   );
 };
 
-export default injectIntl(withRouter(Preferences));
+export default injectIntl(Preferences);
