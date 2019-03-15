@@ -18,6 +18,8 @@ rules:
   no-shadow: off
   react/jsx-filename-extension: off
   react/prop-types: off
+  jsx-a11y/label-has-for: off
+  jsx-a11y/label-has-associated-control: error
 
   no-plusplus:
     - error
@@ -34,4 +36,6 @@ rules:
 
 settings:
   import/resolver:
-    babel-module: {}
+    babel-module:
+      alias:
+        common: ./src/common

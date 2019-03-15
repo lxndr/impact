@@ -40,7 +40,12 @@ export default class Application {
   }
 
   async startup() {
-    await this.configuration.load();
+    try {
+      await this.configuration.load();
+    } catch (error) {
+      console.error(error);
+    }
+
     await this.database.init();
     await this.collection.init();
 

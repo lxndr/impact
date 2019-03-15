@@ -1,65 +1,63 @@
-import _ from 'lodash';
 import React, { useContext } from 'react';
+import R from 'ramda';
 import cn from 'classnames';
 import FormContext from './context';
 
 /**
+ * @template T
  * @param {object} props
- * @param {string | React.Component} [props.type]
+ * @param {React.ElementType} [props.type]
  * @param {string} [props.className]
  * @param {string} props.name
  * @param {string} [props.label]
  * @param {string} [props.labelClass]
  * @param {boolean} [props.readOnly]
- * @param {...*} props.rest
  */
 const Field = ({
   type = 'text',
-  className = '',
+  className,
   name,
-  label = null,
-  labelClass = '',
+  label,
+  labelClass,
   readOnly = false,
   ...rest
 }) => {
   const form = useContext(FormContext);
+  const lens = R.lensPath(name.split('.'));
 
-  /** @type {React.ChangeEventHandler<HTMLInputElement>} */
-  const handleChange = (event) => {
-    let value = event;
+  /** @type {T} */
+  const value = R.view(lens, form.value);
 
-    if (event && typeof event === 'object' && event.target) {
-      const { target } = event;
+  /** @param {React.ChangeEvent<HTMLInputElement>} event */
+  const getInputEventValue = (event) => {
+    const { target } = event;
 
-      if (target.type === 'checkbox') {
-        if (props.value) {
-          const old = _.get(form.model, name);
+    if (target.type === 'checkbox') {
+      return target.checked;
+    }
 
-          if (target.checked) {
-            value = _.union(old, [props.value]);
-          } else {
-            value = _.without(old, props.value);
-          }
-        } else {
-          value = target.cheked;
-        }
-      } else if (target.type === 'radio') {
-        if (target.checked) {
-          value = target.value;
-        }
-      } else {
-        value = target.value;
+    if (target.type === 'radio') {
+      if (target.checked) {
+        return target.value;
       }
     }
 
-    _.set(form.model, name, value);
+    return target.value;
   };
 
-  const value = _.get(form.model, name);
+  /** @type {React.ChangeEventHandler<HTMLInputElement> | T} */
+  const handleChange = (event) => {
+    const value = (event && typeof event === 'object' && 'target' in event)
+      ? getInputEventValue(/** @type {React.ChangeEvent<HTMLInputElement>} */ event)
+      : /** @type {T} */ event;
+    const newFormValue = R.set(lens, value, form.value);
+    form.onChange(newFormValue);
+  };
+
   let Component = type;
+  const id = name;
 
   const props = {
-    id: name,
     name,
     readOnly: readOnly || form.readOnly,
     value,
@@ -78,28 +76,21 @@ const Field = ({
 
   if (Component === 'input' || Component === 'textarea') {
     if (props.type === 'checkbox') {
-      if (rest.value) {
-        props.id += `_${rest.value}`;
-        props.checked = Array.isArray(value) && value.includes(rest.value);
-      } else {
-        props.checked = value || false;
-      }
-    } else if (props.type === 'radio') {
-      props.checked = value === (rest.value || false);
+      props.checked = Boolean(value);
     } else {
-      props.value = value || '';
+      props.value = /** @type {T} */ (value || '');
     }
   }
 
   return (
     <div className={cn('form-field', `form-field_${name}`, className)}>
       {label && (
-        <label className={labelClass} htmlFor={props.id}>
+        <label className={labelClass} htmlFor={id}>
           {label}
         </label>
       )}
 
-      <Component {...props} {...rest} />
+      <Component {...props} {...rest} id={id} />
     </div>
   );
 };

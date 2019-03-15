@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
-// import { Form, Field } from '../form';
+import { Form, Field } from '../form';
 import style from '../../style';
 import { backend, useRouter } from '../../services';
 
-const Preferences = () => {
+/**
+ * @typedef {import('react-intl').InjectedIntl} InjectedIntl
+ */
+
+/**
+ * @param {object} props
+ * @param {InjectedIntl} props.intl
+ */
+const Preferences = ({ intl }) => {
+  const [value, setValue] = useState({
+    libraryPath: '',
+  });
+
+  const handleSubmit = () => {};
+
   const { history } = useRouter();
   const handleBack = () => history.goBack();
   const handleUpdateLibrary = () => backend.scanner.update();
@@ -12,8 +26,7 @@ const Preferences = () => {
 
   return (
     <div className={style('preferences')}>
-      {/**
-      <Form model={store.config}>
+      <Form value={value} onChange={setValue} onSubmit={handleSubmit}>
         <Field
           name="libraryPath"
           label={intl.formatMessage({
@@ -32,11 +45,6 @@ const Preferences = () => {
           </button>
         </div>
       </Form>
-      */}
-
-      <button className="back" type="button" onClick={handleBack}>
-        <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Back" />
-      </button>
 
       <button className="update-library" type="button" onClick={handleUpdateLibrary}>
         <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Update library" />

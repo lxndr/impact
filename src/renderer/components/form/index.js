@@ -1,29 +1,32 @@
-import _ from 'lodash';
 import React from 'react';
+import { noop } from 'common/utils';
 import FormContext from './context';
 
 export { default as Field } from './field';
 
 /**
  * @param {object} props
- * @param {*} props.model
+ * @param {object} props.value
  * @param {boolean} [props.readOnly]
  * @param {React.ReactNode} props.children
+ * @param {(value: object) => void} props.onChange
  * @param {React.FormEventHandler<HTMLFormElement>} [props.onSubmit]
  */
 export const Form = ({
-  model,
+  value,
   readOnly = false,
   children,
-  onSubmit = _.noop,
+  onChange,
+  onSubmit = noop,
 }) => {
   const formData = {
-    model,
+    value,
+    onChange,
     readOnly,
   };
 
   return (
-    <FormContext.Provider form={formData}>
+    <FormContext.Provider value={formData}>
       <form onSubmit={onSubmit}>
         {children}
       </form>
