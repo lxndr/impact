@@ -6,6 +6,10 @@ parserOptions:
 
 extends: airbnb
 
+env:
+  node: true
+  browser: true
+
 rules:
   no-underscore-dangle: off # NeDB uses _id
   no-param-reassign: off
