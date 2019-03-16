@@ -121,15 +121,8 @@ const Header = ({ intl }) => {
       />
 
       <img className="cover" alt="Album cover" src={albumCover.forTrack(track)} />
-
-      <div className="title">
-        {displayedInfo.title}
-      </div>
-
-      <div className="album">
-        {displayedInfo.album}
-      </div>
-
+      <div className="title">{displayedInfo.title}</div>
+      <div className="album">{displayedInfo.album}</div>
       <Seeker duration={track ? track.duration : 0} />
     </div>
   );

@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { formatDate } from '../../utils';
 import messages from '../../messages';
 import AlbumDisc from './album-disc';
+import { albumCover } from '../../services';
 
 /**
  * @typedef {import('../../../common/types').Album} AlbumType
@@ -68,12 +69,14 @@ const Album = ({ album, playingTrack = null, onSelect }) => (
 
     {album.discs.map((disc) => {
       const showTitle = Boolean(disc.title || album.discs.length > 1);
+      const image = albumCover.forDisc(disc);
 
       return (
         <AlbumDisc
           key={disc._id}
           disc={disc}
           showTitle={showTitle}
+          image={image}
           playingTrack={playingTrack}
           onSelect={onSelect}
         />
