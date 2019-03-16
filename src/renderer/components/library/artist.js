@@ -16,7 +16,7 @@ const createArtistUrl = artist => (
  */
 const Artist = ({ name, active }) => (
   <li className={cn({ active, unknown: !name })}>
-    <Link to={createArtistUrl(name)}>
+    <Link to={createArtistUrl(name)} draggable={false}>
       {name || 'Unknown artist'}
     </Link>
   </li>
