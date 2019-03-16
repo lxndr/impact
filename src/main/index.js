@@ -19,6 +19,7 @@ app.on('ready', () => {
     width: 1600,
     height: 700,
     frame: false,
+    backgroundColor: '#fff',
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,

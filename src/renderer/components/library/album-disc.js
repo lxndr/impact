@@ -7,7 +7,7 @@ import AlbumTrackList from './album-track-list';
  */
 
 /** @param {Disc} disc */
-const displayTitle = disc => (disc.title ? `Disc ${disc.number}: ${disc.title}` : `Disc ${disc.number}`);
+const displayTitle = disc => (disc.title || `Disc ${disc.number}`);
 
 /**
  * @param {object} props
@@ -25,15 +25,15 @@ const AlbumDisc = ({
   onSelect,
 }) => (
   <div className="disc">
+    <div className="cover-container">
+      {image && <img alt="album cover" className="cover" src={image} />}
+    </div>
+
     {showTitle && (
       <div className="disc-title">
         {displayTitle(disc)}
       </div>
     )}
-
-    <div className="cover-container">
-      <img alt="album cover" className="cover" src={image} />
-    </div>
 
     <AlbumTrackList tracks={disc.tracks} playingTrack={playingTrack} onSelect={onSelect} />
   </div>

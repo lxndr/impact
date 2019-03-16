@@ -15,11 +15,11 @@ import {
 import {
   useBehaviorSubject,
   useRouter,
-  albumCover,
   backend,
   window,
 } from '../../services';
 
+import defaultAlbumImage from '../../assets/album.svg';
 import style from '../../style';
 import messages from '../../messages';
 import Button from './button';
@@ -39,6 +39,7 @@ const formatDisplayedInfo = (track, intl) => {
     return {
       title: '',
       album: '',
+      image: defaultAlbumImage,
     };
   }
 
@@ -49,6 +50,7 @@ const formatDisplayedInfo = (track, intl) => {
   return {
     title,
     album: intl.formatMessage(messages.playback.fromAlbum, { artist, album }),
+    image: track.images.length ? track.images[0].path : defaultAlbumImage,
   };
 };
 
@@ -120,7 +122,7 @@ const Header = ({ intl }) => {
         title={intl.formatMessage(messages.window.preferences)}
       />
 
-      <img className="cover" alt="Album cover" src={albumCover.forTrack(track)} />
+      <img className="cover" alt="Album cover" src={displayedInfo.image} />
       <div className="title">{displayedInfo.title}</div>
       <div className="album">{displayedInfo.album}</div>
       <Seeker duration={track ? track.duration : 0} />

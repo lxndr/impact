@@ -2,12 +2,13 @@ import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatDate } from '../../utils';
 import messages from '../../messages';
+import defaultAlbumImage from '../../assets/album.svg';
 import AlbumDisc from './album-disc';
-import { albumCover } from '../../services';
 
 /**
- * @typedef {import('../../../common/types').Album} AlbumType
- * @typedef {import('../../../common/types').Track} Track
+ * @typedef {import('common/types').Track} Track
+ * @typedef {import('common/types').Disc} Disc
+ * @typedef {import('common/types').Album} AlbumType
  */
 
 /**
@@ -45,44 +46,61 @@ const Title = ({ title }) => {
  * @param {?Track} props.playingTrack
  * @param {(track: Track) => void} props.onSelect
  */
-const Album = ({ album, playingTrack = null, onSelect }) => (
-  <div className="album">
-    <div className="header">
-      <div>
-        <div className="title-edition">
-          <Title title={album.title} />
+const Album = ({ album, playingTrack = null, onSelect }) => {
+  /** @type {?string} */
+  let lastImage = null;
 
-          {album.edition
-            && <span className="edition">{` (${album.edition})`}</span>}
+  /** @param {Disc} disc */
+  const getDiscImage = (disc) => {
+    const albumImage = disc.images.length ? disc.images[0].path : null;
+
+    if (albumImage === lastImage) {
+      return lastImage ? null : defaultAlbumImage;
+    }
+
+    lastImage = albumImage;
+    return albumImage;
+  };
+
+  return (
+    <div className="album">
+      <div className="header">
+        <div>
+          <div className="title-edition">
+            <Title title={album.title} />
+
+            {album.edition
+              && <span className="edition">{` (${album.edition})`}</span>}
+          </div>
+        </div>
+
+        <div>
+          {album.releaseDate && (
+            <div className="release-date">{formatDate(album.releaseDate)}</div>
+          )}
+          {album.publisher && (
+            <div className="publisher">{formatPublisher(album)}</div>
+          )}
         </div>
       </div>
 
-      <div>
-        {album.releaseDate && (
-          <div className="release-date">{formatDate(album.releaseDate)}</div>
-        )}
-        {album.publisher && (
-          <div className="publisher">{formatPublisher(album)}</div>
-        )}
-      </div>
+      {album.discs.map((disc) => {
+        const showTitle = Boolean(disc.title || album.discs.length > 1);
+        const image = getDiscImage(disc);
+
+        return (
+          <AlbumDisc
+            key={disc._id}
+            disc={disc}
+            showTitle={showTitle}
+            image={image}
+            playingTrack={playingTrack}
+            onSelect={onSelect}
+          />
+        );
+      })}
     </div>
-
-    {album.discs.map((disc) => {
-      const showTitle = Boolean(disc.title || album.discs.length > 1);
-      const image = albumCover.forDisc(disc);
-
-      return (
-        <AlbumDisc
-          key={disc._id}
-          disc={disc}
-          showTitle={showTitle}
-          image={image}
-          playingTrack={playingTrack}
-          onSelect={onSelect}
-        />
-      );
-    })}
-  </div>
-);
+  );
+};
 
 export default React.memo(Album);

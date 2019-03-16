@@ -58,17 +58,17 @@ const formAlbumList = ({
   const fetchFile = _id => R.find(dbfile => dbfile._id === _id, dbfiles);
 
   /**
+   * @param {DbAlbum} dbalbum
    * @param {Album} album
-   * @param {string} discId
    * @returns {Track[]}
    */
-  const fetchTracks = (album, discId) => (
+  const fetchTracks = (dbalbum, album) => (
     R.pipe(
-      R.filter(R.propEq('album', discId)),
+      R.filter(R.propEq('album', dbalbum._id)),
       R.sortBy(R.prop('number')),
       R.map(({ file, index, ...track }) => ({
         ...track,
-        images: fetchImages(track.images),
+        images: fetchImages([...track.images, ...dbalbum.images]),
         file: fetchFile(file),
         index: fetchFile(index),
         album,
@@ -108,14 +108,17 @@ const formAlbumList = ({
     let disc = R.find(R.propEq('number', discNumber), album.discs);
 
     if (!disc) {
-      const tracks = fetchTracks(album, _id);
+      const tracks = fetchTracks(dbalbum, album);
       const duration = calcDuration(tracks);
+
+      const trackImages = tracks.flatMap(R.prop('images'));
+      const discImages = fetchImages(images).concat(trackImages);
 
       disc = {
         _id,
         number: discNumber,
         title: discTitle,
-        images: fetchImages(images),
+        images: R.uniqBy(R.prop('_id'), discImages),
         duration,
         tracks,
       };
