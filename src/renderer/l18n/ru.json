@@ -1,11 +1,18 @@
 {
+  "generic.save": "Сохранить",
+  "generic.back": "Назад",
+
   "playback.prev": "Предыдущий трек",
   "playback.play": "Воспроизвести",
   "playback.pause": "Пауза",
   "playback.next": "Следующий трек",
+  "playback.fromAlbum": "исполняет {artist} из {album}",
 
   "preferences.libraryPath": "Директории",
-  "prefernces.save": "Сохранить",
-  "prefernces.back": "Назад",
-  "prefernces.updateLibrary": "Обновить библиотеку"
+  "preferences.updateLibrary": "Обновить библиотеку",
+  "preferences.clearLibrary": "Очистить библиотеку",
+
+  "generic.unknownTrack": "Неизвестный трек",
+  "generic.unknownAlbum": "Неизвестный альбом",
+  "generic.unknownArtist": "Неизвестный исполнитель"
 }

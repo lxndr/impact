@@ -15,12 +15,13 @@ import {
 import {
   useBehaviorSubject,
   useRouter,
+  albumCover,
   backend,
   window,
 } from '../../services';
 
 import style from '../../style';
-import defaultAlbumCover from '../../assets/album.svg';
+import messages from '../../messages';
 import Button from './button';
 import Seeker from './seeker';
 
@@ -29,19 +30,25 @@ import Seeker from './seeker';
  * @typedef {import('common/types').Track} Track
  */
 
-/** @param {?Track} track */
-const getDisplayedTrack = (track) => {
+/**
+ * @param {?Track} track
+ * @param {InjectedIntl} intl
+ */
+const formatDisplayedInfo = (track, intl) => {
   if (!track) {
-    return null;
+    return {
+      title: '',
+      album: '',
+    };
   }
 
-  const artist = track.album.artist || 'Unknown artist';
-  const album = track.album.title || 'Unknown album';
+  const title = track.title || intl.formatMessage(messages.library.unknownTrack);
+  const artist = track.album.artist || intl.formatMessage(messages.library.unknownArtist);
+  const album = track.album.title || intl.formatMessage(messages.library.unknownAlbum);
 
   return {
-    title: track.title || 'Unknown title',
-    album: `by ${artist} from ${album}`,
-    duration: track.duration,
+    title,
+    album: intl.formatMessage(messages.playback.fromAlbum, { artist, album }),
   };
 };
 
@@ -51,101 +58,79 @@ const getDisplayedTrack = (track) => {
  */
 const Header = ({ intl }) => {
   const { history } = useRouter();
-  const playingTrack = useBehaviorSubject(backend.playback.track$);
-  const displayedTrack = getDisplayedTrack(playingTrack);
+  const track = useBehaviorSubject(backend.playback.track$);
   const state = useBehaviorSubject(backend.playback.state$);
-
+  const displayedInfo = formatDisplayedInfo(track, intl);
   const showPreferences = () => history.push('/preferences');
-
   const playing = state === 'playing';
 
   return (
     <div className={style('app-header')}>
       <Button
         className="prev"
+        disabled={!track}
         onClick={() => backend.playback.previous()}
         icon={faBackward}
-        title={intl.formatMessage({
-          id: 'playback.prev',
-          defaultMessage: 'Previous track',
-        })}
+        title={intl.formatMessage(messages.playback.prev)}
       />
 
       <Button
         className="play"
+        disabled={!track}
         onClick={() => backend.playback.toggle()}
         icon={playing ? faPause : faPlay}
-        title={intl.formatMessage({
-          id: playing ? 'playback.pause' : 'playback.play',
-          defaultMessage: playing ? 'Puase' : 'Play',
-        })}
+        title={intl.formatMessage(playing
+          ? messages.playback.pause
+          : messages.playback.play)}
       />
 
       <Button
         className="next"
+        disabled={!track}
         onClick={() => backend.playback.next()}
         icon={faForward}
-        title={intl.formatMessage({
-          id: 'playback.next',
-          defaultMessage: 'Next track',
-        })}
+        title={intl.formatMessage(messages.playback.next)}
       />
 
       <Button
         className="wmin"
         onClick={window.minimize}
         icon={faWindowMinimize}
-        title={intl.formatMessage({
-          id: 'window.minimize',
-          defaultMessage: 'Minimize window',
-        })}
+        title={intl.formatMessage(messages.window.minimize)}
       />
 
       <Button
         className="wmax"
         onClick={window.toggle}
         icon={faWindowMaximize}
-        title={intl.formatMessage({
-          id: 'window.maximize',
-          defaultMessage: 'Maximize window',
-        })}
+        title={intl.formatMessage(messages.window.maximize)}
       />
 
       <Button
         className="wcls"
         onClick={window.close}
         icon={faWindowClose}
-        title={intl.formatMessage({
-          id: 'window.close',
-          defaultMessage: 'Close',
-        })}
+        title={intl.formatMessage(messages.window.close)}
       />
 
       <Button
         className="pref"
         onClick={showPreferences}
         icon={faCog}
-        title={intl.formatMessage({
-          id: 'header.preferences',
-          defaultMessage: 'Preferences',
-        })}
+        title={intl.formatMessage(messages.window.preferences)}
       />
 
-      {displayedTrack && (
-        <>
-          <img className="cover" alt="Album cover" src={defaultAlbumCover} />
+      <img className="cover" alt="Album cover" src={albumCover.forTrack(track)} />
 
-          <div className="title">
-            {displayedTrack.title}
-          </div>
+      <div className="title">
+        {displayedInfo.title}
+      </div>
 
-          <div className="album">
-            {displayedTrack.album}
-          </div>
+      <div className="album">
+        {displayedInfo.album}
+      </div>
 
-          <Seeker duration={displayedTrack.duration} />
-        </>
-      )}
+      <Seeker duration={track ? track.duration : 0} />
     </div>
   );
 };

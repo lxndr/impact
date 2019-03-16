@@ -9,7 +9,7 @@ import {
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import mpv from './mpv';
 
-export { mpv };
+export { mpv }; // eslint-disable-line import/prefer-default-export
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 

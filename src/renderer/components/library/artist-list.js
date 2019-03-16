@@ -28,4 +28,4 @@ const ArtistList = ({
   </div>
 );
 
-export default ArtistList;
+export default React.memo(ArtistList);

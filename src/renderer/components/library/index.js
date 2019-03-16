@@ -113,4 +113,4 @@ const Library = ({ match }) => {
   );
 };
 
-export default Library;
+export default React.memo(Library);

@@ -3,6 +3,7 @@ import { FormattedMessage, injectIntl } from 'react-intl';
 import { Form, Field } from '../form';
 import style from '../../style';
 import { backend, useRouter } from '../../services';
+import messages from '../../messages';
 
 /**
  * @typedef {import('react-intl').InjectedIntl} InjectedIntl
@@ -29,29 +30,26 @@ const Preferences = ({ intl }) => {
       <Form value={value} onChange={setValue} onSubmit={handleSubmit}>
         <Field
           name="libraryPath"
-          label={intl.formatMessage({
-            id: 'preferences.libraryPath',
-            defaultMessage: 'Music library path',
-          })}
+          label={intl.formatMessage(messages.preferences.libraryPath)}
         />
 
         <div className="action-bar">
           <button type="button" onClick={handleBack}>
-            <FormattedMessage id="prefernces.back" defaultMessage="Back" />
+            <FormattedMessage {...messages.generic.back} />
           </button>
 
           <button type="submit" onSubmit={handleBack}>
-            <FormattedMessage id="prefernces.save" defaultMessage="Save" />
+            <FormattedMessage {...messages.generic.save} />
           </button>
         </div>
       </Form>
 
       <button className="update-library" type="button" onClick={handleUpdateLibrary}>
-        <FormattedMessage id="prefernces.updateLibrary" defaultMessage="Update library" />
+        <FormattedMessage {...messages.preferences.updateLibrary} />
       </button>
 
       <button className="clear-library" type="button" onClick={handleClearLibrary}>
-        <FormattedMessage id="prefernces.clearLibrary" defaultMessage="Clear libray" />
+        <FormattedMessage {...messages.preferences.clearLibrary} />
       </button>
     </div>
   );

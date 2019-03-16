@@ -14,10 +14,18 @@ import AlbumTrack from './album-track';
 const AlbumTrackList = ({ tracks, playingTrack, onSelect }) => (
   <ul className="track-list">
     {tracks.map((track) => {
-      const playing = Boolean(playingTrack && playingTrack._id === track._id);
-      return <AlbumTrack key={track._id} track={track} playing={playing} onClick={onSelect} />;
+      const selected = Boolean(playingTrack && playingTrack._id === track._id);
+
+      return (
+        <AlbumTrack
+          key={track._id}
+          track={track}
+          selected={selected}
+          onClick={() => onSelect(track)}
+        />
+      );
     })}
   </ul>
 );
 
-export default AlbumTrackList;
+export default React.memo(AlbumTrackList);

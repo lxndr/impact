@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
 import { formatDate } from '../../utils';
+import messages from '../../messages';
 import AlbumDisc from './album-disc';
 
 /**
@@ -32,7 +33,7 @@ const Title = ({ title }) => {
 
   return (
     <span className="title unknown">
-      <FormattedMessage id="library.unknownAlbum" defaultMessage="Unknown album" />
+      <FormattedMessage {...messages.library.unknownAlbum} />
     </span>
   );
 };
@@ -43,7 +44,7 @@ const Title = ({ title }) => {
  * @param {?Track} props.playingTrack
  * @param {(track: Track) => void} props.onSelect
  */
-const Album = ({ album, playingTrack, onSelect }) => (
+const Album = ({ album, playingTrack = null, onSelect }) => (
   <div className="album">
     <div className="header">
       <div>
@@ -81,8 +82,4 @@ const Album = ({ album, playingTrack, onSelect }) => (
   </div>
 );
 
-Album.defaultProps = {
-  playingTrack: null,
-};
-
-export default Album;
+export default React.memo(Album);
