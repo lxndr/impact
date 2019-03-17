@@ -67,10 +67,12 @@ export default class MpvPlayer extends EventEmitter {
     });
 
     this.mpv.observe('duration', (/** @type {number} */ secs) => {
+      if (!this._loaded) return;
       this._duration = secs;
     });
 
     this.mpv.observe('time-pos', (/** @type {number} */ secs) => {
+      if (!this._loaded) return;
       this._position = secs;
       this.emit('position', secs);
     });
