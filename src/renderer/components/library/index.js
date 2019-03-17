@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { throttleTime } from 'rxjs/operators';
+import { backend, getTracksFromAlbums } from '../../services';
+import { useBehaviorSubject } from '../../utils';
 import style from '../../style';
 import Empty from './empty';
 import ArtistList from './artist-list';
 import AlbumList from './album-list';
-
-import {
-  backend,
-  getTracksFromAlbums,
-  useBehaviorSubject,
-} from '../../services';
 
 /**
  * @typedef {import('react-router').match} Match

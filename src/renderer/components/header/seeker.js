@@ -1,5 +1,6 @@
 import React from 'react';
-import { backend, useBehaviorSubject } from '../../services';
+import { backend } from '../../services';
+import { useBehaviorSubject } from '../../utils';
 
 /**
  * @callback SeekCallback
