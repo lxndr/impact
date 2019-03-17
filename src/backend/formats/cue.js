@@ -1,10 +1,12 @@
-import _ from 'lodash';
+import R from 'ramda';
 import fs from 'fs-extra';
 import path from 'path';
 import globby from 'globby';
+import { mapRight } from '../utils';
 
 /**
  * @typedef {import('common/types').InspectAlbum} InspectAlbum
+ * @typedef {import('common/types').InspectTrack} InspectTrack
  * @typedef {import('common/types').FileHandler} FileHandler
  */
 
@@ -85,11 +87,10 @@ export function parse(str) {
   str
     .split(/\r?\n/)
     .forEach((line) => {
-      const args = _(line)
+      const args = line
         .split('"')
         .flatMap((v, i) => (i % 2 ? v : v.split(' ')))
-        .filter(Boolean)
-        .value();
+        .filter(Boolean);
 
       if (args.length < 1) {
         return;
@@ -213,7 +214,9 @@ export default async function cueHandler({ file, scanner }) {
   for (const f of info.files) {
     const mediaPath = path.resolve(dir, f.name);
     const mediaInfo = await scanner.inspect(mediaPath);
-    const mediaTrack = _.get(mediaInfo, '[0].tracks[0]');
+
+    /** @type {InspectTrack | undefined} */
+    const mediaTrack = R.path([0, 'tracks', 0], mediaInfo);
 
     if (!mediaTrack) {
       throw new Error(`Cue file "${file.path}" has FILE field "${mediaPath}" which is not a media file.`);
@@ -221,33 +224,29 @@ export default async function cueHandler({ file, scanner }) {
 
     let totalDuration = mediaTrack.duration;
 
-    const tracks = f.tracks
-      .slice()
-      .reverse()
-      .map((track) => {
-        const indexes = _.sortBy(track.indexes, 'index');
-        const offset = indexes.length ? indexes[0].time : 0;
-        const duration = totalDuration - offset;
-        totalDuration = offset;
+    const tracks = mapRight(f.tracks, (track) => {
+      const indexes = track.indexes.sort((a, b) => a.index - b.index);
+      const offset = indexes.length ? indexes[0].time : 0;
+      const duration = totalDuration - offset;
+      totalDuration = offset;
 
-        return {
-          number: track.number,
-          title: track.title,
-          artists: [track.performer],
-          genre,
-          offset,
-          duration,
-          index: {
-            ...file,
-            type: 'index',
-          },
-          file: mediaTrack.file,
-          images: mediaTrack.images,
-          nChannels: mediaTrack.nChannels,
-          sampleRate: mediaTrack.sampleRate,
-        };
-      })
-      .reverse();
+      return {
+        number: track.number,
+        title: track.title,
+        artists: [track.performer],
+        genre,
+        offset,
+        duration,
+        index: {
+          ...file,
+          type: 'index',
+        },
+        file: mediaTrack.file,
+        images: mediaTrack.images,
+        nChannels: mediaTrack.nChannels,
+        sampleRate: mediaTrack.sampleRate,
+      };
+    });
 
     album.tracks.push(...tracks);
   }

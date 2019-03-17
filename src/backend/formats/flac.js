@@ -1,5 +1,5 @@
 /* eslint-disable no-bitwise */
-import _ from 'lodash';
+import R from 'ramda';
 import fs from 'fs-extra';
 import promiseAll from 'p-map';
 import readVorbisComment from './vorbis';
@@ -154,7 +154,7 @@ export async function read(fd) {
   const blocks = await readBlocks(fd);
 
   /* stream info */
-  const streamInfoBlock = _.find(blocks, { type: BlockType.STREAM_INFO });
+  const streamInfoBlock = blocks.find(R.propEq('type', BlockType.STREAM_INFO));
 
   if (!streamInfoBlock) {
     throw new Error('Could not find stream info block.');
@@ -164,17 +164,17 @@ export async function read(fd) {
   const streamInfo = readStreamInfo(streamInfoBuffer);
 
   /* vorbis comment */
-  const vorbisCommentBlocks = _.filter(blocks, { type: BlockType.VORBIS_COMMENT });
+  const vorbisCommentBlocks = blocks.filter(R.propEq('type', BlockType.VORBIS_COMMENT));
   const tagList = await promiseAll(vorbisCommentBlocks, async (block) => {
     const buf = await readBlockData(fd, block);
     return readVorbisComment(buf);
   });
 
   /** @type {VorbisTags} */
-  const tags = _.assign({}, ...tagList);
+  const tags = R.mergeAll(tagList);
 
   /* pictures */
-  const pictureBlocks = _.filter(blocks, { type: BlockType.PICTURE });
+  const pictureBlocks = blocks.filter(R.propEq('type', BlockType.PICTURE));
   const images = await promiseAll(pictureBlocks, async (block) => {
     const buf = await readBlockData(fd, block);
     return readImage(buf);
@@ -198,7 +198,7 @@ export default async function flacHandler({ file }) {
   await fs.close(fd);
 
   /** @type {string[]} */
-  const artists = _.uniq(
+  const artists = R.uniq(
     [tags.albumArtist]
       .concat(tags.artists, tags.artist)
       .filter(Boolean),
