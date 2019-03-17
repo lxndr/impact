@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import path from 'path';
+import R from 'ramda';
+import pathUtils from 'path';
 import globby from 'globby';
 import fs from 'fs-extra';
-import debug from 'debug';
+import Queue from 'p-queue';
 import { extname } from './utils';
 import handleCue from './formats/cue';
 import handleFlac from './formats/flac';
@@ -22,8 +22,6 @@ import handleWavPack from './formats/wavpack';
  * @prop {FileHandler} handler
  */
 
-const log = debug('impact:scanner');
-
 export default class Scanner {
   /** @type {Format[]} */
   formats = []
@@ -36,6 +34,8 @@ export default class Scanner {
   constructor({ configuration, collection }) {
     this.configuration = configuration;
     this.collection = collection;
+    this.queue = new Queue({ concurrency: 1 });
+    this.working = false;
 
     this.registerFormat('flac', handleFlac);
     this.registerFormat('ape', handleApe);
@@ -52,27 +52,33 @@ export default class Scanner {
   }
 
   async update() {
+    if (this.working) {
+      return;
+    }
+
+    this.working = true;
+
     const { changed, removed } = await this.findChangedFiles();
 
-    while (changed.length > 0) {
-      const file = changed[0];
-
+    this.queue.addAll(changed.map(file => async () => {
       try {
-        const files = await this.processChangedFile(file.path);
-        _.pullAllBy(changed, files, 'path');
+        await this.processChangedFile(file.path);
       } catch (error) {
         console.error(error.message);
-        _.pullAllBy(changed, [file], 'path');
       }
-    }
+    }));
 
-    while (removed.length > 0) {
-      const file = removed[0];
-      await this.collection.removeFile(file);
-      _.pullAllBy(removed, [file], 'path');
-    }
+    this.queue.addAll(removed.map(file => async () => {
+      try {
+        await this.collection.removeFile(file);
+      } catch (error) {
+        console.error(error.message);
+      }
+    }));
 
+    await this.queue.onIdle();
     await this.collection.correct();
+    this.working = false;
   }
 
   async findChangedFiles() {
@@ -80,14 +86,12 @@ export default class Scanner {
     const removed = [];
 
     const directories = this.configuration.libararyPath;
-    const exts = _(this.formats).map('ext').join('|');
-    const patterns = directories.map(directory => path.join(directory, '**', `*.(${exts})`));
+    const exts = this.formats.map(format => format.ext).join('|');
+    const patterns = directories.map(directory => pathUtils.join(directory, '**', `*.(${exts})`));
     const files = await globby(patterns, { onlyFiles: true });
     const dbfiles = await this.collection.files();
 
     for (const dbfile of dbfiles) {
-      _.pull(files, dbfile.path);
-
       try {
         const st = await fs.stat(dbfile.path);
 
@@ -99,9 +103,8 @@ export default class Scanner {
       }
     }
 
-    for (const path of files) {
-      changed.push({ path });
-    }
+    const added = R.differenceWith((path, file) => path === file.path, files, dbfiles);
+    added.forEach(path => changed.push({ path }));
 
     return { changed, removed };
   }
@@ -127,8 +130,6 @@ export default class Scanner {
    * @param {string} filename
    */
   async inspect(filename) {
-    log(`inspecting ${filename}`);
-
     const ext = extname(filename);
     const st = await fs.stat(filename);
     const format = this.formats.find(format => format.ext === ext);
