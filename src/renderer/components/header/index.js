@@ -14,10 +14,13 @@ import {
 
 import {
   useBehaviorSubject,
-  useRouter,
   backend,
   window,
 } from '../../services';
+
+import {
+  useRouter,
+} from '../../utils';
 
 import defaultAlbumImage from '../../assets/album.svg';
 import style from '../../style';

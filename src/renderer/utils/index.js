@@ -1,3 +1,3 @@
 export { default as formatDate } from './format-date';
 export { default as formatDuration } from './format-duration';
-export { default as useObservable } from './use-observable';
+export { default as useRouter } from './use-router';

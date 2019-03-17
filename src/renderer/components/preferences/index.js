@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Form, Field } from '../form';
 import style from '../../style';
-import { backend, useRouter } from '../../services';
+import { backend } from '../../services';
+import { useRouter } from '../../utils';
 import messages from '../../messages';
 
 /**
@@ -15,10 +16,12 @@ import messages from '../../messages';
  */
 const Preferences = ({ intl }) => {
   const [value, setValue] = useState({
-    libraryPath: '',
+    libraryPath: backend.configuration.libararyPath,
   });
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    backend.configuration.set(value);
+  };
 
   const { history } = useRouter();
   const handleBack = () => history.goBack();
