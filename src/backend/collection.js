@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import R from 'ramda';
 import path from 'path';
 import fs from 'fs-extra';
 import crypto from 'crypto';
@@ -6,6 +6,7 @@ import debug from 'debug';
 import { Subject } from 'rxjs';
 import promiseAll from 'p-map';
 import formAlbumList from './collection.albums';
+import { onlyUnique, defaults } from './utils';
 
 /**
  * @typedef {import('rxjs').Observable} Observable
@@ -67,7 +68,7 @@ export default class Collection {
 
   async correctIndexedTracks() {
     const tracksWithIndex = await this.database.tracks.find({ index: { $ne: null } });
-    const fileIds = _(tracksWithIndex).map('file').uniq().value();
+    const fileIds = tracksWithIndex.map(R.prop('file')).filter(onlyUnique);
 
     const nRemoved = await this.database.tracks.remove({
       file: { $in: fileIds },
@@ -79,7 +80,7 @@ export default class Collection {
 
   async correctTracks() {
     const files = await this.database.files.find({});
-    const fileIds = _.map(files, '_id');
+    const fileIds = files.map(R.prop('_id'));
 
     const nRemoved = await this.database.tracks.remove({
       $or: [
@@ -169,13 +170,11 @@ export default class Collection {
    * @returns {Promise<(string | null)[]>}
    */
   async artists() {
-    const albums = await this.database.albums.find({});
-
-    return _(albums)
-      .map('artist')
-      .uniq()
-      .sort()
-      .value();
+    const albums = await this.database.albums.find();
+    return albums
+      .map(R.prop('artist'))
+      .filter(onlyUnique)
+      .sort(R.ascend(R.identity));
   }
 
   /**
@@ -184,17 +183,17 @@ export default class Collection {
   async albumsByArtist(artist) {
     const dbalbums = await this.database.albums.find({ artist });
 
-    const albumIds = _.map(dbalbums, '_id');
+    const albumIds = dbalbums.map(R.prop('_id'));
     const dbtracks = await this.database.tracks.find({ album: { $in: albumIds } });
 
-    const albumImageIds = _.flatMap(dbalbums, 'images');
-    const trackImageIds = _.flatMap(dbtracks, 'images');
-    const imageIds = _.uniq([...albumImageIds, ...trackImageIds]);
+    const albumImageIds = dbalbums.flatMap(R.prop('images'));
+    const trackImageIds = dbtracks.flatMap(R.prop('images'));
+    const imageIds = R.uniq([...albumImageIds, ...trackImageIds]);
     const dbimages = await this.database.images.find({ _id: { $in: imageIds } });
 
-    const mediaIds = _.map(dbtracks, 'file');
-    const indexIds = _.map(dbtracks, 'index');
-    const fileIds = _.uniq([...mediaIds, ...indexIds]);
+    const mediaIds = dbtracks.map(R.prop('file'));
+    const indexIds = dbtracks.map(R.prop('index'));
+    const fileIds = R.uniq([...mediaIds, ...indexIds]);
     const dbfiles = await this.database.files.find({ _id: { $in: fileIds } });
 
     return formAlbumList({
@@ -215,9 +214,9 @@ export default class Collection {
       : [];
 
     /** @type {NewDbAlbum} */
-    const newAlbum = _.defaults({
+    const newAlbum = defaults({
       ...album,
-      images: _.map(images, '_id'),
+      images: images.map(R.prop('_id')),
     }, {
       artist: null,
       title: null,
@@ -235,7 +234,7 @@ export default class Collection {
       newAlbum.releaseDate = newAlbum.originalDate;
     }
 
-    const query = _.pick(newAlbum, [
+    const query = R.pick([
       'artist',
       'title',
       'releaseDate',
@@ -244,7 +243,7 @@ export default class Collection {
       'discTitle',
       'publisher',
       'catalogId',
-    ]);
+    ], newAlbum);
 
     const existingAlbum = await this.database.albums.findOne(query);
 
@@ -326,9 +325,9 @@ export default class Collection {
       : [];
 
     /** @type {NewDbTrack} */
-    const dbtrack = _.defaults({
+    const dbtrack = defaults({
       ...track,
-      images: _.map(images, '_id'),
+      images: images.map(R.prop('_id')),
       file: dbfile._id,
       index: dbindex ? dbindex._id : null,
       album: dbalbum._id,
