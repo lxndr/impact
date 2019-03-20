@@ -3,10 +3,6 @@ import Artist from './artist';
 import style from '../../style';
 
 /**
- * @typedef {import('react-router').match} Match
- */
-
-/**
  * @param {object} props
  * @param {string?[]} props.artists
  * @param {string?} props.selectedArtist
