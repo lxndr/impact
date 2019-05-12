@@ -1,5 +1,9 @@
 {
+  "generic.add": "Добавить",
+  "generic.remove": "Удалить",
+  "generic.edit": "Правка",
   "generic.save": "Сохранить",
+  "generic.cancel": "Отмена",
   "generic.back": "Назад",
 
   "playback.prev": "Предыдущий трек",

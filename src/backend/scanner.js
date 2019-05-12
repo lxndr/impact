@@ -13,7 +13,7 @@ import handleWavPack from './formats/wavpack';
  * @typedef {import('common/types').InspectFile} InspectFile
  * @typedef {import('common/types').FileHandler} FileHandler
  * @typedef {import('./configuration').default} Configuration
- * @typedef {import('./collection').default} Collection
+ * @typedef {import('./library').default} Library
  */
 
 /**
@@ -29,11 +29,11 @@ export default class Scanner {
   /**
    * @param {Object} options
    * @param {Configuration} options.configuration
-   * @param {Collection} options.collection
+   * @param {Library} options.library
    */
-  constructor({ configuration, collection }) {
+  constructor({ configuration, library }) {
     this.configuration = configuration;
-    this.collection = collection;
+    this.library = library;
     this.queue = new Queue({ concurrency: 1 });
     this.working = false;
 
@@ -70,14 +70,14 @@ export default class Scanner {
 
     this.queue.addAll(removed.map(file => async () => {
       try {
-        await this.collection.removeFile(file);
+        await this.library.removeFile(file);
       } catch (error) {
         console.error(error.message);
       }
     }));
 
     await this.queue.onIdle();
-    await this.collection.correct();
+    await this.library.correct();
     this.working = false;
   }
 
@@ -89,7 +89,7 @@ export default class Scanner {
     const exts = this.formats.map(format => format.ext).join('|');
     const patterns = directories.map(directory => pathUtils.join(directory, '**', `*.(${exts})`));
     const files = await globby(patterns, { onlyFiles: true });
-    const dbfiles = await this.collection.files();
+    const dbfiles = await this.library.files();
 
     for (const dbfile of dbfiles) {
       try {
@@ -118,7 +118,7 @@ export default class Scanner {
 
     for (const album of albums) {
       for (const track of album.tracks) {
-        await this.collection.upsertTrack(track, album);
+        await this.library.upsertTrack(track, album);
         files.push(track.file, track.index);
       }
     }

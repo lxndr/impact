@@ -10,8 +10,8 @@ export default class Playlist {
   /** @type {Track[]} */
   queue = []
 
-  constructor({ collection }) {
-    this.collection = collection;
+  constructor({ library }) {
+    this.library = library;
   }
 
   /**

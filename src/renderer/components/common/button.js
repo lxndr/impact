@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 /**
  * @param {object} props
  * @param {string} props.className
- * @param {IconProp} props.icon
+ * @param {IconProp} [props.icon]
+ * @param {string} [props.label]
  * @param {string} props.title
  * @param {boolean} [props.disabled]
  * @param {React.MouseEventHandler} props.onClick
@@ -15,6 +16,7 @@ const Button = ({
   className,
   onClick,
   icon,
+  label,
   title,
   disabled = false,
 }) => (
@@ -25,7 +27,8 @@ const Button = ({
     title={title}
     disabled={disabled}
   >
-    <FontAwesomeIcon icon={icon} />
+    {icon && <FontAwesomeIcon icon={icon} />}
+    {label}
   </button>
 );
 

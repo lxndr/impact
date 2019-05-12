@@ -19,15 +19,13 @@ const useArtists = () => {
   const [artists, setArtists] = useState(defaultArtists);
 
   const fetchArtists = () => {
-    backend.collection.artists().then((artists) => {
-      setArtists(artists);
-    });
+    backend.library.artists().then(setArtists);
   };
 
   useEffect(() => {
     fetchArtists();
 
-    const sub = backend.collection.update$
+    const sub = backend.library.update$
       .pipe(throttleTime(5000))
       .subscribe(
         () => fetchArtists(),
@@ -48,15 +46,13 @@ const useAlbums = (artist) => {
   const [albums, setAlbums] = useState(defaultAlbums);
 
   const fetchAlbums = () => {
-    backend.collection.albumsByArtist(artist).then((albums) => {
-      setAlbums(albums);
-    });
+    backend.library.albumsByArtist(artist).then(setAlbums);
   };
 
   useEffect(() => {
     fetchAlbums();
 
-    const sub = backend.collection.update$
+    const sub = backend.library.update$
       .pipe(throttleTime(5000))
       .subscribe(
         () => fetchAlbums(),

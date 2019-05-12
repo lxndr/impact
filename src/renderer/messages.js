@@ -28,7 +28,7 @@ export default {
   emptyLibrary: defineMessages({
     message: {
       id: 'emptyLibary.rmessage',
-      defaultMessage: 'Your library is empty. You need to specify path to your music collection in {link}',
+      defaultMessage: 'Your library is empty. You need to specify path to your music library in {link}',
     },
     link: {
       id: 'emptyLibrary.link',

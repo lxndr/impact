@@ -10,6 +10,7 @@ import { promiseFromCallback } from './utils';
  * @typedef {import('common/types').DbImage} DbImage
  * @typedef {import('common/types').DbAlbum} DbAlbum
  * @typedef {import('common/types').DbTrack} DbTrack
+ * @typedef {import('common/types').DbCollection} DbCollection
  * @typedef {import('./configuration').default} Configuration
  */
 
@@ -114,6 +115,9 @@ export default class Database {
   /** @type {Datastore<DbTrack>} */
   tracks = new Datastore()
 
+  /** @type {Datastore<DbCollection>} */
+  collections = new Datastore()
+
   /**
    * @param {object} options
    * @param {Configuration} options.configuration
@@ -156,6 +160,11 @@ export default class Database {
         { fieldName: 'file' },
         { fieldName: 'album' },
       ],
+    });
+
+    await this.collections.init({
+      filename: path.join(dbDirectory, 'collections.db'),
+      indices: [],
     });
   }
 }

@@ -5,8 +5,8 @@ import cn from 'classnames';
 /** @param {?string} artist */
 const createArtistUrl = artist => (
   artist
-    ? generatePath('/library/by-artist/:artist', { artist })
-    : '/library/by-artist'
+    ? generatePath('/music/by-artist/:artist', { artist })
+    : '/music/by-artist'
 );
 
 /**

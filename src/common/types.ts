@@ -127,6 +127,22 @@ export interface Album extends BaseAlbum {
   discs: Disc[];
 }
 
+interface BaseCollection {
+  _id?: Id;
+  title: string;
+  abbr: string;
+  color: string;
+}
+
+export interface DbCollection extends BaseCollection {
+  _id: Id;
+  tracks: DbTrack[];
+}
+
+export interface NewDbCollection extends BaseCollection {
+  tracks: DbTrack[];
+}
+
 export abstract class Player extends EventEmitter {
   public abstract get uri(): string | null;
   public abstract set uri(file: string | null);

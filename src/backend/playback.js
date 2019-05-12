@@ -3,7 +3,7 @@ import { Subject, BehaviorSubject } from 'rxjs';
 /**
  * @typedef {import('common/types').Track} Track
  * @typedef {import('common/types').Player} Player
- * @typedef {import('./collection').default} Collection
+ * @typedef {import('./library').default} Library
  * @typedef {import('./playlist').default} Playlist
  */
 
@@ -28,11 +28,11 @@ export default class Playback {
 
   /**
    * @param {object} options
-   * @param {Collection} options.collection
+   * @param {Library} options.library
    * @param {Player} options.player
    */
-  constructor({ collection, player }) {
-    this.collection = collection;
+  constructor({ library, player }) {
+    this.library = library;
     this.player = player;
 
     this.player.on('position', (/** @type {number} */ time) => {

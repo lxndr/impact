@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import debug from 'debug';
 import { Subject } from 'rxjs';
 import promiseAll from 'p-map';
-import formAlbumList from './collection.albums';
+import formAlbumList from './library.albums';
 import { onlyUnique, defaults } from './utils';
 
 /**
@@ -25,9 +25,9 @@ import { onlyUnique, defaults } from './utils';
  * @typedef {import('./database').default} Database
  */
 
-const log = debug('impact:collection');
+const log = debug('impact:library');
 
-export default class Collection {
+export default class Library {
   update$ = new Subject()
 
   /**
@@ -230,7 +230,7 @@ export default class Collection {
       discNumber: 1,
     });
 
-    if (newAlbum.originalDate) {
+    if (!newAlbum.releaseDate) {
       newAlbum.releaseDate = newAlbum.originalDate;
     }
 

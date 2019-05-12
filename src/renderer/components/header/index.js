@@ -17,7 +17,7 @@ import { useRouter, useBehaviorSubject } from '../../utils';
 import defaultAlbumImage from '../../assets/album.svg';
 import style from '../../style';
 import messages from '../../messages';
-import Button from './button';
+import Button from '../common/button';
 import Seeker from './seeker';
 
 /**

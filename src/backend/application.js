@@ -1,6 +1,6 @@
 import Configuration from './configuration';
 import Database from './database';
-import Collection from './collection';
+import Library from './library';
 import Scanner from './scanner';
 import Playback from './playback';
 import Playlist from './playlist';
@@ -23,18 +23,18 @@ export default class Application {
       configuration: this.configuration,
     });
 
-    this.collection = new Collection({
+    this.library = new Library({
       configuration: this.configuration,
       database: this.database,
     });
 
     this.scanner = new Scanner({
       configuration: this.configuration,
-      collection: this.collection,
+      library: this.library,
     });
 
     this.playback = new Playback({
-      collection: this.collection,
+      library: this.library,
       player,
     });
   }
@@ -47,11 +47,11 @@ export default class Application {
     }
 
     await this.database.init();
-    await this.collection.init();
+    await this.library.init();
 
-    const collectionIsEmpty = await this.collection.isEmpty();
+    const libraryIsEmpty = await this.library.isEmpty();
 
-    if (collectionIsEmpty) {
+    if (libraryIsEmpty) {
       await this.scanner.update();
     }
   }
@@ -61,6 +61,6 @@ export default class Application {
   }
 
   createPlaylist() {
-    return new Playlist({ collection: this.collection });
+    return new Playlist({ library: this.library });
   }
 }
