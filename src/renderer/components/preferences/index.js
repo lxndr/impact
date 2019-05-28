@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FormattedMessage, injectIntl } from 'react-intl';
-import { Form, Field } from '../form';
+import { Link } from 'react-router-dom';
+import { Form, Field } from '../common';
 import style from '../../style';
 import { backend } from '../../services';
 import { useRouter } from '../../utils';
@@ -26,7 +27,7 @@ const Preferences = ({ intl }) => {
   const { history } = useRouter();
   const handleBack = () => history.goBack();
   const handleUpdateLibrary = () => backend.scanner.update();
-  const handleClearLibrary = () => backend.collection.clear();
+  const handleClearLibrary = () => backend.library.clear();
 
   return (
     <div className={style('preferences')}>
@@ -54,6 +55,15 @@ const Preferences = ({ intl }) => {
       <button className="clear-library" type="button" onClick={handleClearLibrary}>
         <FormattedMessage {...messages.preferences.clearLibrary} />
       </button>
+
+      <div>
+        <br />
+        <Link to="/music/by-artist/">Music</Link>
+        <br />
+        <Link to="/pictures">Pictures</Link>
+        <br />
+        <Link to="/collections">Collections</Link>
+      </div>
     </div>
   );
 };

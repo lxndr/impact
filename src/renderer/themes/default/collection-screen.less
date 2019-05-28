@@ -1,0 +1,98 @@
+:local(.collection-screen) {
+  display: flex;
+  flex-direction: row;
+}
+
+:local(.collection-list) {
+  flex: 0 1 auto;
+  overflow: auto;
+  width: 20em;
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      a,
+      &.editor {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: black;
+        padding: 0.4em;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      .abbr {
+        padding: 0.4em;
+        border-radius: 2px;
+        background: transparent;
+        color: white;
+        width: 2em;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .title,
+      input {
+        font: @default-font;
+        flex: 1;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        margin: 0 0.4em;
+        padding: 0.3em 0;
+      }
+
+      button {
+        border: none;
+        border-radius: 3px;
+        background: none;
+        cursor: pointer;
+        padding: 0.3em;        
+        width: 1.7em;
+        height: 1.7em;
+        padding: 0;
+        vertical-align: sub;
+
+        &:hover {
+          background: #ccc;
+        }
+      }
+    }
+  }
+
+  li:hover {
+    background-color: #ccc;
+  }
+
+  li:not(.add):not(.editor):not(:hover) {
+    button {
+      display: none;
+    }
+  }
+
+  li.add {
+    background-color: transparent;
+    text-align: right;
+    padding: 0.4em;
+  }
+
+  li.selected {
+    a {
+      background: gray;
+    }
+
+    .title {
+        color: white;
+      }
+    }
+}
+
+:local(.collection-track-list) {
+  flex: 1;
+}

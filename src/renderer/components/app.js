@@ -14,8 +14,10 @@ import messages from '../l18n';
 import style from '../style';
 import Header from './header';
 import Library from './library';
+import CollectionScreen from './collection-screen';
 import { backend } from '../services';
 import Preferences from './preferences';
+import PictureScreen from './picture-screen';
 
 addLocaleData([...en, ...ru]);
 
@@ -32,8 +34,10 @@ const App = () => {
 
           <Switch>
             <Route path="/preferences" component={Preferences} />
-            <Route path="/library/by-artist/:artist?" component={Library} />
-            <Redirect to="/library/by-artist/" />
+            <Route path="/music/by-artist/:artist?" component={Library} />
+            <Route path="/pictures" component={PictureScreen} />
+            <Route path="/collections/:id?" component={CollectionScreen} />
+            <Redirect to="/music/by-artist" />
           </Switch>
         </div>
       </MemoryRouter>
